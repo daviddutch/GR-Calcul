@@ -18,7 +18,7 @@ namespace GR_Calcul.Models
 
         [Required]
         [Display(Name = "Actif")]
-        public bool Email { get; set; }
+        public bool Active { get; set; }
 
         [Required]
         [Display(Name = "Responsable")]
