@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using GR_Calcul.Models;
 
 namespace GR_Calcul.Controllers
 {
@@ -29,25 +30,31 @@ namespace GR_Calcul.Controllers
 
         public ActionResult Create()
         {
+
+            //return View(new SlotRangeFormViewModel());
+
+            ViewData["SlotDuration"] = SlotRangeModels.blabla;
+            //ViewData["SlotDuration"] = new List<SelectListItem>(SlotRangeModels.blabla);
+            //ViewData["SlotDuration"] = new List<int>(SlotRangeModels.blabla);
             return View();
+
+
+            //return View(new SlotRangeModels());
         } 
 
         //
         // POST: /SlotRange/Create
 
         [HttpPost]
-        public ActionResult Create(FormCollection collection)
+        public ActionResult Create(SlotRangeModels range)
         {
-            try
-            {
-                // TODO: Add insert logic here
-
-                return RedirectToAction("Index");
-            }
-            catch
-            {
-                return View();
-            }
+            ViewData["SlotDuration"] = SlotRangeModels.blabla;
+            //return View("Complete", range);
+            
+            if (ModelState.IsValid)
+                return View("Complete", range);
+            return View(range);
+            
         }
         
         //

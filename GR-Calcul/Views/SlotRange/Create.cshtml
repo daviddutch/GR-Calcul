@@ -6,45 +6,141 @@
 
 <h2>Create</h2>
 
-<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
-<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script type="text/javascript">
+    $(function () {
+
+        $(".wizard-step:first").fadeIn(); // show first step
+
+
+        // attach backStep button handler
+        // hide on first step
+        $("#back-step").hide().click(function () {
+            var $step = $(".wizard-step:visible"); // get current step
+            if ($step.prev().hasClass("wizard-step")) { // is there any previous step?
+                $step.hide().prev().fadeIn();  // show it and hide current step
+
+                // disable backstep button?
+                if (!$step.prev().prev().hasClass("wizard-step")) {
+                    $("#back-step").hide();
+                }
+
+            }
+        });
+
+        $("#back-step").click(function () {
+            var $step = $(".wizard-step:visible");
+            if ($step.next().hasClass("wizard-step")) {
+                $("#next-step").val("suivant");
+            }
+        });
+
+        // attach nextStep button handler       
+        $("#next-step").click(function () {
+
+            var $step = $(".wizard-step:visible"); // get current step
+
+            // enhance wizard by preventing user from navigating to next step if there are errors in validation
+            var validator = $("form").validate(); // obtain validator
+            var anyError = false;
+            $step.find("input").each(function () {
+                if (!validator.element(this)) { // validate every input element inside this step
+                    anyError = true;
+                }
+
+            });
+
+            if (anyError)
+                return false; // exit if any error found
+
+            if (!$step.next().next().hasClass("wizard-step")) {
+                $("#next-step").val("terminer");
+            }
+            /*else {
+            $("#next-step").val("suivant");
+            }*/
+            if ($step.next().hasClass("wizard-step")) { // is there any next step?
+                $step.hide().next().fadeIn();  // show it and hide current step
+                $("#back-step").show();   // recall to show backStep button
+            } else { // this is last step, submit form
+                $("form").submit();
+            }
+
+
+        });
+
+    });
+
+</script>
 
 @using (Html.BeginForm()) {
     @Html.ValidationSummary(true)
     <fieldset>
-        <legend>SlotRangeModels</legend>
+        <!-- <legend>SlotRangeModels</legend> -->
+        <div class="wizard-step">
+            <h3>Étape 1: informations sur la plage de créneaux</h3>
+            <div class="editor-label">
+                @Html.LabelFor(model => model.Name)
+            </div>
+            <div class="editor-field">
+                @Html.EditorFor(model => model.Name)
+                @Html.ValidationMessageFor(model => model.Name)
+            </div>
 
-        <div class="editor-label">
-            @Html.LabelFor(model => model.StartRes)
-        </div>
-        <div class="editor-field">
-            @Html.EditorFor(model => model.StartRes)
-            @Html.ValidationMessageFor(model => model.StartRes)
+            <div class="editor-label">
+                @Html.LabelFor(model => model.StartRes)
+            </div>
+            <div class="editor-field">
+                @Html.EditorFor(model => model.StartRes)
+                @Html.ValidationMessageFor(model => model.StartRes)
+            </div>
+
+            <div class="editor-label">
+                @Html.LabelFor(model => model.EndRes)
+            </div>
+            <div class="editor-field">
+                @Html.EditorFor(model => model.EndRes)
+                @Html.ValidationMessageFor(model => model.EndRes)
+            </div>
         </div>
 
-        <div class="editor-label">
-            @Html.LabelFor(model => model.EndRes)
-        </div>
-        <div class="editor-field">
-            @Html.EditorFor(model => model.EndRes)
-            @Html.ValidationMessageFor(model => model.EndRes)
+        <div class="wizard-step">
+            <h3>Étape 2: définition des créneaux</h3>
+
+            <div class="editor-label">
+                @Html.LabelFor(model => model.Beginning)
+            </div>
+            <div class="editor-field">
+                @Html.EditorFor(model => model.Beginning)
+                @Html.ValidationMessageFor(model => model.Beginning)
+            </div>
+
+            <div class="editor-label">
+                @Html.LabelFor(model => model.SlotDuration)
+            </div>
+            <div class="editor-field">    
+                @Html.DropDownList("SlotDuration", new SelectList((System.Collections.IEnumerable)ViewData["SlotDuration"], "Text", "Value")) heures           
+                @Html.ValidationMessageFor(model => model.SlotDuration)
+            </div>
+
+            <div class="editor-label">
+                @Html.LabelFor(model => model.NumberOfSlots)
+            </div>
+            <div class="editor-field">
+                @Html.EditorFor(model => model.NumberOfSlots)
+                @Html.ValidationMessageFor(model => model.NumberOfSlots)
+            </div>
         </div>
 
-        <div class="editor-label">
-            @Html.LabelFor(model => model.Name)
-        </div>
-        <div class="editor-field">
-            @Html.EditorFor(model => model.Name)
-            @Html.ValidationMessageFor(model => model.Name)
+        <div class="wizard-step">
+            <h3>Étape 3: choix des créneaux</h3>
+
         </div>
 
         <p>
-            <input type="submit" value="Create" />
+            <input type="button" id="back-step" name="back-step" value="Précédent" />
+            <input type="button" id="next-step" name="next-step" value="Suivant" />
         </p>
     </fieldset>
 }
 
-<div>
-    @Html.ActionLink("Back to List", "Index")
-</div>
 

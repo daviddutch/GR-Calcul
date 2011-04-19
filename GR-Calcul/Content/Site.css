@@ -310,3 +310,7 @@ form label{
 .machines li ul li{
 	background:#ccc;
 }
+
+.wizard-step{
+    display:none;
+}
