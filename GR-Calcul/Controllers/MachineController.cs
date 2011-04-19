@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using GR_Calcul.Models;
 
 namespace GR_Calcul.Controllers
 {
@@ -13,7 +14,21 @@ namespace GR_Calcul.Controllers
 
         public ActionResult Index()
         {
-            return View();
+            List<MachineModel> articles = new List<MachineModel>();
+
+            MachineModel article1 = new MachineModel();
+            article1.Name = "First Machine";
+            article1.IP = "192.168.1.1";
+
+            articles.Add(article1);
+
+            MachineModel article2 = new MachineModel();
+            article2.Name = "Second Machine";
+            article2.IP = "192.168.1.2";
+
+            articles.Add(article2);
+
+            return View(articles);
         }
 
         //
@@ -76,13 +91,13 @@ namespace GR_Calcul.Controllers
             }
         }
 
-        //
-        // GET: /Machine/Delete/5
+        ////
+        //// GET: /Machine/Delete/5
  
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
+        //public ActionResult Delete(int id)
+        //{
+        //    return View();
+        //}
 
         //
         // POST: /Machine/Delete/5

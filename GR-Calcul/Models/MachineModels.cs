@@ -6,7 +6,17 @@ using System.ComponentModel.DataAnnotations;
 
 namespace GR_Calcul.Models
 {
-    public class CreateMachineModel
+    public class IndexMachineModel
+    {
+
+    }
+
+    public class DetailsMachineModel
+    {
+
+    }
+    
+    public class MachineModel
     {
         // name
         [Required]
@@ -21,4 +31,13 @@ namespace GR_Calcul.Models
         public string IP { get; set; }
     }
 
+    public class EditMachineModel
+    {
+
+    }
+
+    public class DeleteMachineModel
+    {
+
+    }
 }
