@@ -41,13 +41,16 @@ namespace GR_Calcul.Models
 
     public class CourseModel
     {
+        // CD 2011-04-21: more centralized this way for adaptation between computers/developers
+        static private String connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString;
+
         public List<Course> ListCourses()
         {
             List<Course> list = new List<Course>();
 
             try
             {
-                SqlConnection db = new SqlConnection("Data Source=DAVID-VAIO\\SQLEXPRESS;Initial Catalog=GR-Calcul;integrated security=true;");
+                SqlConnection db = new SqlConnection(connectionString);
                 SqlTransaction transaction;
 
                 db.Open();
@@ -99,7 +102,7 @@ namespace GR_Calcul.Models
 
             try
             {
-                SqlConnection db = new SqlConnection("Data Source=DAVID-VAIO\\SQLEXPRESS;Initial Catalog=GR-Calcul;integrated security=true;");
+                SqlConnection db = new SqlConnection(connectionString);
                 SqlTransaction transaction;
 
                 db.Open();
@@ -147,7 +150,7 @@ namespace GR_Calcul.Models
         {
             try
             {
-                SqlConnection db = new SqlConnection("Data Source=DAVID-VAIO\\SQLEXPRESS;Initial Catalog=GR-Calcul;integrated security=true;");
+                SqlConnection db = new SqlConnection(connectionString);
                 SqlTransaction transaction;
 
                 db.Open();
@@ -201,7 +204,7 @@ namespace GR_Calcul.Models
 
             try
             {
-                SqlConnection db = new SqlConnection("Data Source=DAVID-VAIO\\SQLEXPRESS;Initial Catalog=GR-Calcul;integrated security=true;");
+                SqlConnection db = new SqlConnection(connectionString);
                 SqlTransaction transaction;
 
                 db.Open();
