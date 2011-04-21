@@ -71,7 +71,7 @@ namespace GR_Calcul.Models
                         string name = rdr.GetString(rdr.GetOrdinal("name"));
                         string key = rdr.GetString(rdr.GetOrdinal("Key"));
                         bool active = rdr.GetBoolean(rdr.GetOrdinal("active"));
-                        int id_responsible = rdr.GetInt32(rdr.GetOrdinal("id_course"));
+                        int id_responsible = rdr.GetInt32(rdr.GetOrdinal("id_responsible"));
                         int id_course = rdr.GetInt32(rdr.GetOrdinal("id_course"));
 
                         Course course = new Course(id_course, name, key,

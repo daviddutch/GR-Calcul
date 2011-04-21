@@ -25,7 +25,6 @@ namespace GR_Calcul.Controllers
 
         public ActionResult List()
         {
-
             return View(model.ListCourses());
         }
 

@@ -45,7 +45,7 @@ namespace GR_Calcul.Models
         [DataType(DataType.Date)]
         public DateTime EndRes { get; set; }
 
-        public List<MachineModel> Machines { get; set; }
+        public List<Machine> Machines { get; set; }
 
         //step2 data
         [Required]
