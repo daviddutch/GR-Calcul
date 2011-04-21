@@ -3,19 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Entity;
 
 namespace GR_Calcul.Models
-{
-    public class IndexMachineModel
-    {
-
-    }
-
-    public class DetailsMachineModel
-    {
-
-    }
-    
+{   
     public class MachineModel
     {
         // name
@@ -31,13 +22,15 @@ namespace GR_Calcul.Models
         public string IP { get; set; }
     }
 
-    public class EditMachineModel
-    {
+    //public class DeleteMachineModel
+    //{
 
-    }
+    //}
 
-    public class DeleteMachineModel
-    {
+    // These next lines don't work...
 
-    }
+    //public class MachineDbContext : DbContext
+    //{
+    //    public DbSet<MachineModel> Machines { get; set; }
+    //}
 }
