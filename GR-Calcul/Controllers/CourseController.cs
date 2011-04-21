@@ -4,17 +4,29 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using GR_Calcul.Models;
+using System.Data.SqlClient;
+using System.Data;
 
 namespace GR_Calcul.Controllers
 {
     public class CourseController : Controller
     {
+        private CourseModel model = new CourseModel();
         //
         // GET: /Course/
 
         public ActionResult Index()
         {
-            return View();
+            return RedirectToAction("List");
+        }
+
+        //
+        // GET: /Course/List
+
+        public ActionResult List()
+        {
+
+            return View(model.ListCourses());
         }
 
         //
@@ -22,7 +34,7 @@ namespace GR_Calcul.Controllers
 
         public ActionResult Details(int id)
         {
-            return View();
+            return View(model.getCourse(id));
         }
 
         //
@@ -30,45 +42,46 @@ namespace GR_Calcul.Controllers
 
         public ActionResult Create()
         {
+
             return View();
-        } 
+        }
 
         //
         // POST: /Course/Create
 
         [HttpPost]
-        public ActionResult Create(CreateCourseModel collection)
+        public ActionResult Create(Course course)
         {
             try
             {
-                // TODO: Add insert logic here
-
+                model.CreateCourse(course);
                 return RedirectToAction("Index");
             }
-            catch
+            catch (SqlException sqlError)
             {
+                Console.WriteLine(sqlError);
                 return View();
             }
         }
-        
+
         //
         // GET: /Course/Edit/5
- 
+
         public ActionResult Edit(int id)
         {
-            return View();
+
+            return View(model.getCourse(id));
         }
 
         //
         // POST: /Course/Edit/5
 
         [HttpPost]
-        public ActionResult Edit(int id, FormCollection collection)
+        public ActionResult Edit(int id, Course course)
         {
             try
             {
-                // TODO: Add update logic here
- 
+                model.UpdateCourse(course);
                 return RedirectToAction("Index");
             }
             catch
@@ -79,7 +92,7 @@ namespace GR_Calcul.Controllers
 
         //
         // GET: /Course/Delete/5
- 
+
         public ActionResult Delete(int id)
         {
             return View();
@@ -94,7 +107,7 @@ namespace GR_Calcul.Controllers
             try
             {
                 // TODO: Add delete logic here
- 
+
                 return RedirectToAction("Index");
             }
             catch

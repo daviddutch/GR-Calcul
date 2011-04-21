@@ -1,0 +1,54 @@
+﻿@model IEnumerable<GR_Calcul.Models.Course>
+
+@{
+    ViewBag.Title = "List";
+}
+
+<h2>List</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table class="simpleTable">
+<thead>
+    <tr>
+        <th></th>
+        <th>
+            Name
+        </th>
+        <th>
+            Key
+        </th>
+        <th>
+            Active
+        </th>
+        <th>
+            Responsible
+        </th>
+    </tr>
+</thead>
+<tbody>
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id=item.ID }) |
+            @Html.ActionLink("Details", "Details", new { id=item.ID }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.ID })
+        </td>
+        <td>
+            @item.Name
+        </td>
+        <td>
+            @item.Key
+        </td>
+        <td>
+            @item.Active
+        </td>
+        <td>
+            @item.Responsible
+        </td>
+    </tr>
+}
+</tbody>
+</table>
+
