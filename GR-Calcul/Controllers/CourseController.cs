@@ -84,9 +84,10 @@ namespace GR_Calcul.Controllers
                 model.UpdateCourse(course);
                 return RedirectToAction("Index");
             }
-            catch
+            catch (Exception e)
             {
-                //ViewData[""];
+
+                ViewData["error"] = e.Message;
                 return View();
             }
         }

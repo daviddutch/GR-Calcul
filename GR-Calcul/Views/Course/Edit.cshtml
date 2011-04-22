@@ -14,6 +14,13 @@
     <fieldset>
         <legend>Course</legend>
 
+        @{
+            if (ViewData["error"] != null)
+            {
+                <p style="color:Red">@ViewData["error"]</p>
+            }
+        }
+
         @Html.HiddenFor(model => model.ID)
         @Html.HiddenFor(model => Model.Timestamp)
 

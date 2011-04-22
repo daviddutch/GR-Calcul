@@ -220,6 +220,7 @@ namespace GR_Calcul.Models
 
         public void UpdateCourse(Course course)
         {
+            bool updated = true;
 
             try
             {
@@ -244,6 +245,7 @@ namespace GR_Calcul.Models
 
                     if (rdr.Read())
                     {
+                        rdr.Close();
                         cmd = new SqlCommand("UPDATE Course " +
                                                     "SET name=@name, [key]=@key, active=@active, id_responsible=@id_responsible " +
                                                     "WHERE id_course=@id;", db, transaction);
@@ -258,12 +260,10 @@ namespace GR_Calcul.Models
                     }
                     else
                     {
+                        rdr.Close();
                         Console.WriteLine("Cross modify");
+                        updated = false;
                     }
-                    rdr.Close();
-
-
-                    
 
                     transaction.Commit();
                 }
@@ -277,6 +277,7 @@ namespace GR_Calcul.Models
             {
 
             }
+            if (!updated) throw new Exception("timestamp");
         }
         public void DeleteCourse(int id)
         {
