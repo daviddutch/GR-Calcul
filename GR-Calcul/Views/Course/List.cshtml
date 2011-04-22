@@ -9,46 +9,27 @@
 <p>
     @Html.ActionLink("Create New", "Create")
 </p>
-<table class="simpleTable">
-<thead>
-    <tr>
-        <th></th>
-        <th>
-            Name
-        </th>
-        <th>
-            Key
-        </th>
-        <th>
-            Active
-        </th>
-        <th>
-            Responsible
-        </th>
-    </tr>
-</thead>
-<tbody>
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.ID }) |
-            @Html.ActionLink("Details", "Details", new { id=item.ID }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.ID })
-        </td>
-        <td>
-            @item.Name
-        </td>
-        <td>
-            @item.Key
-        </td>
-        <td>
-            @item.Active
-        </td>
-        <td>
-            @item.Responsible
-        </td>
-    </tr>
+
+
+@{
+    var grid = new WebGrid(Model);
 }
-</tbody>
-</table>
+@grid.GetHtml(
+    tableStyle: "simpleTable",
+    headerStyle: "head",
+    alternatingRowStyle: "alt",
+    
+    columns: grid.Columns(
+            grid.Column("Name", "Nom"),
+            grid.Column("Key", "Clefs"),
+            grid.Column("Active", "Actif"),
+            grid.Column("Responsible", "Responsable"),                
+            grid.Column(format: (item) =>
+                {
+                    return new HtmlString("<a href=\"" + Url.Action("Edit", new { id = item.ID }).ToString() + "\"class=\"modify\" title=\"Modifier\"></a>" +
+                                          "<a href=\"" + Url.Action("Duplicate", new { id = item.ID }).ToString() + "\"class=\"dupl\" title=\"Dupliquer\"></a>" +
+                                          "<a href=\"" + Url.Action("GenerateScript", new { id = item.ID }).ToString() + "\"class=\"script\" title=\"Générer le script pour le cours\"></a>" +
+                                          "<a href=\"" + Url.Action("Delete", new { id = item.ID }).ToString() + "\"class=\"delete\" title=\"Supprimer\"></a>");
+                }, canSort: false))
+        )
 

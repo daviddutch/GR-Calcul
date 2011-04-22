@@ -71,7 +71,7 @@ namespace GR_Calcul.Models
                         string name = rdr.GetString(rdr.GetOrdinal("name"));
                         string key = rdr.GetString(rdr.GetOrdinal("Key"));
                         bool active = rdr.GetBoolean(rdr.GetOrdinal("active"));
-                        int id_responsible = rdr.GetInt32(rdr.GetOrdinal("id_course"));
+                        int id_responsible = rdr.GetInt32(rdr.GetOrdinal("id_responsible"));
                         int id_course = rdr.GetInt32(rdr.GetOrdinal("id_course"));
 
                         Course course = new Course(id_course, name, key,
@@ -96,7 +96,7 @@ namespace GR_Calcul.Models
 
             return list;
         }
-        public Course getCourse(int id)
+        public Course GetCourse(int id)
         {
             Course course = null;
 
@@ -124,7 +124,7 @@ namespace GR_Calcul.Models
                         string name = rdr.GetString(rdr.GetOrdinal("name"));
                         string key = rdr.GetString(rdr.GetOrdinal("Key"));
                         bool active = rdr.GetBoolean(rdr.GetOrdinal("active"));
-                        int id_responsible = rdr.GetInt32(rdr.GetOrdinal("id_course"));
+                        int id_responsible = rdr.GetInt32(rdr.GetOrdinal("id_responsible"));
                         int id_course = rdr.GetInt32(rdr.GetOrdinal("id_course"));
 
                         course = new Course(id_course, name, key,
@@ -198,7 +198,6 @@ namespace GR_Calcul.Models
             }
         }
 
-
         public void UpdateCourse(Course course)
         {
 
@@ -235,6 +234,39 @@ namespace GR_Calcul.Models
             catch (SqlException sqlError)
             {
 
+            }
+        }
+        public void DeleteCourse(int id)
+        {
+            try
+            {
+                SqlConnection db = new SqlConnection(connectionString);
+                SqlTransaction transaction;
+
+                db.Open();
+
+                transaction = db.BeginTransaction(IsolationLevel.RepeatableRead);
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("DELETE FROM Course " +
+                                                    "WHERE id_course=@id;", db, transaction);
+
+                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
+
+                    cmd.ExecuteNonQuery();
+
+                    transaction.Commit();
+                }
+                catch (SqlException sqlError)
+                {
+                    Console.WriteLine(sqlError);
+                    transaction.Rollback();
+                }
+                db.Close();
+            }
+            catch (SqlException sqlError)
+            {
+                Console.WriteLine(sqlError);
             }
         }
     }

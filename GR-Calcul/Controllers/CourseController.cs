@@ -25,7 +25,7 @@ namespace GR_Calcul.Controllers
 
         public ActionResult List()
         {
-
+            
             return View(model.ListCourses());
         }
 
@@ -34,7 +34,7 @@ namespace GR_Calcul.Controllers
 
         public ActionResult Details(int id)
         {
-            return View(model.getCourse(id));
+            return View(model.GetCourse(id));
         }
 
         //
@@ -70,7 +70,7 @@ namespace GR_Calcul.Controllers
         public ActionResult Edit(int id)
         {
 
-            return View(model.getCourse(id));
+            return View(model.GetCourse(id));
         }
 
         //
@@ -89,24 +89,47 @@ namespace GR_Calcul.Controllers
                 return View();
             }
         }
+        //
+        // GET: /Course/Duplicate/5
 
+        public ActionResult Duplicate(int id)
+        {
+
+            return View(model.GetCourse(id));
+        }
+        //
+        // POST: /Course/Duplicate/5
+
+        [HttpPost]
+        public ActionResult Duplicate(Course course)
+        {
+            try
+            {
+                model.CreateCourse(course);
+                return RedirectToAction("Index");
+            }
+            catch
+            {
+                return View();
+            }
+        }
         //
         // GET: /Course/Delete/5
 
         public ActionResult Delete(int id)
         {
-            return View();
+            return View(model.GetCourse(id));
         }
 
         //
         // POST: /Course/Delete/5
 
         [HttpPost]
-        public ActionResult Delete(int id, FormCollection collection)
+        public ActionResult Delete(int id, Course course)
         {
             try
             {
-                // TODO: Add delete logic here
+                model.DeleteCourse(id);
 
                 return RedirectToAction("Index");
             }
