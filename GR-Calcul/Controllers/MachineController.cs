@@ -9,26 +9,29 @@ namespace GR_Calcul.Controllers
 {
     public class MachineController : Controller
     {
+        private MachineModel model = new MachineModel();
+
         //
         // GET: /Machine/
 
         public ActionResult Index()
         {
-            List<MachineModel> articles = new List<MachineModel>();
+            //List<Machine> articles = new List<Machine>();
 
-            MachineModel article1 = new MachineModel();
-            article1.Name = "First Machine";
-            article1.IP = "192.168.1.1";
+            //Machine article1 = new Machine();
+            //article1.Name = "First Machine";
+            //article1.IP = "192.168.1.1";
 
-            articles.Add(article1);
+            //articles.Add(article1);
 
-            MachineModel article2 = new MachineModel();
-            article2.Name = "Second Machine";
-            article2.IP = "192.168.1.2";
+            //Machine article2 = new Machine();
+            //article2.Name = "Second Machine";
+            //article2.IP = "192.168.1.2";
 
-            articles.Add(article2);
+            //articles.Add(article2);
 
-            return View(articles);
+            //return View(articles);
+            return View(model.ListMachines());
         }
 
         //
