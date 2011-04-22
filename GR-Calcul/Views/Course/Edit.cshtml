@@ -15,6 +15,7 @@
         <legend>Course</legend>
 
         @Html.HiddenFor(model => model.ID)
+        @Html.HiddenFor(model => Model.Timestamp)
 
         <div class="editor-label">
             @Html.LabelFor(model => model.Name)

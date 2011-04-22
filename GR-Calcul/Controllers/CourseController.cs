@@ -86,6 +86,7 @@ namespace GR_Calcul.Controllers
             }
             catch
             {
+                //ViewData[""];
                 return View();
             }
         }
