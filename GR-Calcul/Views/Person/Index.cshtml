@@ -1,0 +1,33 @@
+﻿@model IEnumerable<GR_Calcul.Models.Person>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+
+@{
+    var grid = new WebGrid(Model);
+}
+@grid.GetHtml(
+    tableStyle: "simpleTable",
+    headerStyle: "head",
+    alternatingRowStyle: "alt",
+    
+    columns: grid.Columns(
+        grid.Column("Type", "Type"),
+            grid.Column("FirstName", "Prénom"),
+            grid.Column("LastName", "Nom"),
+            grid.Column("Email", "Email"),
+            grid.Column("Username", "Nom d'utilisateur"),
+            grid.Column(format: (item) =>
+                {
+                    return new HtmlString("<a href=\"" + Url.Action("Edit", new { id = item.ID }).ToString() + "\"class=\"modify\" title=\"Modifier\"></a>" +
+                                          "<a href=\"" + Url.Action("Delete", new { id = item.ID }).ToString() + "\"class=\"delete\" title=\"Supprimer\"></a>");
+                }, canSort: false))
+        )
+

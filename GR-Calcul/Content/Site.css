@@ -234,7 +234,7 @@ form label{
 	.simpleTable thead .subTitle th{
 		font-size:11px;
 	}
-	.simpleTable th {
+	.simpleTable th, .simpleTable th a {
 		font-size: 14px;
 		font-weight: normal;
 		color: #fff;

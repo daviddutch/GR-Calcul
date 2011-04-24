@@ -3,17 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using GR_Calcul.Models;
 
 namespace GR_Calcul.Controllers
 {
     public class PersonController : Controller
     {
+        private PersonModel model = new PersonModel();
         //
         // GET: /Person/
 
         public ActionResult Index()
         {
-            return View();
+            return View(model.ListPerson());
         }
 
         //

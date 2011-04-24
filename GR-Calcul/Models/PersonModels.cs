@@ -125,5 +125,74 @@ namespace GR_Calcul.Models
 
             return list;
         }
+
+        public List<Person> ListPerson()
+        {
+            List<Person> list = new List<Person>();
+
+            try
+            {
+                SqlConnection db = new SqlConnection(connectionString);
+                SqlTransaction transaction;
+
+                db.Open();
+
+                transaction = db.BeginTransaction(IsolationLevel.ReadCommitted);
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("SELECT RM.id_manager as id_person, RM.email, RM.firstname, RM.lastname, RM.username, 'RM' AS pType " +
+                                                    "FROM ResourceManager RM " +
+                                                    "UNION SELECT R.id_responsible, R.email, R.firstname, R.lastname, R.username, 'RE' AS pType FROM Responsible R " +
+                                                    "UNION SELECT U.id_user, U.email, U.firstname, U.lastname, U.username, 'US' AS pType FROM [User] U " +
+                                                    "ORDER BY RM.firstname;", db, transaction);
+
+
+                    SqlDataReader rdr = cmd.ExecuteReader();
+
+                    while (rdr.Read())
+                    {
+                        //string coltype = rdr.GetFieldType(rdr.GetOrdinal("active")).Name;
+                        string firstname = rdr.GetString(rdr.GetOrdinal("firstname"));
+                        string lastname = rdr.GetString(rdr.GetOrdinal("lastname"));
+                        string email = rdr.GetString(rdr.GetOrdinal("email"));
+                        string username = rdr.GetString(rdr.GetOrdinal("username"));
+                        //string password = rdr.GetString(rdr.GetOrdinal("password"));
+                        int id_person = rdr.GetInt32(rdr.GetOrdinal("id_person"));
+
+                        PersonType personType = PersonType.User;
+                        switch (rdr.GetString(rdr.GetOrdinal("pType")))
+                        {
+                            case "RM":
+                                personType = PersonType.ResourceManager;
+                                break;
+                            case "RE":
+                                personType = PersonType.Responsible;
+                                break;
+                            case "US":
+                                personType = PersonType.User;
+                                break;
+                        }
+
+                        Person person = new Person(personType, id_person, firstname, lastname, username, email, "");
+
+                        list.Add(person);
+
+                    }
+                    rdr.Close();
+                    transaction.Commit();
+                }
+                catch (SqlException sqlError)
+                {
+                    transaction.Rollback();
+                }
+                db.Close();
+            }
+            catch (SqlException sqlError)
+            {
+
+            }
+
+            return list;
+        }
     }
 }
