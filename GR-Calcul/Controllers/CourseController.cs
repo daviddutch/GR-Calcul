@@ -12,6 +12,7 @@ namespace GR_Calcul.Controllers
     public class CourseController : Controller
     {
         private CourseModel model = new CourseModel();
+        private PersonModel personModel = new PersonModel();
         //
         // GET: /Course/
 
@@ -69,8 +70,11 @@ namespace GR_Calcul.Controllers
 
         public ActionResult Edit(int id)
         {
-
-            return View(model.GetCourse(id));
+            Course course = model.GetCourse(id);
+            //ViewData["Responsibles"] = new SelectList(personModel.GetResponsibles(), course.Responsible);
+            var items = personModel.GetResponsibles().Select(x => new SelectListItem (){ Value = x.ID.ToString(), Text = x.toString() }).ToList();
+            ViewData["Responsibles"] = new SelectList(items, "Value", "Text", course.Responsible);
+            return View(course);
         }
 
         //

@@ -28,6 +28,8 @@ namespace GR_Calcul.Models
         [Display(Name = "Responsable")]
         public int Responsible { get; set; }
 
+        public string ResponsibleString { get; set; }
+
         //[Required]
         [Timestamp]
         [HiddenInput(DisplayValue = false)]
@@ -93,6 +95,8 @@ namespace GR_Calcul.Models
 
                         Course course = new Course(id_course, name, key,
                                                    active, id_responsible);
+
+                        course.ResponsibleString = rdr.GetString(rdr.GetOrdinal("firstname")) + " " + rdr.GetString(rdr.GetOrdinal("lastname"));
 
                         list.Add(course);
 

@@ -23,7 +23,7 @@
             grid.Column("Name", "Nom"),
             grid.Column("Key", "Clefs"),
             grid.Column("Active", "Actif"),
-            grid.Column("Responsible", "Responsable"),                
+            grid.Column("ResponsibleString", "Responsible"),                
             grid.Column(format: (item) =>
                 {
                     return new HtmlString("<a href=\"" + Url.Action("Edit", new { id = item.ID }).ToString() + "\"class=\"modify\" title=\"Modifier\"></a>" +
