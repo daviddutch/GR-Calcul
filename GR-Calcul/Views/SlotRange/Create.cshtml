@@ -1,4 +1,4 @@
-﻿@model GR_Calcul.Models.SlotRangeModels
+﻿@model GR_Calcul.Models.SlotRange   
 
 @{
     ViewBag.Title = "Create";
@@ -7,6 +7,11 @@
 <h2>Create</h2>
 
 <script type="text/javascript">
+
+    //TODO we might want to change this
+    //Date.format = "mm/dd/yyyy";
+    Date.format = "dd/mm/yyyy";
+
     $(function () {
 
         $(".wizard-step:first").fadeIn(); // show first step
@@ -43,6 +48,16 @@
             var validator = $("form").validate(); // obtain validator
             var anyError = false;
             $step.find("input").each(function () {
+                /*
+                * There are a few things I do not want jquery to validate such as all the checkboxes because it won't be able to find a validator for them.
+                * Also the slot times should not be validated, etc.
+                */
+                var attr = $(this).attr('novalidation');
+                //if the element has the 'novalidation' attribute then exit from here
+                if (typeof attr !== 'undefined' && attr !== false) {
+                    return;
+                }
+
                 if (!validator.element(this)) { // validate every input element inside this step
                     anyError = true;
                 }
@@ -51,28 +66,103 @@
 
             if (anyError)
                 return false; // exit if any error found
-
             if (!$step.next().next().hasClass("wizard-step")) {
                 $("#next-step").val("terminer");
             }
-            /*else {
-            $("#next-step").val("suivant");
-            }*/
+            if (!$step.next().next().hasClass("wizard-step") && $step.next().hasClass("wizard-step")) {
+                createLastStep();
+            }
             if ($step.next().hasClass("wizard-step")) { // is there any next step?
                 $step.hide().next().fadeIn();  // show it and hide current step
                 $("#back-step").show();   // recall to show backStep button
             } else { // this is last step, submit form
                 $("form").submit();
             }
-
-
         });
 
     });
 
+    $(document).ready(function () {
+        //TODO remove this
+        //$("input").rules("remove");
+
+        $(".roomBox").click(function () {
+            var checked_status = this.checked;
+            var lookUpId = "inroom-" + this.id;
+            $("input[room=" + lookUpId + "]").each(function () {
+                this.checked = checked_status;
+            });
+        });
+    });
+
+    function createLastStep() {
+        //build slot selection view
+        var duration = $("#SlotDuration").val()
+        var cols = 24 / duration;
+        var nslots = $("#NumberOfSlots").val();
+        var rows = Math.ceil(nslots / cols);
+        var nOnLastRow = cols - (rows * cols - nslots);
+        var startDate = $("#Beginning").val();
+        //header
+        var html = "<thead><tr><th style='text-align:center;'>&nbsp;</th>";
+        for (var i = 0; i < cols; i++) {
+            html += "<th colspan='2'>Slot</th>";
+        }
+        html += "</tr>";
+        html += "<tr class='subTitle'>";
+        html += "<th><button type=\"button\">Copier première ligne</button></th>";
+        for (var i = 0; i < cols; i++) {
+            html += "<th>Heure début</th><th>Heure fin</th>";
+        }
+        html += "</tr></thead>";
+        //body
+        html += "<tbody>";
+        var currentDate = new Date(startDate);
+        //alert("currentDate:" + currentDate + ";startDate:" + startDate.asString());
+        for (var i = 0; i < rows; i++) {
+            html += "<tr>";
+            html += "<td><input novalidation=\"true\" type=\"text\" class=\"date\" name=\"Slotdate\" value=\"" + currentDate.asString() + "\" size=\"8\" /><a href=\"#\" class=\"delete delRow\"></a></td>";
+            var max = (i == rows - 1 ? nOnLastRow : cols);
+
+            for (var j = 0; j < max; j++) {
+                var dura = j * duration;
+                var dura2 = (j + 1) * duration;
+
+                var min = ":00";
+                var min2 = ":00";
+                if (dura == 24) {
+                    //this shouldn't happen in theory
+                    dura = 23;
+                    min = ":59";
+                }
+                if (dura2 == 24) {
+                    dura2 = 23;
+                    min2 = ":59";
+                }
+
+                html += "<td><input novalidation=\"true\" type=\"text\" value=\"" + dura + ""+min+"\" name=\"Startz\" size=\"4\" /></td>";
+                html += "<td><input novalidation=\"true\" type=\"text\" value=\"" + dura2 + ""+min2+"\" name=\"Endz\" size=\"4\" /></td>";
+            }
+            currentDate.addDays(1);
+            html += "</tr>";
+        }
+
+
+        html += "</tbody>";
+        html += "<tfoot><tr><td colspan=\"7\"><button type=\"button\">+</button></td></tr></tfoot>";
+
+        //clear current table content otherwise we might be appending the content several times
+        $("#slotTable").html("");
+        $("#slotTable").append(html);
+
+        //load datepickers
+        reloadDatePickers();
+    }
+
 </script>
 
-@using (Html.BeginForm()) {
+@using (Html.BeginForm())
+{
     @Html.ValidationSummary(true)
     <fieldset>
         <!-- <legend>SlotRangeModels</legend> -->
@@ -101,6 +191,34 @@
                 @Html.EditorFor(model => model.EndRes)
                 @Html.ValidationMessageFor(model => model.EndRes)
             </div>
+
+            <div class="editor-label">
+                @Html.LabelFor(model => model.IdCourse)
+            </div>
+            <div class="editor-field">
+                @Html.DropDownList("IdCourse")
+                @Html.ValidationMessageFor(model => model.IdCourse)
+            </div>
+
+            <div class="editor-label">
+                <label>Machines</label>
+            </div>
+            <div>&nbsp;</div>
+            <div class="editor-field">
+                <ul class="machines">
+                    @foreach (var room in new GR_Calcul.Models.RoomModel().ListRooms())
+                    {
+						<li><input novalidation="true" type="checkbox" id="room-@room.ID" class="roomBox" title="select all machines in room @room.Name" /><label for="@room.ID">@room.Name</label>
+                            <ul>
+                                @foreach (var machine in new GR_Calcul.Models.MachineModel().ListMachines(@room.ID))
+                                {
+                                    <li><input novalidation="true" type="checkbox" id="machine-@machine.id_machine" value="@machine.id_machine" name="Machines" room="inroom-room-@room.ID" /><label for="@machine.id_machine">@machine.Name</label></li>
+                                }
+							</ul>
+						</li>
+                    }
+                </ul>
+            </div>
         </div>
 
         <div class="wizard-step">
@@ -113,12 +231,12 @@
                 @Html.EditorFor(model => model.Beginning)
                 @Html.ValidationMessageFor(model => model.Beginning)
             </div>
-
+            
             <div class="editor-label">
                 @Html.LabelFor(model => model.SlotDuration)
             </div>
             <div class="editor-field">    
-                @Html.DropDownList("SlotDuration", new SelectList((System.Collections.IEnumerable)ViewData["SlotDuration"], "Text", "Value")) heures           
+                @Html.DropDownList("SlotDuration")
                 @Html.ValidationMessageFor(model => model.SlotDuration)
             </div>
 
@@ -133,7 +251,9 @@
 
         <div class="wizard-step">
             <h3>Étape 3: choix des créneaux</h3>
-
+            <table class="simpleTable" id="slotTable">
+                
+            </table>
         </div>
 
         <p>

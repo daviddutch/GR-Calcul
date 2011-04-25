@@ -4,11 +4,16 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using GR_Calcul.Models;
+using System.Data.SqlClient;
+
 
 namespace GR_Calcul.Controllers
 {
     public class SlotRangeController : Controller
     {
+        private CourseModel courseModel = new CourseModel();
+        private SlotRangeModel slotRange = new SlotRangeModel();
+
         //
         // GET: /SlotRange/
 
@@ -30,32 +35,43 @@ namespace GR_Calcul.Controllers
 
         public ActionResult Create()
         {
-
-            //return View(new SlotRangeFormViewModel());
-
-            ViewData["SlotDuration"] = SlotRangeModels.blabla;
-            //ViewData["SlotDuration"] = new List<SelectListItem>(SlotRangeModels.blabla);
-            //ViewData["SlotDuration"] = new List<int>(SlotRangeModels.blabla);
+            ViewBag.IdCourse = new SelectList(courseModel.ListCourses(), "ID", "Name");
+            ViewBag.SlotDuration = new SelectList(Slot.durationList, "Text", "Text");
             return View();
-
-
-            //return View(new SlotRangeModels());
         } 
 
         //
         // POST: /SlotRange/Create
 
         [HttpPost]
-        public ActionResult Create(SlotRangeModels range)
+        public ActionResult Create(SlotRange range)
         {
-            ViewData["SlotDuration"] = SlotRangeModels.blabla;
-            //return View("Complete", range);
-            
+            string invalidMessage = "";
+            foreach (var value in ModelState.Values)
+            {
+                foreach (var error in value.Errors)
+                {
+                    invalidMessage += error.ErrorMessage;
+                }
+            }
+
             if (ModelState.IsValid)
-                return View("Complete", range);
-            return View(range);
-            
+            {
+
+                SqlException error = slotRange.CreateSlotRange(range);
+                if (error == null)
+                {
+                    return View("Complete", range);
+                }
+                return View("Error", error);
+            }
+
+            //ViewBag.IdCourse = new SelectList(courseModel.ListCourses(), "ID", "Name");
+            //ViewBag.SlotDuration = new SelectList(Slot.durationList, "Text", "Text");
+
+            return View("Invalid", invalidMessage);
         }
+
         
         //
         // GET: /SlotRange/Edit/5
