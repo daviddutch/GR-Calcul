@@ -139,6 +139,7 @@
     <Content Include="Views\Course\Create.cshtml" />
   </ItemGroup>
   <ItemGroup>
+<<<<<<< HEAD
     <Content Include="Views\SlotRange\Create.cshtml" />
   </ItemGroup>
   <ItemGroup>
@@ -149,6 +150,15 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\SlotRange\EditorTemplates\List.cshtml" />
+=======
+    <Content Include="Views\Machine\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Machine\Create.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Machine\Details.cshtml" />
+>>>>>>> 51f1ab7cb413123db7008e71b6bb522561a5d162
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" />
