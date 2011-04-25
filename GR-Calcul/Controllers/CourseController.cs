@@ -4,17 +4,30 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using GR_Calcul.Models;
+using System.Data.SqlClient;
+using System.Data;
 
 namespace GR_Calcul.Controllers
 {
     public class CourseController : Controller
     {
+        private CourseModel model = new CourseModel();
+        private PersonModel personModel = new PersonModel();
         //
         // GET: /Course/
 
         public ActionResult Index()
         {
-            return View();
+            return RedirectToAction("List");
+        }
+
+        //
+        // GET: /Course/List
+
+        public ActionResult List()
+        {
+            
+            return View(model.ListCourses());
         }
 
         //
@@ -22,7 +35,7 @@ namespace GR_Calcul.Controllers
 
         public ActionResult Details(int id)
         {
-            return View();
+            return View(model.GetCourse(id));
         }
 
         //
@@ -30,45 +43,75 @@ namespace GR_Calcul.Controllers
 
         public ActionResult Create()
         {
+
             return View();
-        } 
+        }
 
         //
         // POST: /Course/Create
 
         [HttpPost]
-        public ActionResult Create(CreateCourseModel collection)
+        public ActionResult Create(Course course)
         {
             try
             {
-                // TODO: Add insert logic here
-
+                model.CreateCourse(course);
                 return RedirectToAction("Index");
             }
-            catch
+            catch (SqlException sqlError)
             {
+                Console.WriteLine(sqlError);
                 return View();
             }
         }
-        
+
         //
         // GET: /Course/Edit/5
- 
+
         public ActionResult Edit(int id)
         {
-            return View();
+            Course course = model.GetCourse(id);
+            //ViewData["Responsibles"] = new SelectList(personModel.GetResponsibles(), course.Responsible);
+            var items = personModel.GetResponsibles().Select(x => new SelectListItem (){ Value = x.ID.ToString(), Text = x.toString() }).ToList();
+            ViewData["Responsibles"] = new SelectList(items, "Value", "Text", course.Responsible);
+            return View(course);
         }
 
         //
         // POST: /Course/Edit/5
 
         [HttpPost]
-        public ActionResult Edit(int id, FormCollection collection)
+        public ActionResult Edit(int id, Course course)
         {
             try
             {
-                // TODO: Add update logic here
- 
+                model.UpdateCourse(course);
+                return RedirectToAction("Index");
+            }
+            catch (Exception e)
+            {
+
+                ViewData["error"] = e.Message;
+                return View();
+            }
+        }
+        //
+        // GET: /Course/Duplicate/5
+
+        public ActionResult Duplicate(int id)
+        {
+
+            return View(model.GetCourse(id));
+        }
+        //
+        // POST: /Course/Duplicate/5
+
+        [HttpPost]
+        public ActionResult Duplicate(Course course)
+        {
+            try
+            {
+                model.CreateCourse(course);
                 return RedirectToAction("Index");
             }
             catch
@@ -76,25 +119,24 @@ namespace GR_Calcul.Controllers
                 return View();
             }
         }
-
         //
         // GET: /Course/Delete/5
- 
+
         public ActionResult Delete(int id)
         {
-            return View();
+            return View(model.GetCourse(id));
         }
 
         //
         // POST: /Course/Delete/5
 
         [HttpPost]
-        public ActionResult Delete(int id, FormCollection collection)
+        public ActionResult Delete(int id, Course course)
         {
             try
             {
-                // TODO: Add delete logic here
- 
+                model.DeleteCourse(id);
+
                 return RedirectToAction("Index");
             }
             catch

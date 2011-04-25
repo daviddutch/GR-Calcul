@@ -1,0 +1,28 @@
+﻿@model GR_Calcul.Models.Course
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<fieldset>
+    <legend>Course</legend>
+
+    <div class="display-label">Name</div>
+    <div class="display-field">@Model.Name</div>
+
+    <div class="display-label">Key</div>
+    <div class="display-field">@Model.Key</div>
+
+    <div class="display-label">Active</div>
+    <div class="display-field">@Model.Active</div>
+
+    <div class="display-label">Responsible</div>
+    <div class="display-field">@Model.Responsible</div>
+</fieldset>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id=Model.ID }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>
+

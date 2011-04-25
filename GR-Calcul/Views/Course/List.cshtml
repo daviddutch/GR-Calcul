@@ -1,0 +1,35 @@
+﻿@model IEnumerable<GR_Calcul.Models.Course>
+
+@{
+    ViewBag.Title = "List";
+}
+
+<h2>List</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+
+
+@{
+    var grid = new WebGrid(Model);
+}
+@grid.GetHtml(
+    tableStyle: "simpleTable",
+    headerStyle: "head",
+    alternatingRowStyle: "alt",
+    
+    columns: grid.Columns(
+            grid.Column("Name", "Nom"),
+            grid.Column("Key", "Clefs"),
+            grid.Column("Active", "Actif"),
+            grid.Column("ResponsibleString", "Responsible"),                
+            grid.Column(format: (item) =>
+                {
+                    return new HtmlString("<a href=\"" + Url.Action("Edit", new { id = item.ID }).ToString() + "\"class=\"modify\" title=\"Modifier\"></a>" +
+                                          "<a href=\"" + Url.Action("Duplicate", new { id = item.ID }).ToString() + "\"class=\"dupl\" title=\"Dupliquer\"></a>" +
+                                          "<a href=\"" + Url.Action("GenerateScript", new { id = item.ID }).ToString() + "\"class=\"script\" title=\"Générer le script pour le cours\"></a>" +
+                                          "<a href=\"" + Url.Action("Delete", new { id = item.ID }).ToString() + "\"class=\"delete\" title=\"Supprimer\"></a>");
+                }, canSort: false))
+        )
+

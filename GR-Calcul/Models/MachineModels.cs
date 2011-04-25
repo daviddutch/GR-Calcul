@@ -3,21 +3,31 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Entity;
+using System.Data.SqlClient;
+using System.Data;
 
 namespace GR_Calcul.Models
-{
-    public class IndexMachineModel
+{   
+    public class Machine
     {
+        private int id_machine;
 
-    }
+        public Machine()
+        {
+            // TODO: Complete member initialization
+        }
 
-    public class DetailsMachineModel
-    {
+        public Machine(int id_machine, string machine_name, string IP, string room, string os)
+        {
+            // TODO: Complete member initialization
+            this.id_machine = id_machine;
+            this.Name = machine_name;
+            this.IP = IP;
+            this.room = room;
+            this.os = os;
+        }
 
-    }
-    
-    public class MachineModel
-    {
         // name
         [Required]
         [Display(Name = "Nom de la machine")]
@@ -29,15 +39,211 @@ namespace GR_Calcul.Models
            ErrorMessage = "Donnez une adresse IPv4 valide.")]
         [Display(Name = "Adresse IP de la machine")]
         public string IP { get; set; }
+
+        public string room { get; set; }
+
+        public string os { get; set; }
     }
 
-    public class EditMachineModel
+    public class MachineModel
     {
+        // CD 2011-04-21: more centralized this way for adaptation between computers/developers
+        static private String connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString;
 
-    }
+        public List<Machine> ListMachines()
+        {
+            List<Machine> list = new List<Machine>();
 
-    public class DeleteMachineModel
-    {
+            try
+            {
+                SqlConnection db = new SqlConnection(connectionString);
+                SqlTransaction transaction;
 
+                db.Open();
+
+                transaction = db.BeginTransaction(IsolationLevel.ReadUncommitted);
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("SELECT M.id_machine id_machine, M.name m_name, M.IP m_ip, R.name r_name, OS.name os_name " +
+                                                    "FROM Machine M " +
+                                                    "INNER JOIN Room R ON R.id_room = M.id_room " +
+                                                    "INNER JOIN OS ON OS.id_os = M.id_os;", db, transaction);
+
+
+                    SqlDataReader rdr = cmd.ExecuteReader();
+
+                    while (rdr.Read())
+                    {
+                        int id_machine = rdr.GetInt32(rdr.GetOrdinal("id_machine")); 
+                        string machine_name = rdr.GetString(rdr.GetOrdinal("m_name"));
+                        string IP = rdr.GetString(rdr.GetOrdinal("m_ip"));
+                        string room = rdr.GetString(rdr.GetOrdinal("r_name"));
+                        string os = rdr.GetString(rdr.GetOrdinal("os_name"));
+
+                        Machine machine = new Machine(id_machine, machine_name, IP,
+                                                   room, os);
+
+                        list.Add(machine);
+
+                    }
+                    rdr.Close();
+                    transaction.Commit();
+                }
+                catch (SqlException sqlError)
+                {
+                    Console.WriteLine(sqlError.Message);
+                    Console.WriteLine(sqlError.StackTrace);
+                    transaction.Rollback();
+                }
+                db.Close();
+            }
+            catch (SqlException sqlError)
+            {
+
+            }
+
+            return list;
+        }
+        public Machine getMachine(int id)
+        {
+            Machine machine = null;
+
+            try
+            {
+                SqlConnection db = new SqlConnection(connectionString);
+                SqlTransaction transaction;
+
+                db.Open();
+
+                transaction = db.BeginTransaction(IsolationLevel.ReadUncommitted);
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("SELECT M.id_machine id_machine, M.name m_name, M.IP m_ip, R.name r_name, OS.name os_name " +
+                                                    "FROM Machine C " +
+                                                    "INNER JOIN Room R ON R.id_room = M.id_room " +
+                                                    "INNER JOIN OS ON OS.id_os = M.id_os;", db, transaction);
+
+                    cmd.Parameters.Add("@id_machine", SqlDbType.Int).Value = id;
+
+                    SqlDataReader rdr = cmd.ExecuteReader();
+
+                    if (rdr.Read())
+                    {
+                        int id_machine = rdr.GetInt32(rdr.GetOrdinal("id_machine"));
+                        string machine_name = rdr.GetString(rdr.GetOrdinal("m_name"));
+                        string IP = rdr.GetString(rdr.GetOrdinal("m_ip"));
+                        string room = rdr.GetString(rdr.GetOrdinal("r_name"));
+                        string os = rdr.GetString(rdr.GetOrdinal("os_name"));
+
+                        machine = new Machine(id_machine, machine_name, IP,
+                                                   room, os);
+                    }
+                    rdr.Close();
+                    transaction.Commit();
+                }
+                catch (SqlException sqlError)
+                {
+                    transaction.Rollback();
+                }
+                db.Close();
+            }
+            catch (SqlException sqlError)
+            {
+
+            }
+
+            return machine;
+        }
+        public void CreateMachine(Machine machine)
+        {
+            try
+            {
+                SqlConnection db = new SqlConnection(connectionString);
+                SqlTransaction transaction;
+
+                db.Open();
+
+                transaction = db.BeginTransaction(IsolationLevel.ReadUncommitted);
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("INSERT INTO Machine " +
+                                   "(name, [key], active, id_responsible) " +
+                                   "VALUES (@name, @key, @active, @id_responsible);", db, transaction);
+                    cmd.Parameters.Add("@name", SqlDbType.Char);
+                    cmd.Parameters.Add("@key", SqlDbType.Char);
+                    cmd.Parameters.Add("@active", SqlDbType.Bit);
+                    cmd.Parameters.Add("@id_responsible", SqlDbType.Int);
+
+                    //cmd.Parameters["@name"].Value = machine.Name;
+                    //cmd.Parameters["@key"].Value = machine.Key;
+                    //cmd.Parameters["@active"].Value = machine.Active;
+                    //cmd.Parameters["@id_responsible"].Value = machine.Responsible;
+
+                    /*
+                    cmd.Parameters.Add("@name", SqlDbType.Char).Value = machine.Name;
+                    cmd.Parameters.Add("@key", SqlDbType.Char).Value = machine.Key;
+                    cmd.Parameters.Add("@active", SqlDbType.Bit).Value = machine.Active;
+                    cmd.Parameters.Add("@id_responsible", SqlDbType.Int).Value = machine.Id_responsible;
+                    */
+                    /*
+                    cmd.Parameters.AddWithValue("@key", "1234");
+                    cmd.Parameters.AddWithValue("@active", "1");
+                    cmd.Parameters.AddWithValue("@id_responsible", "1");
+                     */
+                    cmd.ExecuteNonQuery();
+
+                    transaction.Commit();
+                }
+                catch (SqlException sqlError)
+                {
+                    transaction.Rollback();
+                }
+                db.Close();
+            }
+            catch (SqlException sqlError)
+            {
+
+            }
+        }
+
+
+        public void UpdateMachine(Machine machine)
+        {
+
+            try
+            {
+                SqlConnection db = new SqlConnection(connectionString);
+                SqlTransaction transaction;
+
+                db.Open();
+
+                transaction = db.BeginTransaction(IsolationLevel.RepeatableRead);
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("UPDATE Machine " +
+                                                    "SET name=@name, [key]=@key, active=@active, id_responsible=@id_responsible " +
+                                                    "WHERE id_machine=@id;", db, transaction);
+
+                    //cmd.Parameters.Add("@id", SqlDbType.Int).Value = machine.ID;
+                    //cmd.Parameters.Add("@name", SqlDbType.Char).Value = machine.Name;
+                    //cmd.Parameters.Add("@key", SqlDbType.Char).Value = machine.Key;
+                    //cmd.Parameters.Add("@active", SqlDbType.Bit).Value = machine.Active;
+                    //cmd.Parameters.Add("@id_responsible", SqlDbType.Int).Value = machine.Responsible;
+
+                    cmd.ExecuteNonQuery();
+
+                    transaction.Commit();
+                }
+                catch (SqlException sqlError)
+                {
+                    transaction.Rollback();
+                }
+                db.Close();
+            }
+            catch (SqlException sqlError)
+            {
+
+            }
+        }
     }
 }
