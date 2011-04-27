@@ -1,10 +1,10 @@
-﻿@model System.Data.SqlClient.SqlException
+﻿@model System.Exception
 
 @{
     ViewBag.Title = "Erreur";
 }
 
-<h2>Une erreur est survenue lors de la création de la plage de créneau. Le message d'erreur est @Model.Message.</h2>
+<h2>Une erreur est survenue lors de @ViewBag.ErrorMode de la plage de créneau. Le message d'erreur est @Model.Message.</h2>
 
 <div>
     @Html.ActionLink("Créer une nouvelle plage de créneaux", "Create")

@@ -96,7 +96,10 @@ namespace GR_Calcul.Models
                     Console.WriteLine(sqlError.StackTrace);
                     transaction.Rollback();
                 }
-                db.Close();
+                finally
+                {
+                    db.Close();
+                }
             }
             catch (SqlException sqlError)
             {
