@@ -170,6 +170,7 @@ namespace GR_Calcul.Models
 
             return course;
         }
+        
         public void CreateCourse(Course course)
         {
             try
