@@ -48,68 +48,7 @@ namespace GR_Calcul.Models
 
     public class MachineModel
     {
-        // CD 2011-04-21: more centralized this way for adaptation between computers/developers
         static private String connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString;
-
-
-        //public List<Machine> ListMachines(int id_room)
-        //{
-        //    List<Machine> list = new List<Machine>();
-
-        //    try
-        //    {
-        //        SqlConnection db = new SqlConnection(connectionString);
-        //        SqlTransaction transaction;
-
-        //        db.Open();
-
-        //        transaction = db.BeginTransaction(IsolationLevel.ReadUncommitted);
-        //        try
-        //        {
-        //            SqlCommand cmd = new SqlCommand("SELECT M.id_machine id_machine, M.name m_name, M.IP m_ip, R.name r_name, OS.name os_name " +
-        //                                            "FROM Machine M " +
-        //                                            "INNER JOIN Room R ON R.id_room = M.id_room " +
-        //                                            "INNER JOIN OS ON OS.id_os = M.id_os WHERE M.id_room=@id_room;", db, transaction);
-
-        //            cmd.Parameters.Add("@id_room", SqlDbType.Int).Value = id_room;
-        //            SqlDataReader rdr = cmd.ExecuteReader();
-
-        //            while (rdr.Read())
-        //            {
-        //                int id_machine = rdr.GetInt32(rdr.GetOrdinal("id_machine"));
-        //                string machine_name = rdr.GetString(rdr.GetOrdinal("m_name"));
-        //                string IP = rdr.GetString(rdr.GetOrdinal("m_ip"));
-        //                string room = rdr.GetString(rdr.GetOrdinal("r_name"));
-        //                string os = rdr.GetString(rdr.GetOrdinal("os_name"));
-
-        //                Machine machine = new Machine(id_machine, machine_name, IP,
-        //                                           room, os);
-
-        //                list.Add(machine);
-
-        //            }
-        //            rdr.Close();
-        //            transaction.Commit();
-        //        }
-        //        catch (SqlException sqlError)
-        //        {
-        //            System.Diagnostics.Debug.WriteLine(sqlError.Message);
-        //            System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
-        //            transaction.Rollback();
-        //        }
-        //        finally
-        //        {
-        //            db.Close();
-        //        }
-        //    }
-        //    catch (SqlException sqlError)
-        //    {
-        //        System.Diagnostics.Debug.WriteLine(sqlError.Message);
-        //        System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
-        //    }
-
-        //    return list;
-        //}
 
         public List<Machine> ListMachines()
         {

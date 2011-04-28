@@ -11,7 +11,10 @@
 </p>
 
 @{
-    var grid = new WebGrid(Model);
+    var grid = new WebGrid(
+        source: Model,
+        defaultSort: "Name"
+    );
 }
 @grid.GetHtml(
     tableStyle: "simpleTable",
