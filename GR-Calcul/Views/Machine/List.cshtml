@@ -9,43 +9,24 @@
 <p>
     @Html.ActionLink("Create New", "Create")
 </p>
-<table>
-    <tr>
-        <th>
-            Name
-        </th>
-        <th>
-            IP
-        </th>
-        <th>
-            room
-        </th>
-        <th>
-            os
-        </th>
-        <th></th>
-    </tr>
 
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.Name)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.IP)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.room)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.os)
-        </td>
-        <td>
-            @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-            @Html.ActionLink("Details", "Details", new { id=item.id_machine }) |
-            @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
-        </td>
-    </tr>
+@{
+    var grid = new WebGrid(Model);
 }
-
-</table>
+@grid.GetHtml(
+    tableStyle: "simpleTable",
+    headerStyle: "head",
+    alternatingRowStyle: "alt",
+    columns: grid.Columns(
+        grid.Column("Name", "Nom"),
+        grid.Column("IP", "IP"),
+        grid.Column("room", "Lieu"),            
+        grid.Column(
+            format: (item) =>
+            {
+                return new HtmlString("<a href=\"" + Url.Action("Edit", new { id = item.id_machine }).ToString() + "\"class=\"modify\" title=\"Modifier\"></a>" +
+                                        "<a href=\"" + Url.Action("Delete", new { id = item.id_machine }).ToString() + "\"class=\"delete\" title=\"Supprimer\"></a>");
+            }, canSort: false
+        )
+    )
+)

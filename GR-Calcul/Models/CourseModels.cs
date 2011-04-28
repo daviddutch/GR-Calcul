@@ -12,6 +12,7 @@ namespace GR_Calcul.Models
     public class Course
     {
         public int ID { get; set; }
+
         [Required]
         [Display(Name = "Nom")]
         public string Name { get; set; }
