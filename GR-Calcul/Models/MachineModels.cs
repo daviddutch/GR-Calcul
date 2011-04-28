@@ -19,7 +19,7 @@ namespace GR_Calcul.Models
         public Machine(int id_machine, string machine_name, string IP, string room, string os)
         {
             // TODO: Complete member initialization
-            this.ID = id_machine;
+            this.id_machine = id_machine;
             this.Name = machine_name;
             this.IP = IP;
             this.room = room;
@@ -27,7 +27,7 @@ namespace GR_Calcul.Models
         }
 
         // ID (id_machine)
-        public int ID { get; set; }
+        public int id_machine { get; set; }
 
         // name
         [Required]
@@ -93,8 +93,8 @@ namespace GR_Calcul.Models
                 }
                 catch (SqlException sqlError)
                 {
-                    Console.WriteLine(sqlError.Message);
-                    Console.WriteLine(sqlError.StackTrace);
+                    System.Diagnostics.Debug.WriteLine(sqlError.Message);
+                    System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
                     transaction.Rollback();
                 }
                 finally
@@ -104,7 +104,8 @@ namespace GR_Calcul.Models
             }
             catch (SqlException sqlError)
             {
-
+                System.Diagnostics.Debug.WriteLine(sqlError.Message);
+                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
             }
 
             return list;

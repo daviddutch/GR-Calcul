@@ -114,6 +114,8 @@ namespace GR_Calcul.Models
                 }
                 catch (SqlException sqlError)
                 {
+                    System.Diagnostics.Debug.WriteLine(sqlError.Message);
+                    System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
                     transaction.Rollback();
                 }
                 db.Close();
