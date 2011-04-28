@@ -11,18 +11,15 @@ namespace GR_Calcul.Models
 {   
     public class Machine
     {
-        public Machine()
-        {
-            // TODO: Complete member initialization
-        }
+        public Machine() {}
 
-        public Machine(int id_machine, string machine_name, string IP/*, string room, string os*/)
+        public Machine(int id_machine, string machine_name, string IP, int room/*, string os*/)
         {
             // TODO: Complete member initialization
             this.id_machine = id_machine;
             this.Name = machine_name;
             this.IP = IP;
-            //this.room = room;
+            this.id_room = room;
             //this.os = os;
         }
 
@@ -41,7 +38,11 @@ namespace GR_Calcul.Models
         [Display(Name = "Adresse IP de la machine")]
         public string IP { get; set; }
 
-        //public string room { get; set; }
+        [Required]
+        [Display(Name = "Lieu")]
+        public int id_room { get; set; }
+
+        public string RoomString { get; set; }
 
         //public string os { get; set; }
     }
@@ -49,6 +50,69 @@ namespace GR_Calcul.Models
     public class MachineModel
     {
         static private String connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString;
+
+        public List<Machine> ListMachines(int id_room)
+        {
+            List<Machine> list = new List<Machine>();
+
+            try
+            {
+                SqlConnection db = new SqlConnection(connectionString);
+                SqlTransaction transaction;
+
+                db.Open();
+
+                transaction = db.BeginTransaction(IsolationLevel.ReadUncommitted);
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("SELECT M.id_machine id_machine, M.name m_name, M.IP m_ip, M.id_room id_room, R.name r_name "
+                                                    //+ ", OS.name os_name "
+                                                    + "FROM Machine M "
+                                                    + "INNER JOIN Room R ON R.id_room = M.id_room "
+                                                    //+ "INNER JOIN OS ON OS.id_os = M.id_os "
+                                                    + "WHERE M.id_room=@id_room "
+                                                    + ";", db, transaction);
+
+                    cmd.Parameters.Add("@id_room", SqlDbType.Int).Value = id_room;
+                    SqlDataReader rdr = cmd.ExecuteReader();
+
+                    while (rdr.Read())
+                    {
+                        int id_machine = rdr.GetInt32(rdr.GetOrdinal("id_machine"));
+                        string machine_name = rdr.GetString(rdr.GetOrdinal("m_name"));
+                        string IP = rdr.GetString(rdr.GetOrdinal("m_ip"));
+                        //string os = rdr.GetString(rdr.GetOrdinal("os_name"));
+
+                        Machine machine = new Machine(id_machine, machine_name, IP,
+                                                   id_room/*, os*/);
+
+                        machine.RoomString = rdr.GetString(rdr.GetOrdinal("r_name"));
+
+                        list.Add(machine);
+
+                    }
+                    rdr.Close();
+                    transaction.Commit();
+                }
+                catch (SqlException sqlError)
+                {
+                    System.Diagnostics.Debug.WriteLine(sqlError.Message);
+                    System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                    transaction.Rollback();
+                }
+                finally
+                {
+                    db.Close();
+                }
+            }
+            catch (SqlException sqlError)
+            {
+                System.Diagnostics.Debug.WriteLine(sqlError.Message);
+                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+            }
+
+            return list;
+        }
 
         public List<Machine> ListMachines()
         {
@@ -64,10 +128,10 @@ namespace GR_Calcul.Models
                 transaction = conn.BeginTransaction(IsolationLevel.ReadUncommitted);
                 try
                 {
-                    SqlCommand cmd = new SqlCommand("SELECT M.id_machine id_machine, M.name m_name, M.IP m_ip "
-                                                    //+ ", R.name r_name, OS.name os_name "
-                                                    + "FROM Machine M " 
-                                                    //+ "INNER JOIN Room R ON R.id_room = M.id_room " 
+                    SqlCommand cmd = new SqlCommand("SELECT M.id_machine id_machine, M.name m_name, M.IP m_ip, M.id_room id_room, R.name r_name "
+                                                    //+ ", OS.name os_name "
+                                                    + "FROM Machine M "
+                                                    + "INNER JOIN Room R ON R.id_room = M.id_room "
                                                     //+ "INNER JOIN OS ON OS.id_os = M.id_os "
                                                     + ";", conn, transaction);
 
@@ -79,11 +143,13 @@ namespace GR_Calcul.Models
                         int id_machine = rdr.GetInt32(rdr.GetOrdinal("id_machine")); 
                         string machine_name = rdr.GetString(rdr.GetOrdinal("m_name"));
                         string IP = rdr.GetString(rdr.GetOrdinal("m_ip"));
-                        //string room = rdr.GetString(rdr.GetOrdinal("r_name"));
+                        int id_room = rdr.GetInt32(rdr.GetOrdinal("id_room"));
                         //string os = rdr.GetString(rdr.GetOrdinal("os_name"));
 
-                        Machine machine = new Machine(id_machine, machine_name, IP/*,
-                                                   room, os*/);
+                        Machine machine = new Machine(id_machine, machine_name, IP,
+                                                   id_room/*, os*/);
+
+                        machine.RoomString = rdr.GetString(rdr.GetOrdinal("r_name"));
 
                         list.Add(machine);
 
@@ -122,10 +188,11 @@ namespace GR_Calcul.Models
                 transaction = conn.BeginTransaction(IsolationLevel.ReadUncommitted);
                 try
                 {
-                    SqlCommand cmd = new SqlCommand("SELECT M.id_machine id_machine, M.name m_name, M.IP m_ip, R.name r_name, OS.name os_name " +
+                    SqlCommand cmd = new SqlCommand("SELECT M.id_machine id_machine, M.name m_name, M.IP m_ip, M.id_room id_room, R.name r_name " +
+                                                    //", OS.name os_name " +
                                                     "FROM Machine M " +
                                                     "INNER JOIN Room R ON R.id_room = M.id_room " +
-                                                    "INNER JOIN OS ON OS.id_os = M.id_os " +
+                                                    // "INNER JOIN OS ON OS.id_os = M.id_os " +
                                                     "WHERE M.id_machine=@id_machine;", conn, transaction);
 
                     cmd.Parameters.Add("@id_machine", SqlDbType.Int).Value = id;
@@ -137,11 +204,11 @@ namespace GR_Calcul.Models
                         int id_machine = rdr.GetInt32(rdr.GetOrdinal("id_machine"));
                         string machine_name = rdr.GetString(rdr.GetOrdinal("m_name"));
                         string IP = rdr.GetString(rdr.GetOrdinal("m_ip"));
-                        string room = rdr.GetString(rdr.GetOrdinal("r_name"));
-                        string os = rdr.GetString(rdr.GetOrdinal("os_name"));
+                        int id_room = rdr.GetInt32(rdr.GetOrdinal("id_room"));
+                        //string os = rdr.GetString(rdr.GetOrdinal("os_name"));
 
-                        machine = new Machine(id_machine, machine_name, IP/*,
-                                                   room, os*/);
+                        machine = new Machine(id_machine, machine_name, IP,
+                                                   id_room/*, os*/);
                     }
                     rdr.Close();
                     transaction.Commit();
@@ -176,16 +243,12 @@ namespace GR_Calcul.Models
                 try
                 {
                     SqlCommand cmd = new SqlCommand("INSERT INTO Machine " +
-                                   "(name, IP) " +
-                                   "VALUES (@name, @IP);", db, transaction);
-                   
-                    //cmd.Parameters.Add("@name", SqlDbType.Char);
-                    //cmd.Parameters.Add("@IP", SqlDbType.Char);
-                    //cmd.Parameters["@name"].Value = machine.Name;
-                    //cmd.Parameters["@IP"].Value = machine.IP;
+                                                   "(name, IP, id_room) " +
+                                                   "VALUES (@name, @IP, @id_room);", db, transaction);
 
                     cmd.Parameters.Add("@name", SqlDbType.Char).Value = machine.Name;
                     cmd.Parameters.Add("@IP", SqlDbType.Char).Value = machine.IP;
+                    cmd.Parameters.Add("@IP", SqlDbType.Char).Value = machine.id_room;
 
                     cmd.ExecuteNonQuery();
 
@@ -220,16 +283,16 @@ namespace GR_Calcul.Models
                 transaction = db.BeginTransaction(IsolationLevel.RepeatableRead);
                 try
                 {
-                    SqlCommand cmd = new SqlCommand("UPDATE Machine "
-                                                    + "SET name=@Name, IP=@IP "
-                                                    //+", id_room=@id_room, id_os=@id_os " 
-                                                    + "WHERE id_machine=@id;", db, transaction);
+                    SqlCommand cmd = new SqlCommand("UPDATE Machine " +
+                                                    "SET name=@Name, IP=@IP " +
+                                                    ", id_room=@id_room " +
+                                                    //", id_os=@id_os " +
+                                                    "WHERE id_machine=@id;", db, transaction);
 
                     cmd.Parameters.Add("@id", SqlDbType.Int).Value = machine.id_machine; 
                     cmd.Parameters.Add("@name", SqlDbType.Char).Value = machine.Name;
                     cmd.Parameters.Add("@IP", SqlDbType.Char).Value = machine.IP;
-                    //cmd.Parameters.Add("@id_room", SqlDbType.Bit).Value = machine.id_room;
-                    //cmd.Parameters.Add("@id_responsible", SqlDbType.Int).Value = machine.id_responsible;
+                    cmd.Parameters.Add("@id_room", SqlDbType.Bit).Value = machine.id_room;
 
                     cmd.ExecuteNonQuery();
 

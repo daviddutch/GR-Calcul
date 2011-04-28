@@ -14,6 +14,13 @@
     <fieldset>
         <legend>Machine</legend>
 
+        @{
+            if (ViewData["error"] != null)
+            {
+                <p style="color:Red">@ViewData["error"]</p>
+            }
+        }
+
         @Html.HiddenFor(model => model.id_machine)
 
         <div class="editor-label">
@@ -30,6 +37,13 @@
         <div class="editor-field">
             @Html.EditorFor(model => model.IP)
             @Html.ValidationMessageFor(model => model.IP)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.id_room)
+        </div>
+        <div class="editor-field">
+            @Html.DropDownList("id_room", ViewData["Rooms"] as SelectList)
         </div>
 
         <p>

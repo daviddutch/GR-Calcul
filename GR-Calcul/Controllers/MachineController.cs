@@ -11,6 +11,7 @@ namespace GR_Calcul.Controllers
     public class MachineController : Controller
     {
         private MachineModel model = new MachineModel();
+        private RoomModel roomModel = new RoomModel();
 
         //
         // GET: /Machine/
@@ -41,6 +42,8 @@ namespace GR_Calcul.Controllers
 
         public ActionResult Create()
         {
+            var items = roomModel.ListRooms().Select(x => new SelectListItem() { Value = x.ID.ToString(), Text = x.Name.ToString() }).ToList();
+            ViewData["Rooms"] = new SelectList(items, "Value", "Text");
             return View();
         } 
 
@@ -69,7 +72,10 @@ namespace GR_Calcul.Controllers
  
         public ActionResult Edit(int id)
         {
-            return View(model.getMachine(id));
+            Machine machine = model.getMachine(id);
+            var items = roomModel.ListRooms().Select(x => new SelectListItem() { Value = x.ID.ToString(), Text = x.Name.ToString() }).ToList();
+            ViewData["Rooms"] = new SelectList(items, "Value", "Text", machine.id_room);
+            return View(machine);
         }
 
         //
@@ -80,7 +86,6 @@ namespace GR_Calcul.Controllers
         {
             try
             {
-                // TODO: Add update logic here
                 model.UpdateMachine(machine);
                 return RedirectToAction("Index");
             }

@@ -30,6 +30,13 @@
             @Html.ValidationMessageFor(model => model.IP)
         </div>
 
+        <div class="editor-label">
+            @Html.LabelFor(model => model.id_room)
+        </div>
+        <div class="editor-field">
+            @Html.DropDownList("Room", ViewData["Rooms"] as SelectList)
+        </div>
+
 @*        <div class="editor-label">
             @Html.LabelFor(model => model.room)
         </div>
