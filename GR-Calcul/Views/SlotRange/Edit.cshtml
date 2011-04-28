@@ -1,14 +1,15 @@
-﻿@model GR_Calcul.Models.SlotRange   
+﻿@model GR_Calcul.Models.SlotRange
 <script src="@Url.Content("~/Scripts/wizard.js")" type="text/javascript"></script>
 
 @{
-    ViewBag.Title = "Create";
+    ViewBag.Title = "Edit";
 }
 
-<h2>Create</h2>
+<h2>Edit</h2>
+
 
 <script type="text/javascript">
-    enableWizard(true);
+    enableWizard(false);
     enableRoomBoxes();
     //loadTooltips("fieldset :input.lollipop");
 </script>
@@ -17,9 +18,10 @@
 {
     @Html.ValidationSummary(true)
     <fieldset>
-        <!-- <legend>SlotRangeModels</legend> -->
         <div class="wizard-step">
             <h3>Étape 1: informations sur la plage de créneaux</h3>
+            @Html.EditorFor(model => model.Timestamp)
+            @Html.EditorFor(model => model.id_slotRange)
             <div class="editor-label">
                 @Html.LabelFor(model => model.Name)
             </div>
@@ -82,37 +84,54 @@
         </div>
 
         <div class="wizard-step">
-            <h3>Étape 2: définition des créneaux</h3>
-
-            <div class="editor-label">
-                @Html.LabelFor(model => model.Beginning)
-            </div>
-            <div class="editor-field">
-                @Html.EditorFor(model => model.Beginning)
-                @Html.ValidationMessageFor(model => model.Beginning)
-            </div>
-            
-            <div class="editor-label">
-                @Html.LabelFor(model => model.SlotDuration)
-            </div>
-            <div class="editor-field">    
-                @Html.DropDownList("SlotDuration")
-                @Html.ValidationMessageFor(model => model.SlotDuration)
-            </div>
-
-            <div class="editor-label">
-                @Html.LabelFor(model => model.NumberOfSlots)
-            </div>
-            <div class="editor-field">
-                @Html.EditorFor(model => model.NumberOfSlots)
-                @Html.ValidationMessageFor(model => model.NumberOfSlots)
-            </div>
-        </div>
-
-        <div class="wizard-step">
             <h3>Étape 3: choix des créneaux</h3>
             <table class="simpleTable" id="slotTable">
-                
+                @{
+           int cols = Model.getNumberOfSlotCols();               
+                }
+                    <thead>
+				    <tr style="text-align:center;">
+					    <th>&nbsp;</th>
+                        @for (int i = 0; i < cols; i++)
+                        {
+    					    <th colspan="2">Slot</th>
+                        }
+				    </tr>
+				    <tr class="subTitle">
+                        <th>&nbsp;</th>
+                        @for (int i = 0; i < cols; i++)
+                        {
+					        <th>Heure début</th>
+					        <th>Heure fin</th>
+                        }
+				    </tr>
+			    </thead>
+                <tbody id="slotBody">
+                    @for (int i = 0; i < Model.Slotdate.Count; i++)
+                    {
+                        DateTime date = Model.Slotdate[i];
+                        string id = "slotRow" + i;
+                        string value = String.Format("{0:dd/MM/yyyy}", date);
+                        
+                        <tr id="@id" class="slotRow">
+                            <td><input novalidation="true" type="text" class="lollipop Slotdate" name="Slotdate" id="Slotdate" value="@value" size="8" /><a href="javascript:deleteRow('@id');" class="delete delRow"></a></td>
+                            @foreach (var slot in Model.GetSlotsForDate(date))
+                            {
+                                int startHour = slot.Start.Hour;
+                                int startMinute = slot.Start.Minute;
+                                int endHour = slot.End.Hour;
+                                int endMinute = slot.End.Minute;
+                                string start = startHour + ":" + startMinute;
+                                string end = endHour + ":" + endMinute;
+                                
+                                <td><input novalidation="true" type="text" value="@start" name="Startz" size="4" /></td>
+                                <td><input novalidation="true" type="text" value="@end" name="Endz" size="4" /></td>
+                                
+                            }
+                        </tr>
+                    }
+                </tbody>
+                <tfoot><tr><td colspan="7"><button type="button" onclick="addRow()">+</button></td></tr></tfoot>
             </table>
         </div>
 
@@ -122,5 +141,4 @@
         </p>
     </fieldset>
 }
-
 

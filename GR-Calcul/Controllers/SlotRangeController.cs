@@ -4,11 +4,22 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using GR_Calcul.Models;
+using System.Data.SqlClient;
+
 
 namespace GR_Calcul.Controllers
 {
     public class SlotRangeController : Controller
     {
+        private CourseModel courseModel = new CourseModel();
+        private SlotRangeModel slotRangeModel = new SlotRangeModel();
+
+        private void InitViewbag()
+        {
+            ViewBag.IdCourse = new SelectList(courseModel.ListCourses(), "ID", "Name");
+            ViewBag.SlotDuration = new SelectList(Slot.durationList, "Text", "Text");
+        }
+
         //
         // GET: /SlotRange/
 
@@ -30,56 +41,94 @@ namespace GR_Calcul.Controllers
 
         public ActionResult Create()
         {
-
-            //return View(new SlotRangeFormViewModel());
-
-            ViewData["SlotDuration"] = SlotRangeModels.blabla;
-            //ViewData["SlotDuration"] = new List<SelectListItem>(SlotRangeModels.blabla);
-            //ViewData["SlotDuration"] = new List<int>(SlotRangeModels.blabla);
+            InitViewbag();
             return View();
-
-
-            //return View(new SlotRangeModels());
         } 
 
         //
         // POST: /SlotRange/Create
 
         [HttpPost]
-        public ActionResult Create(SlotRangeModels range)
+        public ActionResult Create(SlotRange range)
         {
-            ViewData["SlotDuration"] = SlotRangeModels.blabla;
-            //return View("Complete", range);
-            
+            string invalidMessage = "";
+            foreach (var value in ModelState.Values)
+            {
+                foreach (var error in value.Errors)
+                {
+                    invalidMessage += error.ErrorMessage;
+                }
+            }
+
             if (ModelState.IsValid)
-                return View("Complete", range);
-            return View(range);
-            
+            {
+                try
+                {
+                    slotRangeModel.CreateSlotRange(range);
+                    ViewBag.Mode = "créée";
+                    return View("Complete", range);
+                }
+                catch (Exception error)
+                {
+                    ViewBag.ErrorMode = "la création";
+                    return View("Error", error);
+                }
+            }
+
+            return View("Invalid", invalidMessage);
         }
+
         
         //
         // GET: /SlotRange/Edit/5
  
         public ActionResult Edit(int id)
         {
-            return View();
+            SlotRange range = slotRangeModel.GetSlotRange(id);
+            if (range == null)
+            {
+                return View("NoSuchRange");
+            }
+            else
+            {
+                ViewBag.IdCourse = new SelectList(courseModel.ListCourses(), "ID", "Name", range.IdCourse);
+                ViewBag.SlotDuration = new SelectList(Slot.durationList, "Text", "Text", range.SlotDuration);
+                return View(range);
+            }
         }
 
         //
         // POST: /SlotRange/Edit/5
 
         [HttpPost]
-        public ActionResult Edit(int id, FormCollection collection)
+        public ActionResult Edit(int id, SlotRange range)
         {
-            try
+
+            string invalidMessage = "";
+            foreach (var value in ModelState.Values)
             {
-                // TODO: Add update logic here
- 
-                return RedirectToAction("Index");
+                foreach (var error in value.Errors)
+                {
+                    invalidMessage += error.ErrorMessage;
+                }
             }
-            catch
+            if (ModelState.IsValid)
             {
-                return View();
+                try
+                {
+                    slotRangeModel.UpdateSlotRange(range);
+                    ViewBag.Mode = "mise a jour";
+                    return View("Complete", range);
+                }
+                catch(Exception ex)
+                {
+                    ViewBag.ErrorMode = "la mise à jour";
+                    return View("Error", ex);
+                }
+            }
+            else
+            {
+                return View("Invalid", invalidMessage);
             }
         }
 

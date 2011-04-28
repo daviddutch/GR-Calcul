@@ -12,6 +12,7 @@ namespace GR_Calcul.Controllers
     public class CourseController : Controller
     {
         private CourseModel model = new CourseModel();
+        private PersonModel personModel = new PersonModel();
         //
         // GET: /Course/
 
@@ -25,6 +26,7 @@ namespace GR_Calcul.Controllers
 
         public ActionResult List()
         {
+            
             return View(model.ListCourses());
         }
 
@@ -33,7 +35,7 @@ namespace GR_Calcul.Controllers
 
         public ActionResult Details(int id)
         {
-            return View(model.getCourse(id));
+            return View(model.GetCourse(id));
         }
 
         //
@@ -41,6 +43,8 @@ namespace GR_Calcul.Controllers
 
         public ActionResult Create()
         {
+            var items = personModel.GetResponsibles().Select(x => new SelectListItem() { Value = x.ID.ToString(), Text = x.toString() }).ToList();
+            ViewData["Responsibles"] = new SelectList(items, "Value", "Text");
 
             return View();
         }
@@ -68,8 +72,10 @@ namespace GR_Calcul.Controllers
 
         public ActionResult Edit(int id)
         {
-
-            return View(model.getCourse(id));
+            Course course = model.GetCourse(id);
+            var items = personModel.GetResponsibles().Select(x => new SelectListItem (){ Value = x.ID.ToString(), Text = x.toString() }).ToList();
+            ViewData["Responsibles"] = new SelectList(items, "Value", "Text", course.Responsible);
+            return View(course);
         }
 
         //
@@ -83,29 +89,54 @@ namespace GR_Calcul.Controllers
                 model.UpdateCourse(course);
                 return RedirectToAction("Index");
             }
+            catch (Exception e)
+            {
+
+                ViewData["error"] = e.Message;
+                return View();
+            }
+        }
+        //
+        // GET: /Course/Duplicate/5
+
+        public ActionResult Duplicate(int id)
+        {
+
+            return View(model.GetCourse(id));
+        }
+        //
+        // POST: /Course/Duplicate/5
+
+        [HttpPost]
+        public ActionResult Duplicate(Course course)
+        {
+            try
+            {
+                model.CreateCourse(course);
+                return RedirectToAction("Index");
+            }
             catch
             {
                 return View();
             }
         }
-
         //
         // GET: /Course/Delete/5
 
         public ActionResult Delete(int id)
         {
-            return View();
+            return View(model.GetCourse(id));
         }
 
         //
         // POST: /Course/Delete/5
 
         [HttpPost]
-        public ActionResult Delete(int id, FormCollection collection)
+        public ActionResult Delete(int id, Course course)
         {
             try
             {
-                // TODO: Add delete logic here
+                model.DeleteCourse(id);
 
                 return RedirectToAction("Index");
             }

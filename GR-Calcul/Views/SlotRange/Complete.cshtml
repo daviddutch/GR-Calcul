@@ -1,8 +1,10 @@
-﻿@{
+﻿@model GR_Calcul.Models.SlotRange   
+
+@{
     ViewBag.Title = "Complete";
 }
 
-<h2>La plage de créneaux a été créée avec succès.</h2>
+<h2>La plage de créneaux nommée '@Model.Name' a été @ViewBag.Mode avec succès.</h2>
 
 <div>
     @Html.ActionLink("Créer une nouvelle plage de créneaux", "Create")
