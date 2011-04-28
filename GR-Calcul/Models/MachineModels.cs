@@ -11,8 +11,6 @@ namespace GR_Calcul.Models
 {   
     public class Machine
     {
-        private int id_machine;
-
         public Machine()
         {
             // TODO: Complete member initialization
@@ -21,12 +19,15 @@ namespace GR_Calcul.Models
         public Machine(int id_machine, string machine_name, string IP, string room, string os)
         {
             // TODO: Complete member initialization
-            this.id_machine = id_machine;
+            this.ID = id_machine;
             this.Name = machine_name;
             this.IP = IP;
             this.room = room;
             this.os = os;
         }
+
+        // ID (id_machine)
+        public int ID { get; set; }
 
         // name
         [Required]
@@ -56,18 +57,18 @@ namespace GR_Calcul.Models
 
             try
             {
-                SqlConnection db = new SqlConnection(connectionString);
+                SqlConnection conn = new SqlConnection(connectionString);
                 SqlTransaction transaction;
 
-                db.Open();
+                conn.Open();
 
-                transaction = db.BeginTransaction(IsolationLevel.ReadUncommitted);
+                transaction = conn.BeginTransaction(IsolationLevel.ReadUncommitted);
                 try
                 {
                     SqlCommand cmd = new SqlCommand("SELECT M.id_machine id_machine, M.name m_name, M.IP m_ip, R.name r_name, OS.name os_name " +
                                                     "FROM Machine M " +
                                                     "INNER JOIN Room R ON R.id_room = M.id_room " +
-                                                    "INNER JOIN OS ON OS.id_os = M.id_os;", db, transaction);
+                                                    "INNER JOIN OS ON OS.id_os = M.id_os;", conn, transaction);
 
 
                     SqlDataReader rdr = cmd.ExecuteReader();
@@ -91,15 +92,16 @@ namespace GR_Calcul.Models
                 }
                 catch (SqlException sqlError)
                 {
-                    Console.WriteLine(sqlError.Message);
-                    Console.WriteLine(sqlError.StackTrace);
+                    System.Diagnostics.Debug.WriteLine(sqlError.Message);
+                    System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
                     transaction.Rollback();
                 }
-                db.Close();
+                conn.Close();
             }
             catch (SqlException sqlError)
             {
-
+                System.Diagnostics.Debug.WriteLine(sqlError.Message);
+                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
             }
 
             return list;
@@ -110,18 +112,19 @@ namespace GR_Calcul.Models
 
             try
             {
-                SqlConnection db = new SqlConnection(connectionString);
-                SqlTransaction transaction;
+                SqlConnection conn = new SqlConnection(connectionString);
+                SqlTransaction transaction; 
 
-                db.Open();
+                conn.Open();
 
-                transaction = db.BeginTransaction(IsolationLevel.ReadUncommitted);
+                transaction = conn.BeginTransaction(IsolationLevel.ReadUncommitted);
                 try
                 {
                     SqlCommand cmd = new SqlCommand("SELECT M.id_machine id_machine, M.name m_name, M.IP m_ip, R.name r_name, OS.name os_name " +
-                                                    "FROM Machine C " +
+                                                    "FROM Machine M " +
                                                     "INNER JOIN Room R ON R.id_room = M.id_room " +
-                                                    "INNER JOIN OS ON OS.id_os = M.id_os;", db, transaction);
+                                                    "INNER JOIN OS ON OS.id_os = M.id_os " +
+                                                    "WHERE M.id_machine=@id_machine;", conn, transaction);
 
                     cmd.Parameters.Add("@id_machine", SqlDbType.Int).Value = id;
 
@@ -143,13 +146,16 @@ namespace GR_Calcul.Models
                 }
                 catch (SqlException sqlError)
                 {
+                    System.Diagnostics.Debug.WriteLine(sqlError.Message);
+                    System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
                     transaction.Rollback();
                 }
-                db.Close();
+                conn.Close();
             }
             catch (SqlException sqlError)
             {
-
+                System.Diagnostics.Debug.WriteLine(sqlError.Message);
+                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
             }
 
             return machine;
@@ -196,13 +202,16 @@ namespace GR_Calcul.Models
                 }
                 catch (SqlException sqlError)
                 {
+                    System.Diagnostics.Debug.WriteLine(sqlError.Message);
+                    System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
                     transaction.Rollback();
                 }
                 db.Close();
             }
             catch (SqlException sqlError)
             {
-
+                System.Diagnostics.Debug.WriteLine(sqlError.Message);
+                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
             }
         }
 
@@ -221,14 +230,14 @@ namespace GR_Calcul.Models
                 try
                 {
                     SqlCommand cmd = new SqlCommand("UPDATE Machine " +
-                                                    "SET name=@name, [key]=@key, active=@active, id_responsible=@id_responsible " +
+                                                    "SET name=@name, IP=@IP, id_room=@id_room, id_os=@id_os " +
                                                     "WHERE id_machine=@id;", db, transaction);
 
-                    //cmd.Parameters.Add("@id", SqlDbType.Int).Value = machine.ID;
-                    //cmd.Parameters.Add("@name", SqlDbType.Char).Value = machine.Name;
-                    //cmd.Parameters.Add("@key", SqlDbType.Char).Value = machine.Key;
-                    //cmd.Parameters.Add("@active", SqlDbType.Bit).Value = machine.Active;
-                    //cmd.Parameters.Add("@id_responsible", SqlDbType.Int).Value = machine.Responsible;
+                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = machine.ID;
+                    cmd.Parameters.Add("@name", SqlDbType.Char).Value = machine.Name;
+                    cmd.Parameters.Add("@IP", SqlDbType.Char).Value = machine.IP;
+                    cmd.Parameters.Add("@id_room", SqlDbType.Bit).Value = machine.id_room;
+                    cmd.Parameters.Add("@id_responsible", SqlDbType.Int).Value = machine.id_responsible;
 
                     cmd.ExecuteNonQuery();
 
@@ -236,13 +245,16 @@ namespace GR_Calcul.Models
                 }
                 catch (SqlException sqlError)
                 {
+                    System.Diagnostics.Debug.WriteLine(sqlError.Message);
+                    System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
                     transaction.Rollback();
                 }
                 db.Close();
             }
             catch (SqlException sqlError)
             {
-
+                System.Diagnostics.Debug.WriteLine(sqlError.Message);
+                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
             }
         }
     }
