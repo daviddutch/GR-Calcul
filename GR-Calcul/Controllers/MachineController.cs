@@ -16,21 +16,14 @@ namespace GR_Calcul.Controllers
 
         public ActionResult Index()
         {
-            //List<Machine> articles = new List<Machine>();
+            return RedirectToAction("List");
+        }
 
-            //Machine article1 = new Machine();
-            //article1.Name = "First Machine";
-            //article1.IP = "192.168.1.1";
+        //
+        // GET: /Machine/List
 
-            //articles.Add(article1);
-
-            //Machine article2 = new Machine();
-            //article2.Name = "Second Machine";
-            //article2.IP = "192.168.1.2";
-
-            //articles.Add(article2);
-
-            //return View(articles);
+        public ActionResult List()
+        {
             return View(model.ListMachines());
         }
 
@@ -39,7 +32,7 @@ namespace GR_Calcul.Controllers
 
         public ActionResult Details(int id)
         {
-            return View();
+            return View(model.getMachine(id));
         }
 
         //
@@ -53,39 +46,39 @@ namespace GR_Calcul.Controllers
         //
         // POST: /Machine/Create
 
-        [HttpPost]
-        public ActionResult Create(FormCollection collection)
-        {
-            try
-            {
-                // TODO: Add insert logic here
+        //[HttpPost]
+        //public ActionResult Create(FormCollection collection)
+        //{
+        //    try
+        //    {
+        //        // TODO: Add insert logic here
 
-                return RedirectToAction("Index");
-            }
-            catch
-            {
-                return View();
-            }
-        }
+        //        return RedirectToAction("Index");
+        //    }
+        //    catch
+        //    {
+        //        return View();
+        //    }
+        //}
         
         //
         // GET: /Machine/Edit/5
  
         public ActionResult Edit(int id)
         {
-            return View();
+            return View(model.getMachine(id));
         }
 
         //
         // POST: /Machine/Edit/5
 
         [HttpPost]
-        public ActionResult Edit(int id, FormCollection collection)
+        public ActionResult Edit(int id, Machine machine)
         {
             try
             {
                 // TODO: Add update logic here
- 
+                model.UpdateMachine(machine);
                 return RedirectToAction("Index");
             }
             catch

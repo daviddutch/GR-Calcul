@@ -79,21 +79,16 @@
     <Content Include="Global.asax" />
     <Content Include="Scripts\date.js" />
     <Content Include="Scripts\EditorHookup.js" />
-<<<<<<< HEAD
-    <Content Include="Web.config">
-      <SubType>Designer</SubType>
-    </Content>
-=======
     <Content Include="Scripts\gr-calcul.js" />
     <Content Include="Scripts\jquery.tools.min.js" />
     <Content Include="Scripts\wizard.js" />
-    <Content Include="Web.config" />
->>>>>>> 5a9b674810575c7099c8752523a18ed50162650b
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
+      <SubType>Designer</SubType>
     </Content>
     <Content Include="Web.Release.config">
       <DependentUpon>Web.config</DependentUpon>
+      <SubType>Designer</SubType>
     </Content>
     <Content Include="Content\Site.css" />
     <Content Include="Content\themes\base\jquery-ui.css" />
@@ -138,13 +133,17 @@
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_LogOnPartial.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
-    <Content Include="Views\Web.config" />
+    <Content Include="Views\Web.config">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="packages.config" />
+    <Content Include="packages.config">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Course\Create.cshtml" />
@@ -167,6 +166,9 @@
     <Content Include="Views\Course\List.cshtml" />
   </ItemGroup>
   <ItemGroup>
+<<<<<<< HEAD
+    <Content Include="Views\Machine\List.cshtml" />
+=======
     <Content Include="Views\Course\Delete.cshtml" />
   </ItemGroup>
   <ItemGroup>
@@ -174,6 +176,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Person\Index.cshtml" />
+>>>>>>> a119a80ce19b111ec9e98776f5484d5e4d837cd5
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Machine\Create.cshtml" />
@@ -181,6 +184,9 @@
     <Content Include="Views\Machine\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
+<<<<<<< HEAD
+    <Content Include="Views\Machine\Create.cshtml" />
+=======
     <Content Include="Views\SlotRange\Error.cshtml" />
   </ItemGroup>
   <ItemGroup>
@@ -197,6 +203,10 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\SlotRange\EditorTemplates\Hide.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Web.config" />
+>>>>>>> a119a80ce19b111ec9e98776f5484d5e4d837cd5
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" />

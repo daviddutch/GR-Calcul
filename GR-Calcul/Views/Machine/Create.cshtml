@@ -1,4 +1,4 @@
-﻿@model GR_Calcul.Models.MachineModel
+﻿@model GR_Calcul.Models.Machine
 
 @{
     ViewBag.Title = "Create";
@@ -12,7 +12,7 @@
 @using (Html.BeginForm()) {
     @Html.ValidationSummary(true)
     <fieldset>
-        <legend>MachineModel</legend>
+        <legend>Machine</legend>
 
         <div class="editor-label">
             @Html.LabelFor(model => model.Name)
@@ -30,6 +30,22 @@
             @Html.ValidationMessageFor(model => model.IP)
         </div>
 
+        <div class="editor-label">
+            @Html.LabelFor(model => model.room)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.room)
+            @Html.ValidationMessageFor(model => model.room)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.os)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.os)
+            @Html.ValidationMessageFor(model => model.os)
+        </div>
+
         <p>
             <input type="submit" value="Create" />
         </p>
@@ -39,4 +55,3 @@
 <div>
     @Html.ActionLink("Back to List", "Index")
 </div>
-

@@ -11,6 +11,11 @@ namespace GR_Calcul.Models
 {   
     public class Machine
     {
+<<<<<<< HEAD
+=======
+        public int id_machine { get; set; }
+
+>>>>>>> a119a80ce19b111ec9e98776f5484d5e4d837cd5
         public Machine()
         {
             // TODO: Complete member initialization
@@ -292,11 +297,11 @@ namespace GR_Calcul.Models
                                                     "SET name=@name, IP=@IP, id_room=@id_room, id_os=@id_os " +
                                                     "WHERE id_machine=@id;", db, transaction);
 
-                    //cmd.Parameters.Add("@id", SqlDbType.Int).Value = machine.ID;
-                    //cmd.Parameters.Add("@name", SqlDbType.Char).Value = machine.Name;
-                    //cmd.Parameters.Add("@IP", SqlDbType.Char).Value = machine.IP;
-                    //cmd.Parameters.Add("@id_room", SqlDbType.Bit).Value = machine.id_room;
-                    //cmd.Parameters.Add("@id_responsible", SqlDbType.Int).Value = machine.id_responsible;
+                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = machine.ID;
+                    cmd.Parameters.Add("@name", SqlDbType.Char).Value = machine.Name;
+                    cmd.Parameters.Add("@IP", SqlDbType.Char).Value = machine.IP;
+                    cmd.Parameters.Add("@id_room", SqlDbType.Bit).Value = machine.id_room;
+                    cmd.Parameters.Add("@id_responsible", SqlDbType.Int).Value = machine.id_responsible;
 
                     cmd.ExecuteNonQuery();
 

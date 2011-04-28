@@ -1,10 +1,10 @@
 ﻿@model IEnumerable<GR_Calcul.Models.Machine>
 
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "List";
 }
 
-<h2>Index</h2>
+<h2>List</h2>
 
 <p>
     @Html.ActionLink("Create New", "Create")
@@ -42,7 +42,7 @@
         </td>
         <td>
             @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-            @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+            @Html.ActionLink("Details", "Details", new { id=item.ID }) |
             @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
         </td>
     </tr>
