@@ -257,7 +257,7 @@ namespace GR_Calcul.Models
 
                     transaction.Commit();
                 }
-                catch (SqlException sqlError)
+                catch
                 {
                     transaction.Rollback();
                 }
@@ -266,7 +266,7 @@ namespace GR_Calcul.Models
                     db.Close();
                 }
             }
-            catch (SqlException sqlError)
+            catch
             {
 
             }
@@ -323,7 +323,7 @@ namespace GR_Calcul.Models
 
                     transaction.Commit();
                 }
-                catch (SqlException sqlError)
+                catch
                 {
                     transaction.Rollback();                    
                 }
@@ -332,7 +332,7 @@ namespace GR_Calcul.Models
                     db.Close();
                 }
             }
-            catch (SqlException sqlError)
+            catch
             {
             }
 
@@ -453,7 +453,7 @@ namespace GR_Calcul.Models
                         Console.WriteLine("Cross modify");
                     }
                 }
-                catch (SqlException sqlError)
+                catch
                 {
                     transaction.Rollback();
                 }
@@ -462,7 +462,7 @@ namespace GR_Calcul.Models
                     db.Close();
                 }
             }
-            catch (SqlException sqlError)
+            catch
             {
 
             }

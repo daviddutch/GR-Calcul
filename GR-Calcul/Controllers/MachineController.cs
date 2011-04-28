@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using GR_Calcul.Models;
+using System.Data.SqlClient;
 
 namespace GR_Calcul.Controllers
 {
@@ -30,10 +31,10 @@ namespace GR_Calcul.Controllers
         //
         // GET: /Machine/Details/5
 
-        public ActionResult Details(int id)
-        {
-            return View(model.getMachine(id));
-        }
+        //public ActionResult Details(int id)
+        //{
+        //    return View(model.getMachine(id));
+        //}
 
         //
         // GET: /Machine/Create
@@ -46,20 +47,22 @@ namespace GR_Calcul.Controllers
         //
         // POST: /Machine/Create
 
-        //[HttpPost]
-        //public ActionResult Create(FormCollection collection)
-        //{
-        //    try
-        //    {
-        //        // TODO: Add insert logic here
-
-        //        return RedirectToAction("Index");
-        //    }
-        //    catch
-        //    {
-        //        return View();
-        //    }
-        //}
+        [HttpPost]
+        public ActionResult Create(Machine machine)
+        {
+            try
+            {
+                // TODO: Add insert logic here
+                model.CreateMachine(machine);
+                return RedirectToAction("Index");
+            }
+            catch (SqlException sqlError)
+            {
+                System.Diagnostics.Debug.WriteLine(sqlError.Message);
+                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                return View();
+            }
+        }
         
         //
         // GET: /Machine/Edit/5
