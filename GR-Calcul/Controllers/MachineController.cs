@@ -92,11 +92,11 @@ namespace GR_Calcul.Controllers
 
         ////
         //// GET: /Machine/Delete/5
- 
-        //public ActionResult Delete(int id)
-        //{
-        //    return View();
-        //}
+
+        public ActionResult Delete(int id)
+        {
+            return View(model.getMachine(id));
+        }
 
         //
         // POST: /Machine/Delete/5
@@ -106,8 +106,7 @@ namespace GR_Calcul.Controllers
         {
             try
             {
-                // TODO: Add delete logic here
- 
+                model.DeleteMachine(id);
                 return RedirectToAction("Index");
             }
             catch

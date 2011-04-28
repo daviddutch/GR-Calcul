@@ -285,6 +285,7 @@ namespace GR_Calcul.Models
             }
             if (!updated) throw new Exception("timestamp");
         }
+
         public void DeleteCourse(int id)
         {
             try

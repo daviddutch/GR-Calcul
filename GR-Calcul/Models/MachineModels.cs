@@ -41,9 +41,9 @@ namespace GR_Calcul.Models
         [Display(Name = "Adresse IP de la machine")]
         public string IP { get; set; }
 
-        public string room { get; set; }
+        //public string room { get; set; }
 
-        public string os { get; set; }
+        //public string os { get; set; }
     }
 
     public class MachineModel
@@ -143,9 +143,9 @@ namespace GR_Calcul.Models
                         //string room = rdr.GetString(rdr.GetOrdinal("r_name"));
                         //string os = rdr.GetString(rdr.GetOrdinal("os_name"));
 
-                        //Machine machine = new Machine(id_machine, machine_name, IP,
-                        //                           room, os);
-                        Machine machine = new Machine(id_machine, machine_name, IP);
+                        Machine machine = new Machine(id_machine, machine_name, IP/*,
+                                                   room, os*/);
+
                         list.Add(machine);
 
                     }
@@ -281,15 +281,52 @@ namespace GR_Calcul.Models
                 transaction = db.BeginTransaction(IsolationLevel.RepeatableRead);
                 try
                 {
-                    SqlCommand cmd = new SqlCommand("UPDATE Machine " +
-                                                    "SET name=@name, IP=@IP, id_room=@id_room, id_os=@id_os " +
-                                                    "WHERE id_machine=@id;", db, transaction);
+                    SqlCommand cmd = new SqlCommand("UPDATE Machine "
+                                                    + "SET name=@Name, IP=@IP "
+                                                    //+", id_room=@id_room, id_os=@id_os " 
+                                                    + "WHERE id_machine=@id;", db, transaction);
 
-                    //cmd.Parameters.Add("@id", SqlDbType.Int).Value = machine.ID;
-                    //cmd.Parameters.Add("@name", SqlDbType.Char).Value = machine.Name;
-                    //cmd.Parameters.Add("@IP", SqlDbType.Char).Value = machine.IP;
+                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = machine.id_machine; 
+                    cmd.Parameters.Add("@name", SqlDbType.Char).Value = machine.Name;
+                    cmd.Parameters.Add("@IP", SqlDbType.Char).Value = machine.IP;
                     //cmd.Parameters.Add("@id_room", SqlDbType.Bit).Value = machine.id_room;
                     //cmd.Parameters.Add("@id_responsible", SqlDbType.Int).Value = machine.id_responsible;
+
+                    cmd.ExecuteNonQuery();
+
+                    transaction.Commit();
+                }
+                catch (SqlException sqlError)
+                {
+                    System.Diagnostics.Debug.WriteLine(sqlError.Message);
+                    System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                    transaction.Rollback();
+                }
+                db.Close();
+            }
+            catch (SqlException sqlError)
+            {
+                System.Diagnostics.Debug.WriteLine(sqlError.Message);
+                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+            }
+        }
+
+        public void DeleteMachine(int id)
+        {
+            try
+            {
+                SqlConnection db = new SqlConnection(connectionString);
+                SqlTransaction transaction;
+
+                db.Open();
+
+                transaction = db.BeginTransaction(IsolationLevel.RepeatableRead);
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("DELETE FROM Machine " +
+                                                    "WHERE id_machine=@id;", db, transaction);
+
+                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
 
                     cmd.ExecuteNonQuery();
 
