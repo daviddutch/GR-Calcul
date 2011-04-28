@@ -89,8 +89,10 @@ namespace GR_Calcul.Controllers
                 model.UpdateMachine(machine);
                 return RedirectToAction("Index");
             }
-            catch
+            catch (SqlException sqlError)
             {
+                System.Diagnostics.Debug.WriteLine(sqlError.Message);
+                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
                 return View();
             }
         }

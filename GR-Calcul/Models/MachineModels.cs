@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
 using System.Data.SqlClient;
 using System.Data;
+using System.Web.Mvc;
 
 namespace GR_Calcul.Models
 {   
@@ -32,7 +33,7 @@ namespace GR_Calcul.Models
         public string Name { get; set; }
 
         // IP
-        [Required]
+        //[Required]
         [RegularExpression(@"(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)",
            ErrorMessage = "Donnez une adresse IPv4 valide.")]
         [Display(Name = "Adresse IP de la machine")]
@@ -44,7 +45,20 @@ namespace GR_Calcul.Models
 
         public string RoomString { get; set; }
 
+        [Timestamp]
+        [HiddenInput(DisplayValue = false)]
+        public string Timestamp { get; set; }
+
         //public string os { get; set; }
+
+        public byte[] getByteTimestamp()
+        {
+            return Convert.FromBase64String(Timestamp);
+        }
+        public void setTimestamp(byte[] timestamp)
+        {
+            Timestamp = Convert.ToBase64String(timestamp);
+        }
     }
 
     public class MachineModel
@@ -188,7 +202,7 @@ namespace GR_Calcul.Models
                 transaction = conn.BeginTransaction(IsolationLevel.ReadUncommitted);
                 try
                 {
-                    SqlCommand cmd = new SqlCommand("SELECT M.id_machine id_machine, M.name m_name, M.IP m_ip, M.id_room id_room, R.name r_name " +
+                    SqlCommand cmd = new SqlCommand("SELECT M.id_machine id_machine, M.name m_name, M.IP m_ip, M.id_room id_room, M.timestamp, R.name r_name " +
                                                     //", OS.name os_name " +
                                                     "FROM Machine M " +
                                                     "INNER JOIN Room R ON R.id_room = M.id_room " +
@@ -209,6 +223,10 @@ namespace GR_Calcul.Models
 
                         machine = new Machine(id_machine, machine_name, IP,
                                                    id_room/*, os*/);
+
+                        byte[] buffer = new byte[100];
+                        rdr.GetBytes(rdr.GetOrdinal("timestamp"), 0, buffer, 0, 100);
+                        machine.setTimestamp(buffer);
                     }
                     rdr.Close();
                     transaction.Commit();
@@ -248,7 +266,7 @@ namespace GR_Calcul.Models
 
                     cmd.Parameters.Add("@name", SqlDbType.Char).Value = machine.Name;
                     cmd.Parameters.Add("@IP", SqlDbType.Char).Value = machine.IP;
-                    cmd.Parameters.Add("@IP", SqlDbType.Char).Value = machine.id_room;
+                    cmd.Parameters.Add("@id_room", SqlDbType.Int).Value = machine.id_room;
 
                     cmd.ExecuteNonQuery();
 
@@ -272,6 +290,7 @@ namespace GR_Calcul.Models
 
         public void UpdateMachine(Machine machine)
         {
+            bool updated = true;
 
             try
             {
@@ -283,18 +302,39 @@ namespace GR_Calcul.Models
                 transaction = db.BeginTransaction(IsolationLevel.RepeatableRead);
                 try
                 {
-                    SqlCommand cmd = new SqlCommand("UPDATE Machine " +
+                    byte[] timestamp = machine.getByteTimestamp();
+
+                    SqlCommand cmd = new SqlCommand("SELECT * " +
+                                                    "FROM Machine M " +
+                                                    "WHERE M.id_machine=@id_machine AND M.timestamp=@timestamp;", db, transaction);
+
+                    cmd.Parameters.Add("@id_machine", SqlDbType.Int).Value = machine.id_machine;
+                    cmd.Parameters.Add("@timestamp", SqlDbType.Binary).Value = timestamp;
+
+                    SqlDataReader rdr = cmd.ExecuteReader();
+
+                    if (rdr.Read())
+                    {
+                        rdr.Close();
+                        cmd = new SqlCommand("UPDATE Machine " +
                                                     "SET name=@Name, IP=@IP " +
                                                     ", id_room=@id_room " +
                                                     //", id_os=@id_os " +
-                                                    "WHERE id_machine=@id;", db, transaction);
+                                                    "WHERE id_machine=@id_machine", db, transaction);
 
-                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = machine.id_machine; 
-                    cmd.Parameters.Add("@name", SqlDbType.Char).Value = machine.Name;
-                    cmd.Parameters.Add("@IP", SqlDbType.Char).Value = machine.IP;
-                    cmd.Parameters.Add("@id_room", SqlDbType.Bit).Value = machine.id_room;
+                        cmd.Parameters.Add("@id_machine", SqlDbType.Int).Value = machine.id_machine;
+                        cmd.Parameters.Add("@Name", SqlDbType.Char).Value = machine.Name;
+                        cmd.Parameters.Add("@IP", SqlDbType.Char).Value = machine.IP;
+                        cmd.Parameters.Add("@id_room", SqlDbType.Int).Value = machine.id_room;
 
-                    cmd.ExecuteNonQuery();
+                        cmd.ExecuteNonQuery();
+                    }
+                    else
+                    {
+                        rdr.Close();
+                        System.Diagnostics.Debug.WriteLine("Cross modify");
+                        updated = false;
+                    }
 
                     transaction.Commit();
                 }
@@ -311,6 +351,7 @@ namespace GR_Calcul.Models
                 System.Diagnostics.Debug.WriteLine(sqlError.Message);
                 System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
             }
+            if (!updated) throw new Exception("timestamp");
         }
 
         public void DeleteMachine(int id)
