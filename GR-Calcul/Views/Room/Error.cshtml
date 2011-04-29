@@ -1,0 +1,16 @@
+﻿@model GR_Calcul.Models.Room
+
+@{
+    ViewBag.Title = "Erreur";
+}
+
+<h2>@ViewBag.Title</h2>
+
+<h2>Une erreur est survenue.</h2>
+@ViewBag.ErrorMessage
+
+<div>
+    @Html.ActionLink("Créer une nouvelle plage de créneaux", "Create")
+</div>
+
+

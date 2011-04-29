@@ -1,0 +1,34 @@
+﻿@model IEnumerable<GR_Calcul.Models.Room>
+
+@{
+    ViewBag.Title = "Liste des salles";
+}
+
+<h2>@ViewBag.Title</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+
+
+@{
+    var grid = new WebGrid(
+        source: Model,
+        defaultSort: "Name"
+    );
+}
+@grid.GetHtml(
+    tableStyle: "simpleTable",
+    headerStyle: "head",
+    alternatingRowStyle: "alt",
+    columns: grid.Columns(
+        grid.Column("Name", "Nom"),
+        grid.Column(
+            format: (item) =>
+            {
+                return new HtmlString("<a href=\"" + Url.Action("Edit", new { id = item.ID }).ToString() + "\"class=\"modify\" title=\"Modifier\"></a>" +
+                                        "<a href=\"" + Url.Action("Delete", new { id = item.ID}).ToString() + "\"class=\"delete\" title=\"Supprimer\"></a>");
+            }, canSort: false
+        )
+    )
+)

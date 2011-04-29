@@ -1,0 +1,24 @@
+﻿@model GR_Calcul.Models.Room
+
+@{
+    ViewBag.Title = "Supprimer une salle";
+}
+
+<h2>@ViewBag.Title</h2>
+
+<h3>Êtes-vous sûr de vouloir supprimer cette salle?</h3>
+<fieldset>
+    <legend>Salle</legend>
+
+    <div class="display-label">Name</div>
+    <div class="display-field">@Model.Name</div>
+
+</fieldset>
+@using (Html.BeginForm()) {
+    <p>
+        <input type="submit" value="Delete" /> |
+        @Html.ActionLink("Back to List", "Index")
+    </p>
+}
+
+
