@@ -1,0 +1,36 @@
+﻿@model IEnumerable<GR_Calcul.Models.Machine>
+
+@{
+    ViewBag.Title = "Liste des machines";
+}
+
+<h2>@ViewBag.Title</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+
+@{
+    var grid = new WebGrid(
+        source: Model,
+        defaultSort: "Name"
+    );
+}
+@grid.GetHtml(
+    tableStyle: "simpleTable",
+    headerStyle: "head",
+    alternatingRowStyle: "alt",
+    columns: grid.Columns(
+        grid.Column("Name", "Nom"),
+        grid.Column("IP", "IP"),
+        grid.Column("RoomString", "Lieu"),            
+        grid.Column(
+            format: (item) =>
+            {
+                return new HtmlString("<a href=\"" + Url.Action("Edit", new { id = item.id_machine }).ToString() + "\"class=\"modify\" title=\"Modifier\"></a>" +
+                                        "<a href=\"" + Url.Action("Delete", new { id = item.id_machine }).ToString() + "\"class=\"delete\" title=\"Supprimer\"></a>");
+            }, canSort: false
+        )
+    )
+)
+

@@ -81,13 +81,13 @@ namespace GR_Calcul.Models
                     rdr.Close();
                     transaction.Commit();
                 }
-                catch (SqlException sqlError)
+                catch
                 {
                     transaction.Rollback();
                 }
                 db.Close();
             }
-            catch (SqlException sqlError)
+            catch
             {
                 
             }
@@ -128,13 +128,13 @@ namespace GR_Calcul.Models
                     rdr.Close();
                     transaction.Commit();
                 }
-                catch (SqlException sqlError)
+                catch
                 {
                     transaction.Rollback();
                 }
                 db.Close();
             }
-            catch (SqlException sqlError)
+            catch
             {
 
             }

@@ -1,13 +1,19 @@
 ﻿@model GR_Calcul.Models.Machine
 
 @{
-    ViewBag.Title = "Details";
+    ViewBag.Title = "Supprimer une machine";
 }
 
-<h2>Details</h2>
+<h2>@ViewBag.Title</h2>
 
+<h3>Êtes vous sûr de vouloir supprimer cette machine?</h3>
 <fieldset>
     <legend>Machine</legend>
+
+    <div class="display-label">id_machine</div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.id_machine)
+    </div>
 
     <div class="display-label">Name</div>
     <div class="display-field">
@@ -19,7 +25,7 @@
         @Html.DisplayFor(model => model.IP)
     </div>
 
-    <div class="display-label">room</div>
+@*    <div class="display-label">room</div>
     <div class="display-field">
         @Html.DisplayFor(model => model.room)
     </div>
@@ -27,9 +33,11 @@
     <div class="display-label">os</div>
     <div class="display-field">
         @Html.DisplayFor(model => model.os)
-    </div>
+    </div>*@
 </fieldset>
-<p>
-    @Html.ActionLink("Edit", "Edit", new { /* id=Model.PrimaryKey */ }) |
-    @Html.ActionLink("Back to List", "Index")
-</p>
+@using (Html.BeginForm()) {
+    <p>
+        <input type="submit" value="Delete" /> |
+        @Html.ActionLink("Back to List", "Index")
+    </p>
+}

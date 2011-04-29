@@ -12,6 +12,7 @@ namespace GR_Calcul.Models
     public class Course
     {
         public int ID { get; set; }
+
         [Required]
         [Display(Name = "Nom")]
         public string Name { get; set; }
@@ -104,13 +105,13 @@ namespace GR_Calcul.Models
                     rdr.Close();
                     transaction.Commit();
                 }
-                catch (SqlException sqlError)
+                catch
                 {
                     transaction.Rollback();
                 }
                 db.Close();
             }
-            catch (SqlException sqlError)
+            catch
             {
 
             }
@@ -157,13 +158,13 @@ namespace GR_Calcul.Models
                     rdr.Close();
                     transaction.Commit();
                 }
-                catch (SqlException sqlError)
+                catch
                 {
                     transaction.Rollback();
                 }
                 db.Close();
             }
-            catch (SqlException sqlError)
+            catch
             {
 
             }
@@ -211,13 +212,13 @@ namespace GR_Calcul.Models
 
                     transaction.Commit();
                 }
-                catch (SqlException sqlError)
+                catch
                 {
                     transaction.Rollback();
                 }
                 db.Close();
             }
-            catch (SqlException sqlError)
+            catch
             {
 
             }
@@ -272,18 +273,19 @@ namespace GR_Calcul.Models
 
                     transaction.Commit();
                 }
-                catch (SqlException sqlError)
+                catch
                 {
                     transaction.Rollback();
                 }
                 db.Close();
             }
-            catch (SqlException sqlError)
+            catch
             {
 
             }
             if (!updated) throw new Exception("timestamp");
         }
+
         public void DeleteCourse(int id)
         {
             try

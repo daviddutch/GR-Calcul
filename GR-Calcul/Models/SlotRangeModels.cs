@@ -230,7 +230,7 @@ namespace GR_Calcul.Models
                     cmd2 = new SqlCommand("SELECT [start], [end] FROM Slot WHERE id_slotRange=@id;", db, transaction);
                     cmd2.Parameters.Add("@id", SqlDbType.Int).Value = id;
                     rdr2 = cmd2.ExecuteReader();
-                    bool hasSetDuration = false;
+                    //bool hasSetDuration = false;
                     int cpt = 0;
                     while (rdr2.Read())
                     {
@@ -257,7 +257,7 @@ namespace GR_Calcul.Models
 
                     transaction.Commit();
                 }
-                catch (SqlException sqlError)
+                catch
                 {
                     transaction.Rollback();
                 }
@@ -266,7 +266,7 @@ namespace GR_Calcul.Models
                     db.Close();
                 }
             }
-            catch (SqlException sqlError)
+            catch
             {
 
             }
@@ -323,7 +323,7 @@ namespace GR_Calcul.Models
 
                     transaction.Commit();
                 }
-                catch (SqlException sqlError)
+                catch
                 {
                     transaction.Rollback();                    
                 }
@@ -332,7 +332,7 @@ namespace GR_Calcul.Models
                     db.Close();
                 }
             }
-            catch (SqlException sqlError)
+            catch
             {
             }
 
@@ -453,7 +453,7 @@ namespace GR_Calcul.Models
                         Console.WriteLine("Cross modify");
                     }
                 }
-                catch (SqlException sqlError)
+                catch
                 {
                     transaction.Rollback();
                 }
@@ -462,7 +462,7 @@ namespace GR_Calcul.Models
                     db.Close();
                 }
             }
-            catch (SqlException sqlError)
+            catch
             {
 
             }

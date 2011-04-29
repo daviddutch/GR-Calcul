@@ -1,10 +1,10 @@
-﻿@model GR_Calcul.Models.MachineModel
+﻿@model GR_Calcul.Models.Machine
 
 @{
-    ViewBag.Title = "Edit";
+    ViewBag.Title = "Modifier une machine";
 }
 
-<h2>Edit</h2>
+<h2>@ViewBag.Title</h2>
 
 <script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
 <script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
@@ -12,7 +12,17 @@
 @using (Html.BeginForm()) {
     @Html.ValidationSummary(true)
     <fieldset>
-        <legend>MachineModel</legend>
+        <legend>Machine</legend>
+
+        @{
+            if (ViewData["error"] != null)
+            {
+                <p style="color:Red">@ViewData["error"]</p>
+            }
+        }
+
+        @Html.HiddenFor(model => model.id_machine)
+        @Html.HiddenFor(model => Model.Timestamp)
 
         <div class="editor-label">
             @Html.LabelFor(model => model.Name)
@@ -30,6 +40,13 @@
             @Html.ValidationMessageFor(model => model.IP)
         </div>
 
+        <div class="editor-label">
+            @Html.LabelFor(model => model.id_room)
+        </div>
+        <div class="editor-field">
+            @Html.DropDownList("id_room", ViewData["Rooms"] as SelectList)
+        </div>
+
         <p>
             <input type="submit" value="Save" />
         </p>
@@ -39,4 +56,3 @@
 <div>
     @Html.ActionLink("Back to List", "Index")
 </div>
-
