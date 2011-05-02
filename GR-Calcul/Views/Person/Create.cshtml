@@ -63,11 +63,10 @@
         </div>*@
 
         <div class="editor-label">
-@*            @Html.LabelFor(model => GR_Calcul.Models.Person.pType)
-*@        </div>
+            @Html.LabelFor(model => model.Type)
+        </div>
         <div class="editor-field">
-@*            @Html.EditorFor(model => GR_Calcul.Models.Person.pType)
-*@            @Html.DropDownList("bla", GR_Calcul.Models.Person.pType)
+            @Html.DropDownList("bla", GR_Calcul.Models.Person.pType)
         </div>
 
         <div class="editor-label">
