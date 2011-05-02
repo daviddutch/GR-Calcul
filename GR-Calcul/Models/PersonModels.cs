@@ -45,11 +45,11 @@ namespace GR_Calcul.Models
         [HiddenInput(DisplayValue = false)]
         public string Timestamp { get; set; }
 
-        public static readonly IDictionary<string, string> pTypes = new Dictionary<string, string>() 
+        public static readonly IDictionary<PersonType, string> pTypes = new Dictionary<PersonType, string>() 
         { 
-            {"RM", "Gestionnaire des ressources"}, 
-            {"RE", "Responsable"}, 
-            {"US", "Utilisateur"}, 
+            {PersonType.ResourceManager, "Gestionnaire des ressources"}, 
+            {PersonType.Responsible, "Responsable"}, 
+            {PersonType.User, "Utilisateur"}, 
         };
 
         public static SelectList pType
@@ -213,6 +213,7 @@ namespace GR_Calcul.Models
 
         internal void CreatePerson(Person person)
         {
+            System.Diagnostics.Debug.WriteLine("bla");
             throw new NotImplementedException();
         }
 
