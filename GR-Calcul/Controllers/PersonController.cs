@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using GR_Calcul.Models;
+using System.Data.SqlClient;
 
 namespace GR_Calcul.Controllers
 {
@@ -19,14 +20,6 @@ namespace GR_Calcul.Controllers
         }
 
         //
-        // GET: /Person/Details/5
-
-        public ActionResult Details(int id)
-        {
-            return View();
-        }
-
-        //
         // GET: /Person/Create
 
         public ActionResult Create()
@@ -38,16 +31,17 @@ namespace GR_Calcul.Controllers
         // POST: /Person/Create
 
         [HttpPost]
-        public ActionResult Create(FormCollection collection)
+        public ActionResult Create(Person person)
         {
             try
             {
-                // TODO: Add insert logic here
-
+                model.CreatePerson(person);
                 return RedirectToAction("Index");
             }
-            catch
+            catch (SqlException sqlError)
             {
+                System.Diagnostics.Debug.WriteLine(sqlError.Message);
+                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
                 return View();
             }
         }
@@ -57,23 +51,25 @@ namespace GR_Calcul.Controllers
  
         public ActionResult Edit(int id)
         {
-            return View();
+            Person person = model.getPerson(id);
+            return View(person);
         }
 
         //
         // POST: /Person/Edit/5
 
         [HttpPost]
-        public ActionResult Edit(int id, FormCollection collection)
+        public ActionResult Edit(int id, Person person)
         {
             try
             {
-                // TODO: Add update logic here
- 
+                model.UpdatePerson(person);
                 return RedirectToAction("Index");
             }
-            catch
+            catch (SqlException sqlError)
             {
+                System.Diagnostics.Debug.WriteLine(sqlError.Message);
+                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
                 return View();
             }
         }
@@ -83,7 +79,7 @@ namespace GR_Calcul.Controllers
  
         public ActionResult Delete(int id)
         {
-            return View();
+            return View(model.getPerson(id));
         }
 
         //
@@ -94,8 +90,7 @@ namespace GR_Calcul.Controllers
         {
             try
             {
-                // TODO: Add delete logic here
- 
+                model.DeleteMachine(id); 
                 return RedirectToAction("Index");
             }
             catch
