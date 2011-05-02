@@ -9,10 +9,23 @@ using System.Data;
 
 namespace GR_Calcul.Models
 {
+    // CD 2011-05-02: IMPORTANT: enum names must be perfectly identical to DB Table names!
     public enum PersonType { User, Responsible, ResourceManager };
 
     public class Person
     {
+        public static readonly IDictionary<PersonType, string> pTypes = new Dictionary<PersonType, string>() 
+        { 
+            {PersonType.ResourceManager, "Gestionnaire des ressources"}, 
+            {PersonType.Responsible, "Responsable"}, 
+            {PersonType.User, "Utilisateur"}, 
+        };
+
+        public static SelectList pType
+        {
+            get { return new SelectList(pTypes, "Key", "Value"); }
+        }
+
         public PersonType Type { get; set; }
 
         public int ID { get; set; }
@@ -37,25 +50,9 @@ namespace GR_Calcul.Models
         public string Password { get; set; }
 
         //[Required]
-        //[Display(Name = "Type")]
-        //public string pType { get; set; }
-
-        //[Required]
         [Timestamp]
         [HiddenInput(DisplayValue = false)]
         public string Timestamp { get; set; }
-
-        public static readonly IDictionary<PersonType, string> pTypes = new Dictionary<PersonType, string>() 
-        { 
-            {PersonType.ResourceManager, "Gestionnaire des ressources"}, 
-            {PersonType.Responsible, "Responsable"}, 
-            {PersonType.User, "Utilisateur"}, 
-        };
-
-        public static SelectList pType
-        {
-            get { return new SelectList(pTypes, "Key", "Value"); }
-        } 
 
         public byte[] getByteTimestamp()
         {
@@ -213,8 +210,44 @@ namespace GR_Calcul.Models
 
         internal void CreatePerson(Person person)
         {
-            System.Diagnostics.Debug.WriteLine("bla");
-            throw new NotImplementedException();
+            try
+            {
+                SqlConnection db = new SqlConnection(connectionString);
+                SqlTransaction transaction;
+
+                db.Open();
+
+                transaction = db.BeginTransaction(IsolationLevel.ReadUncommitted);
+
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("INSERT INTO " + person.Type.ToString() +
+                                                   "([email], [password], [firstname], [lastname], [username]) " +
+                                                   "VALUES (@email, @password, @firstname, @lastname, @username);", db, transaction);
+
+                    cmd.Parameters.Add("@email", SqlDbType.Char).Value = person.Email;
+                    cmd.Parameters.Add("@password", SqlDbType.Char).Value = person.Password;
+                    cmd.Parameters.Add("@firstname", SqlDbType.Char).Value = person.FirstName;
+                    cmd.Parameters.Add("@lastname", SqlDbType.Char).Value = person.LastName;
+                    cmd.Parameters.Add("@username", SqlDbType.Char).Value = person.Username;
+               
+                    cmd.ExecuteNonQuery();
+
+                    transaction.Commit();
+                }
+                catch (SqlException sqlError)
+                {
+                    System.Diagnostics.Debug.WriteLine(sqlError.Message);
+                    System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                    transaction.Rollback();
+                }
+                db.Close();
+            }
+            catch (SqlException sqlError)
+            {
+                System.Diagnostics.Debug.WriteLine(sqlError.Message);
+                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+            }
         }
 
         internal Person getPerson(int id)
