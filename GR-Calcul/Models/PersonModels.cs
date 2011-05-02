@@ -21,6 +21,13 @@ namespace GR_Calcul.Models
             {PersonType.User, "Utilisateur"}, 
         };
 
+        public static readonly Dictionary<string, PersonType> dbTypes = new Dictionary<string, PersonType>() 
+        { 
+            {"RM", PersonType.ResourceManager}, 
+            {"RE", PersonType.Responsible}, 
+            {"US", PersonType.User}, 
+        };
+
         public static SelectList pType
         {
             get { return new SelectList(pTypes, "Key", "Value"); }
@@ -164,12 +171,10 @@ namespace GR_Calcul.Models
 
                     while (rdr.Read())
                     {
-                        //string coltype = rdr.GetFieldType(rdr.GetOrdinal("active")).Name;
                         string firstname = rdr.GetString(rdr.GetOrdinal("firstname"));
                         string lastname = rdr.GetString(rdr.GetOrdinal("lastname"));
                         string email = rdr.GetString(rdr.GetOrdinal("email"));
                         string username = rdr.GetString(rdr.GetOrdinal("username"));
-                        //string password = rdr.GetString(rdr.GetOrdinal("password"));
                         int id_person = rdr.GetInt32(rdr.GetOrdinal("id_person"));
 
                         PersonType personType = PersonType.User;
@@ -252,7 +257,71 @@ namespace GR_Calcul.Models
 
         internal Person getPerson(int id)
         {
-            throw new NotImplementedException();
+            Person person = null;
+
+            try
+            {
+                SqlConnection conn = new SqlConnection(connectionString);
+                SqlTransaction transaction;
+
+                conn.Open();
+
+                transaction = conn.BeginTransaction(IsolationLevel.ReadUncommitted);
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("SELECT RM.id_manager as id_person, RM.email, RM.firstname, RM.lastname, RM.username, 'RM' AS pType " +
+                                                    "FROM ResourceManager RM WHERE RM.id_manager = 3 " +
+                                                    "UNION SELECT R.id_responsible AS id_person, R.email, R.firstname, R.lastname, R.username, 'RE' AS pType FROM Responsible R WHERE R.id_responsible = 3 " +
+                                                    "UNION SELECT U.id_user AS id_person, U.email, U.firstname, U.lastname, U.username, 'US' AS pType FROM [User] U WHERE U.id_user = 3 " +
+                                                    "ORDER BY RM.firstname;", conn, transaction);
+
+                    cmd.Parameters.Add("@id_person", SqlDbType.Int).Value = id;
+
+                    SqlDataReader rdr = cmd.ExecuteReader();
+
+                    if (rdr.Read())
+                    {
+                        string firstname = rdr.GetString(rdr.GetOrdinal("firstname"));
+                        string lastname = rdr.GetString(rdr.GetOrdinal("lastname"));
+                        string email = rdr.GetString(rdr.GetOrdinal("email"));
+                        string username = rdr.GetString(rdr.GetOrdinal("username"));
+                        int id_person = rdr.GetInt32(rdr.GetOrdinal("id_person"));
+                        string dbType = rdr.GetString(rdr.GetOrdinal("pType"));
+
+                        //PersonType personType = PersonType.User;
+                        //switch (rdr.GetString(rdr.GetOrdinal("pType"))) {
+                        //    case "RM":
+                        //        personType = PersonType.ResourceManager;
+                        //        break;
+                        //    case "RE":
+                        //        personType = PersonType.Responsible;
+                        //        break;
+                        //    case "US":
+                        //        personType = PersonType.User;
+                        //        break;
+                        //}
+
+                        person = new Person(Person.dbTypes[dbType], id_person, firstname, lastname, username, email, "");
+
+                    }
+                    rdr.Close();
+                    transaction.Commit();
+                }
+                catch (SqlException sqlError)
+                {
+                    System.Diagnostics.Debug.WriteLine(sqlError.Message);
+                    System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                    transaction.Rollback();
+                }
+                conn.Close();
+            }
+            catch (SqlException sqlError)
+            {
+                System.Diagnostics.Debug.WriteLine(sqlError.Message);
+                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+            }
+
+            return person;
         }
 
         internal void UpdatePerson(Person person)
