@@ -173,7 +173,6 @@ namespace GR_Calcul.Models
                                                     "UNION SELECT US.id_person, US.email, US.firstname, US.lastname, US.username, 'US' AS pType FROM [User] US " +
                                                     "ORDER BY RM.firstname;", db, transaction);
 
-
                     SqlDataReader rdr = cmd.ExecuteReader();
 
                     while (rdr.Read())
@@ -403,20 +402,6 @@ namespace GR_Calcul.Models
                     cmd.Parameters.Add("@id", SqlDbType.Int).Value = person.ID;
 
                     cmd.ExecuteNonQuery();
-
-                    //cmd = new SqlCommand("DELETE FROM Responsible " +
-                    //                                "WHERE id_person=@id;", conn, transaction);
-
-                    //cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
-
-                    //cmd.ExecuteNonQuery();
-
-                    //cmd = new SqlCommand("DELETE FROM ResourceManager " +
-                    //                                "WHERE id_person=@id;", conn, transaction);
-
-                    //cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
-
-                    //cmd.ExecuteNonQuery();
 
                     transaction.Commit();
                 }
