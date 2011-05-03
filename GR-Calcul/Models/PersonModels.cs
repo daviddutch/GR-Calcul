@@ -381,7 +381,52 @@ namespace GR_Calcul.Models
 
         internal void DeleteMachine(int id)
         {
-            throw new NotImplementedException();
+            try
+            { 
+                SqlConnection conn = new SqlConnection(connectionString);
+                SqlTransaction transaction;
+
+                conn.Open();
+
+                transaction = conn.BeginTransaction(IsolationLevel.RepeatableRead);
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("DELETE FROM [User] " +
+                                                    "WHERE id_person=@id;", conn, transaction);
+
+                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
+
+                    cmd.ExecuteNonQuery();
+
+                    cmd = new SqlCommand("DELETE FROM Responsible " +
+                                                    "WHERE id_person=@id;", conn, transaction);
+
+                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
+
+                    cmd.ExecuteNonQuery();
+
+                    cmd = new SqlCommand("DELETE FROM ResourceManager " +
+                                                    "WHERE id_person=@id;", conn, transaction);
+
+                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
+
+                    cmd.ExecuteNonQuery();
+
+                    transaction.Commit();
+                }
+                catch (SqlException sqlError)
+                {
+                    System.Diagnostics.Debug.WriteLine(sqlError.Message);
+                    System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                    transaction.Rollback();
+                }
+                conn.Close();
+            }
+            catch (SqlException sqlError)
+            {
+                System.Diagnostics.Debug.WriteLine(sqlError.Message);
+                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+            }
         }
     }
 }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    

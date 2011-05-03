@@ -278,7 +278,7 @@ namespace GR_Calcul.Models
                         cmd.Parameters.Add("@id", SqlDbType.Int).Value = range.id_slotRange;
                         rdr = cmd.ExecuteReader();
                         //bool hasSetDuration = false;
-                        int cpt = 0;
+                        cpt = 0;
                         while (rdr.Read())
                         {
                             DateTime start = rdr.GetDateTime(rdr.GetOrdinal("start"));
