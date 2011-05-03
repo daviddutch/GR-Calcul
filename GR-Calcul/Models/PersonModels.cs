@@ -348,7 +348,7 @@ namespace GR_Calcul.Models
                     if (rdr.Read())
                     {
                         rdr.Close();
-                        cmd = new SqlCommand("UPDATE " + person.pType.ToString() + " " +
+                        cmd = new SqlCommand("UPDATE [" + person.pType.ToString() + "] " +
                             "SET [email]=@email, [firstname]=@firstname, [lastname]=@lastname, [username]=@username " +
                                                     "WHERE id_person=@id_person", db, transaction);
 
