@@ -49,9 +49,9 @@ namespace GR_Calcul.Controllers
         //
         // GET: /Person/Edit/5
  
-        public ActionResult Edit(int id)
+        public ActionResult Edit(int id, PersonType pType)
         {
-            Person person = model.getPerson(id);
+            Person person = model.getPerson(id, pType);
             return View(person);
         }
 
@@ -77,20 +77,20 @@ namespace GR_Calcul.Controllers
         //
         // GET: /Person/Delete/5
  
-        public ActionResult Delete(int id)
+        public ActionResult Delete(int id, PersonType pType)
         {
-            return View(model.getPerson(id));
+            return View(model.getPerson(id, pType));
         }
 
         //
         // POST: /Person/Delete/5
 
         [HttpPost]
-        public ActionResult Delete(int id, FormCollection collection)
+        public ActionResult Delete(int id, Person person)
         {
             try
             {
-                model.DeleteMachine(id); 
+                model.DeletePerson(person); 
                 return RedirectToAction("Index");
             }
             catch
