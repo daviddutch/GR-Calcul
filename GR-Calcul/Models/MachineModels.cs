@@ -247,7 +247,7 @@ namespace GR_Calcul.Models
 
             return machine;
         }
-       
+
         public void CreateMachine(Machine machine)
         {
             try
