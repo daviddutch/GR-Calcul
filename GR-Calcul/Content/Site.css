@@ -35,7 +35,8 @@ body {
 
 #main-content {
 	padding: 0 15px 20px 215px;
-	
+	overflow: auto;
+	width: 670px;
 }
 	#main-content p {line-height:1.5;}
 	#main-content p, #main-content address {

@@ -1,10 +1,10 @@
 ﻿@model Nullable<DateTime>
 @if ( Model.HasValue )
 {
-    @Html.TextBox("", String.Format("{0:dd/MM/yyyy}", Model.Value), new { @class = "lollipop", title="format dd/mm/yyyy" })
+    @Html.TextBox("", String.Format("{0:dd/MM/yyyy}", Model.Value), new { @class = "lollipop", title = "format dd/mm/yyyy" })
     
 }
 else
 {
-    @Html.TextBox("", String.Format("{0:dd/MM/yyyy}", DateTime.Now), new { @class = "lollipop", title="format dd/mm/yyyy" }) 
+    @Html.TextBox("", String.Format("{0:dd/MM/yyyy}", DateTime.Now), new { @class = "lollipop", title = "format dd/mm/yyyy" }) 
 }

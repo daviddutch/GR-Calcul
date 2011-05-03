@@ -13,6 +13,12 @@
     @Html.ValidationSummary(true)
     <fieldset>
         <legend>CreateCourseModel</legend>
+       @{
+            if (ViewData["Error"] != null)
+            {
+                <p style="color:Red">@ViewData["Error"]</p>
+            }
+        }
 
         <div class="editor-label">
             @Html.LabelFor(model => model.Name)

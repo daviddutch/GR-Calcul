@@ -68,6 +68,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Misc\DuffAuthorizeAttribute.cs" />
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\CourseModels.cs" />
     <Compile Include="Models\MachineModels.cs" />
