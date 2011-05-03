@@ -105,7 +105,7 @@ namespace GR_Calcul.Models
                 transaction = db.BeginTransaction(IsolationLevel.ReadCommitted);
                 try
                 {
-                    SqlCommand cmd = new SqlCommand("SELECT R.id_responsible as id_person, R.firstname, R.lastname, R.email, R.username, R.password, R.timestamp " +
+                    SqlCommand cmd = new SqlCommand("SELECT R.id_person as id_person, R.firstname, R.lastname, R.email, R.username, R.password, R.timestamp " +
                                                     "FROM Responsible R " +
                                                     "ORDER BY R.firstname;", db, transaction);
 
@@ -160,10 +160,10 @@ namespace GR_Calcul.Models
                 transaction = db.BeginTransaction(IsolationLevel.ReadCommitted);
                 try
                 {
-                    SqlCommand cmd = new SqlCommand("SELECT RM.id_manager as id_person, RM.email, RM.firstname, RM.lastname, RM.username, 'RM' AS pType " +
+                    SqlCommand cmd = new SqlCommand("SELECT RM.id_person as id_person, RM.email, RM.firstname, RM.lastname, RM.username, 'RM' AS pType " +
                                                     "FROM ResourceManager RM " +
-                                                    "UNION SELECT R.id_responsible, R.email, R.firstname, R.lastname, R.username, 'RE' AS pType FROM Responsible R " +
-                                                    "UNION SELECT U.id_user, U.email, U.firstname, U.lastname, U.username, 'US' AS pType FROM [User] U " +
+                                                    "UNION SELECT R.id_person, R.email, R.firstname, R.lastname, R.username, 'RE' AS pType FROM Responsible R " +
+                                                    "UNION SELECT U.id_person, U.email, U.firstname, U.lastname, U.username, 'US' AS pType FROM [User] U " +
                                                     "ORDER BY RM.firstname;", db, transaction);
 
 
@@ -226,7 +226,7 @@ namespace GR_Calcul.Models
 
                 try
                 {
-                    SqlCommand cmd = new SqlCommand("INSERT INTO " + person.Type.ToString() +
+                    SqlCommand cmd = new SqlCommand("INSERT INTO [" + person.Type.ToString() + "] " +
                                                    "([email], [password], [firstname], [lastname], [username]) " +
                                                    "VALUES (@email, @password, @firstname, @lastname, @username);", db, transaction);
 
@@ -269,10 +269,10 @@ namespace GR_Calcul.Models
                 transaction = conn.BeginTransaction(IsolationLevel.ReadUncommitted);
                 try
                 {
-                    SqlCommand cmd = new SqlCommand("SELECT RM.id_manager as id_person, RM.email, RM.firstname, RM.lastname, RM.username, 'RM' AS pType " +
-                                                    "FROM ResourceManager RM WHERE RM.id_manager = 3 " +
-                                                    "UNION SELECT R.id_responsible AS id_person, R.email, R.firstname, R.lastname, R.username, 'RE' AS pType FROM Responsible R WHERE R.id_responsible = 3 " +
-                                                    "UNION SELECT U.id_user AS id_person, U.email, U.firstname, U.lastname, U.username, 'US' AS pType FROM [User] U WHERE U.id_user = 3 " +
+                    SqlCommand cmd = new SqlCommand("SELECT RM.id_person as id_person, RM.email, RM.firstname, RM.lastname, RM.username, 'RM' AS pType " +
+                                                    "FROM ResourceManager RM WHERE RM.id_person = 3 " +
+                                                    "UNION SELECT R.id_person AS id_person, R.email, R.firstname, R.lastname, R.username, 'RE' AS pType FROM Responsible R WHERE R.id_person = 3 " +
+                                                    "UNION SELECT U.id_person AS id_person, U.email, U.firstname, U.lastname, U.username, 'US' AS pType FROM [User] U WHERE U.id_person = 3 " +
                                                     "ORDER BY RM.firstname;", conn, transaction);
 
                     cmd.Parameters.Add("@id_person", SqlDbType.Int).Value = id;
@@ -287,19 +287,6 @@ namespace GR_Calcul.Models
                         string username = rdr.GetString(rdr.GetOrdinal("username"));
                         int id_person = rdr.GetInt32(rdr.GetOrdinal("id_person"));
                         string dbType = rdr.GetString(rdr.GetOrdinal("pType"));
-
-                        //PersonType personType = PersonType.User;
-                        //switch (rdr.GetString(rdr.GetOrdinal("pType"))) {
-                        //    case "RM":
-                        //        personType = PersonType.ResourceManager;
-                        //        break;
-                        //    case "RE":
-                        //        personType = PersonType.Responsible;
-                        //        break;
-                        //    case "US":
-                        //        personType = PersonType.User;
-                        //        break;
-                        //}
 
                         person = new Person(Person.dbTypes[dbType], id_person, firstname, lastname, username, email, "");
 
@@ -326,7 +313,68 @@ namespace GR_Calcul.Models
 
         internal void UpdatePerson(Person person)
         {
-            throw new NotImplementedException();
+            bool updated = true;
+
+            try
+            {
+                SqlConnection db = new SqlConnection(connectionString);
+                SqlTransaction transaction;
+
+                db.Open();
+
+                transaction = db.BeginTransaction(IsolationLevel.RepeatableRead);
+                try
+                {
+                    byte[] timestamp = person.getByteTimestamp();
+
+                    SqlCommand cmd = new SqlCommand("SELECT * " +
+                                                    "FROM [" + person.Type.ToString + "] " + 
+                                                    "WHERE M.id_machine=@id_machine AND M.timestamp=@timestamp;", db, transaction);
+
+                    cmd.Parameters.Add("@id_machine", SqlDbType.Int).Value = person.id_machine;
+                    cmd.Parameters.Add("@timestamp", SqlDbType.Binary).Value = timestamp;
+
+                    SqlDataReader rdr = cmd.ExecuteReader();
+
+                    if (rdr.Read())
+                    {
+                        rdr.Close();
+                        cmd = new SqlCommand("UPDATE Machine " +
+                                                    "SET name=@Name, IP=@IP " +
+                                                    ", id_room=@id_room " +
+                            //", id_os=@id_os " +
+                                                    "WHERE id_machine=@id_machine", db, transaction);
+
+                        cmd.Parameters.Add("@id_machine", SqlDbType.Int).Value = machine.id_machine;
+                        cmd.Parameters.Add("@Name", SqlDbType.Char).Value = machine.Name;
+                        cmd.Parameters.Add("@IP", SqlDbType.Char).Value = machine.IP;
+                        cmd.Parameters.Add("@id_room", SqlDbType.Int).Value = machine.id_room;
+
+                        cmd.ExecuteNonQuery();
+                    }
+                    else
+                    {
+                        rdr.Close();
+                        System.Diagnostics.Debug.WriteLine("Cross modify");
+                        updated = false;
+                    }
+
+                    transaction.Commit();
+                }
+                catch (SqlException sqlError)
+                {
+                    System.Diagnostics.Debug.WriteLine(sqlError.Message);
+                    System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                    transaction.Rollback();
+                }
+                db.Close();
+            }
+            catch (SqlException sqlError)
+            {
+                System.Diagnostics.Debug.WriteLine(sqlError.Message);
+                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+            }
+            if (!updated) throw new Exception("timestamp");
         }
 
         internal void DeleteMachine(int id)

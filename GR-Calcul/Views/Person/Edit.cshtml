@@ -48,13 +48,14 @@
             @Html.ValidationMessageFor(model => model.Username)
         </div>
 
-        <div class="editor-label">
+        @* the ResourceManager is not allowed to change the PW *@
+@*       <div class="editor-label">
             @Html.LabelFor(model => model.Password)
         </div>
         <div class="editor-field">
             @Html.EditorFor(model => model.Password)
             @Html.ValidationMessageFor(model => model.Password)
-        </div>
+        </div>*@
 
         <div class="editor-label">
             @Html.LabelFor(model => model.Timestamp)
