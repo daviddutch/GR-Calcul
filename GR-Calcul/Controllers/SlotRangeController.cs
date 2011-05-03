@@ -62,7 +62,16 @@ namespace GR_Calcul.Controllers
         }
 
         //
-        //GET: /SlotRange/SignOut
+        // GET: /SlotRange/CourseRanges/5
+
+        public ActionResult CourseRanges(int id)
+        {
+            InitViewbag();
+            List<SlotRange> list = slotRangeModel.GetSlotRangesForCourse(id);
+            return View(list);
+        }
+
+        //
 
         public void SignOut()
         {

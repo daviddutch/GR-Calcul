@@ -91,9 +91,10 @@ namespace GR_Calcul.Controllers
             }
             catch (Exception e)
             {
-
+                var items = personModel.GetResponsibles().Select(x => new SelectListItem() { Value = x.ID.ToString(), Text = x.toString() }).ToList();
+                ViewData["Responsibles"] = new SelectList(items, "Value", "Text", course.Responsible);
                 ViewData["error"] = e.Message;
-                return View();
+                return View(course);
             }
         }
         //

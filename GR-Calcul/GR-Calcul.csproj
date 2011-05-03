@@ -231,7 +231,7 @@
     <Content Include="Views\Room\Delete.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Views\Person\Create.cshtml" />
+    <Content Include="Views\SlotRange\CourseRanges.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Person\Edit.cshtml" />
