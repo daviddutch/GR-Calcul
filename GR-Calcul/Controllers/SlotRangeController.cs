@@ -29,6 +29,16 @@ namespace GR_Calcul.Controllers
         }
 
         //
+        // GET: /SlotRange/CourseRanges/5
+
+        public ActionResult CourseRanges(int id)
+        {
+            InitViewbag();
+            List<SlotRange> list = slotRangeModel.GetSlotRangesForCourse(id);
+            return View(list);
+        }
+
+        //
         // GET: /SlotRange/Details/5
 
         public ActionResult Details(int id)
