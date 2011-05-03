@@ -10,6 +10,11 @@ using System.Web.Mvc;
 
 namespace GR_Calcul.Models
 {
+    public class CourseRangesViewModel
+    {
+        public Course Course { get; set; }
+        public List<SlotRange> SlotRanges { get; set; }
+    }
 
     public class SlotRange
     {
@@ -17,8 +22,6 @@ namespace GR_Calcul.Models
         [Timestamp]
         [HiddenInput(DisplayValue = false)]
         public string Timestamp { get; set; }
-
-
 
         public byte[] getByteTimestamp()
         {
@@ -70,7 +73,6 @@ namespace GR_Calcul.Models
         public List<Int32> Machines { get; set; }
 
         public List<DateTime> Slotdate { get; set; }
-        public List<Subscription> Subscriptions { get; set; }
 
         public List<string> StartzAdded { get; set; }
         public List<string> EndzAdded { get; set; }
@@ -110,7 +112,6 @@ namespace GR_Calcul.Models
             StartzAdded = new List<string>();
             EndzAdded = new List<string>();
             SlotdateAdded = new List<DateTime>();
-            Subscriptions = new List<Subscription>();
         }
 
         public SlotRange(int id_slotRange, DateTime startRes, DateTime endRes, string name, int id_course) : this()
@@ -172,6 +173,17 @@ namespace GR_Calcul.Models
             Start = start;
             End = end;
         }
+        public Slot(int id_slot, DateTime start, DateTime end)
+        {
+            Start = start;
+            End = end;
+            ID = id_slot;
+            Reservations = new List<Reservation>();
+        }
+
+        public int ID { get; set; }
+
+        public List<Reservation> Reservations { get; set; }
 
         [Required]
         [Display(Name = "Début du créneau", Description = "dd/mm/yyyy")]
@@ -186,18 +198,19 @@ namespace GR_Calcul.Models
         public DateTime End { get; set; }
     }
 
-    public class Subscription
+    public class Reservation
     {
         public int id_person { get; set; }
-        public int id_course { get; set; }
+        public int id_slot { get; set; }
+        public int NumberMachines { get; set; }
 
         public String Name { get; set; }
 
-        public Subscription(int id_person, int id_course, String name)
+        public Reservation(int id_person, int id_slot, int numberMachines)
         {
             this.id_person = id_person;
-            this.id_course = id_course;
-            this.Name = name;
+            this.id_slot = id_slot;
+            this.NumberMachines = numberMachines;
         }
     }
 
@@ -244,13 +257,14 @@ namespace GR_Calcul.Models
                     foreach (var range in ranges)
                     {
                         //get slots
-                        cmd = new SqlCommand("SELECT [start], [end] FROM Slot WHERE id_slotRange=@id;", db, transaction);
+                        cmd = new SqlCommand("SELECT [id_slot], [start], [end] FROM Slot WHERE id_slotRange=@id;", db, transaction);
                         cmd.Parameters.Add("@id", SqlDbType.Int).Value = range.id_slotRange;
                         rdr = cmd.ExecuteReader();
                         //bool hasSetDuration = false;
                         int cpt = 0;
                         while (rdr.Read())
                         {
+                            int id_slot = rdr.GetInt32(rdr.GetOrdinal("id_slot"));
                             DateTime start = rdr.GetDateTime(rdr.GetOrdinal("start"));
                             DateTime end = rdr.GetDateTime(rdr.GetOrdinal("end"));
 
@@ -267,40 +281,28 @@ namespace GR_Calcul.Models
                             }
                             cpt++;
 
-                            range.Slots.Add(new Slot(start, end));
+                            range.Slots.Add(new Slot(id_slot, start, end));
                         }
                         rdr.Close();
                         range.NumberOfSlots = cpt;
 
-
-                        //get subscriptions
-                        cmd = new SqlCommand("SELECT [id_], [end] FROM Slot WHERE id_slotRange=@id;", db, transaction);
-                        cmd.Parameters.Add("@id", SqlDbType.Int).Value = range.id_slotRange;
-                        rdr = cmd.ExecuteReader();
-                        //bool hasSetDuration = false;
-                        int cpt = 0;
-                        while (rdr.Read())
+                        foreach (var slot in range.Slots)
                         {
-                            DateTime start = rdr.GetDateTime(rdr.GetOrdinal("start"));
-                            DateTime end = rdr.GetDateTime(rdr.GetOrdinal("end"));
-
-                            int startHour = start.Hour;
-                            int startMinute = start.Minute;
-
-                            int endHour = end.Hour;
-                            int endMinute = end.Minute;
-                            range.Startz.Add(startHour + ":" + startMinute);
-                            range.Endz.Add(endHour + ":" + endMinute);
-                            if (!range.Slotdate.Contains(start.Date))
+                            //get subscriptions
+                            cmd = new SqlCommand("SELECT [id_person], [id_slot], [numberMachines] FROM Reservation WHERE id_slot=@id;", db, transaction);
+                            cmd.Parameters.Add("@id", SqlDbType.Int).Value = slot.ID;
+                            rdr = cmd.ExecuteReader();
+                            
+                            while (rdr.Read())
                             {
-                                range.Slotdate.Add(start.Date);
-                            }
-                            cpt++;
+                                int id_person = rdr.GetInt32(rdr.GetOrdinal("id_person"));
+                                int id_slot = rdr.GetInt32(rdr.GetOrdinal("id_slot"));
+                                int numberMachines = rdr.GetInt32(rdr.GetOrdinal("numberMachines"));
 
-                            range.Slots.Add(new Slot(start, end));
+                                slot.Reservations.Add(new Reservation(id_person, id_slot, numberMachines));
+                            }
+                            rdr.Close();
                         }
-                        rdr.Close();
-                        range.NumberOfSlots = cpt;
                     }
                     transaction.Commit();
                 }

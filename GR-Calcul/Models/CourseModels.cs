@@ -36,7 +36,8 @@ namespace GR_Calcul.Models
         [HiddenInput(DisplayValue = false)]
         public string Timestamp { get; set; }
 
-        
+        public List<Person> Students { get; set; }
+
 
         public byte[] getByteTimestamp()
         {
@@ -47,7 +48,10 @@ namespace GR_Calcul.Models
             Timestamp = Convert.ToBase64String(timestamp);
         }
 
-        public Course() { }
+        public Course()
+        {
+            Students = new List<Person>();
+        }
 
         public Course(int id_course, String name, String key, bool active, int id_person)
         {
@@ -56,9 +60,23 @@ namespace GR_Calcul.Models
             Key = key;
             Active = active;
             Responsible = id_person;
+            Students = new List<Person>();
         }
     }
+    public class Subscription
+    {
+        public int id_person { get; set; }
+        public int id_course { get; set; }
 
+        public String Name { get; set; }
+
+        public Subscription(int id_person, int id_course, String name)
+        {
+            this.id_person = id_person;
+            this.id_course = id_course;
+            this.Name = name;
+        }
+    }
     public class CourseModel
     {
         // CD 2011-04-21: more centralized this way for adaptation between computers/developers
@@ -171,7 +189,49 @@ namespace GR_Calcul.Models
 
             return course;
         }
-        
+        public List<Person> getCourseStudents(int id_course)
+        {
+            List<Person> list = new List<Person>();
+
+            try
+            {
+                SqlConnection db = new SqlConnection(connectionString);
+                SqlTransaction transaction;
+
+                db.Open();
+
+                transaction = db.BeginTransaction(IsolationLevel.ReadUncommitted);
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("SELECT S.id_person " +
+                                                    "FROM Subscription S;", db, transaction);
+
+                    SqlDataReader rdr = cmd.ExecuteReader();
+
+                    PersonModel personModel = new PersonModel();
+
+                    while (rdr.Read())
+                    {
+                        int id_person = rdr.GetInt32(rdr.GetOrdinal("id_person"));
+
+                        list.Add(personModel.getPerson(id_person));
+                    }
+                    rdr.Close();
+                    transaction.Commit();
+                }
+                catch
+                {
+                    transaction.Rollback();
+                }
+                db.Close();
+            }
+            catch
+            {
+
+            }
+
+            return list;
+        }
         public void CreateCourse(Course course)
         {
             try

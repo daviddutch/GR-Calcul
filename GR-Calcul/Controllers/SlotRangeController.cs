@@ -67,8 +67,11 @@ namespace GR_Calcul.Controllers
         public ActionResult CourseRanges(int id)
         {
             InitViewbag();
-            List<SlotRange> list = slotRangeModel.GetSlotRangesForCourse(id);
-            return View(list);
+            CourseRangesViewModel viewModel = new CourseRangesViewModel();
+            viewModel.SlotRanges = slotRangeModel.GetSlotRangesForCourse(id);
+            viewModel.Course = courseModel.GetCourse(id);
+            viewModel.Course.Students = courseModel.getCourseStudents(id);
+            return View(viewModel);
         }
 
         //
