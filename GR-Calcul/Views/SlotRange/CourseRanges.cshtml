@@ -9,7 +9,7 @@
 
 @foreach (var slotRange in Model.SlotRanges)
 {
-<h3>@slotRange.Name - @slotRange.StartRes - @slotRange.EndRes <div style="float:right; margin-right:20px;"><a href="#" class="modify"></a><a href="#" class="dupl"></a><a href="#" class="script"></a><a href="#" class="delete"></a></div></h3>
+<h3>@slotRange.Name - @slotRange.StartRes - @slotRange.EndRes <span style="float:right; margin-right:20px;"><a href="#" class="modify"></a><a href="#" class="dupl"></a><a href="#" class="script"></a><a href="#" class="delete"></a></span></h3>
 <table class="simpleTable">
 	<thead>
 		<tr>
@@ -54,9 +54,10 @@
 		    {
                 foreach (var slot in slotRange.GetSlotsForDate(slotRange.Slotdate[i]))
 				{
-                    if (slot.ID==1)
+                    GR_Calcul.Models.Reservation reservation = slot.getReservation(person.ID);
+                    if (reservation != null)
                     {
-                        <td style="text-align:center;">X - 5</td>
+                        <td style="text-align:center;">@reservation.NumberMachines</td>
                     }
                     else
                     {

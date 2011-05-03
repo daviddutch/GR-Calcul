@@ -214,7 +214,7 @@ namespace GR_Calcul.Models
                     {
                         int id_person = rdr.GetInt32(rdr.GetOrdinal("id_person"));
 
-                        list.Add(personModel.getPerson(id_person));
+                        list.Add(personModel.getPerson(id_person, PersonType.User));
                     }
                     rdr.Close();
                     transaction.Commit();

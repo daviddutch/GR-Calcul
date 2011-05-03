@@ -18,7 +18,6 @@ namespace GR_Calcul.Models
 
     public class SlotRange
     {
-
         [Timestamp]
         [HiddenInput(DisplayValue = false)]
         public string Timestamp { get; set; }
@@ -179,6 +178,15 @@ namespace GR_Calcul.Models
             End = end;
             ID = id_slot;
             Reservations = new List<Reservation>();
+        }
+
+        public Reservation getReservation(int id_person)
+        {
+            foreach (Reservation reservation in Reservations)
+            {
+                if (reservation.id_person == id_person) return reservation;
+            }
+            return null;
         }
 
         public int ID { get; set; }
