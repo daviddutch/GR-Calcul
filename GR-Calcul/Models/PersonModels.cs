@@ -28,12 +28,19 @@ namespace GR_Calcul.Models
             {"US", PersonType.User}, 
         };
 
-        public static SelectList pType
+        public static readonly Dictionary<PersonType, string> dbTypesRev = new Dictionary<PersonType, string>() 
+        { 
+            {PersonType.ResourceManager, "RM"}, 
+            {PersonType.Responsible, "RE"}, 
+            {PersonType.User, "US"}, 
+        };
+        
+        public static SelectList pTypeSel
         {
             get { return new SelectList(pTypes, "Key", "Value"); }
         }
 
-        public PersonType Type { get; set; }
+        public PersonType pType { get; set; }
 
         public int ID { get; set; }
         [Required]
@@ -74,7 +81,7 @@ namespace GR_Calcul.Models
 
         public Person(PersonType type, int id_person, string firstName, string lastName, string username, string email, string password)
         {
-            Type = type;
+            pType = type;
             ID = id_person;
             FirstName = firstName;
             LastName = lastName;
@@ -226,7 +233,7 @@ namespace GR_Calcul.Models
 
                 try
                 {
-                    SqlCommand cmd = new SqlCommand("INSERT INTO [" + person.Type.ToString() + "] " +
+                    SqlCommand cmd = new SqlCommand("INSERT INTO [" + person.pType.ToString() + "] " +
                                                    "([email], [password], [firstname], [lastname], [username]) " +
                                                    "VALUES (@email, @password, @firstname, @lastname, @username);", db, transaction);
 
@@ -255,7 +262,7 @@ namespace GR_Calcul.Models
             }
         }
 
-        internal Person getPerson(int id)
+        internal Person getPerson(int id, PersonType pType)
         {
             Person person = null;
 
@@ -269,13 +276,12 @@ namespace GR_Calcul.Models
                 transaction = conn.BeginTransaction(IsolationLevel.ReadUncommitted);
                 try
                 {
-                    SqlCommand cmd = new SqlCommand("SELECT RM.id_person as id_person, RM.email, RM.firstname, RM.lastname, RM.username, 'RM' AS pType, RM.timestamp " +
-                                                    "FROM ResourceManager RM WHERE RM.id_person = @id_person " +
-                                                    "UNION SELECT RE.id_person AS id_person, RE.email, RE.firstname, RE.lastname, RE.username, 'RE' AS pType, RE.timestamp FROM Responsible RE WHERE RE.id_person = @id_person " +
-                                                    "UNION SELECT US.id_person AS id_person, US.email, US.firstname, US.lastname, US.username, 'US' AS pType, US.timestamp FROM [User] US WHERE US.id_person = @id_person " +
-                                                    "ORDER BY RM.firstname;", conn, transaction);
+                    SqlCommand cmd = new SqlCommand("SELECT P.id_person as id_person, P.email, P.firstname, P.lastname, P.username, P.pType AS pType, P.timestamp " +
+                                                    "FROM [Person] P WHERE P.id_person = @id_person AND P.pType=@pType " +
+                                                    "ORDER BY P.firstname;", conn, transaction);
 
                     cmd.Parameters.Add("@id_person", SqlDbType.Int).Value = id;
+                    cmd.Parameters.Add("@pType", SqlDbType.Char).Value = Person.dbTypesRev[pType];
 
                     SqlDataReader rdr = cmd.ExecuteReader();
 
@@ -331,7 +337,7 @@ namespace GR_Calcul.Models
                     byte[] timestamp = person.getByteTimestamp();
 
                     SqlCommand cmd = new SqlCommand("SELECT * " +
-                                                    "FROM [" + person.Type.ToString() + "] P " +
+                                                    "FROM [" + person.pType.ToString() + "] P " +
                                                     "WHERE P.id_person=@id_person AND P.timestamp=@timestamp;", db, transaction);
 
                     cmd.Parameters.Add("@id_person", SqlDbType.Int).Value = person.ID;
@@ -342,7 +348,7 @@ namespace GR_Calcul.Models
                     if (rdr.Read())
                     {
                         rdr.Close();
-                        cmd = new SqlCommand("UPDATE " + person.Type.ToString() + " " +
+                        cmd = new SqlCommand("UPDATE " + person.pType.ToString() + " " +
                             "SET [email]=@email, [firstname]=@firstname, [lastname]=@lastname, [username]=@username " +
                                                     "WHERE id_person=@id_person", db, transaction);
 
@@ -379,7 +385,7 @@ namespace GR_Calcul.Models
             if (!updated) throw new Exception("timestamp");
         }
 
-        internal void DeleteMachine(int id)
+        internal void DeletePerson(Person person)
         {
             try
             { 
@@ -391,26 +397,26 @@ namespace GR_Calcul.Models
                 transaction = conn.BeginTransaction(IsolationLevel.RepeatableRead);
                 try
                 {
-                    SqlCommand cmd = new SqlCommand("DELETE FROM [User] " +
+                    SqlCommand cmd = new SqlCommand("DELETE FROM [" + person.pType.ToString() + "] " +
                                                     "WHERE id_person=@id;", conn, transaction);
 
-                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
+                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = person.ID;
 
                     cmd.ExecuteNonQuery();
 
-                    cmd = new SqlCommand("DELETE FROM Responsible " +
-                                                    "WHERE id_person=@id;", conn, transaction);
+                    //cmd = new SqlCommand("DELETE FROM Responsible " +
+                    //                                "WHERE id_person=@id;", conn, transaction);
 
-                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
+                    //cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
 
-                    cmd.ExecuteNonQuery();
+                    //cmd.ExecuteNonQuery();
 
-                    cmd = new SqlCommand("DELETE FROM ResourceManager " +
-                                                    "WHERE id_person=@id;", conn, transaction);
+                    //cmd = new SqlCommand("DELETE FROM ResourceManager " +
+                    //                                "WHERE id_person=@id;", conn, transaction);
 
-                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
+                    //cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
 
-                    cmd.ExecuteNonQuery();
+                    //cmd.ExecuteNonQuery();
 
                     transaction.Commit();
                 }

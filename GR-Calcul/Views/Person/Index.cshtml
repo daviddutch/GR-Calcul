@@ -19,15 +19,15 @@
     alternatingRowStyle: "alt",
     
     columns: grid.Columns(
-        grid.Column("Type", "Type"),
+        grid.Column("pType", "Type"),
             grid.Column("FirstName", "Prénom"),
             grid.Column("LastName", "Nom"),
             grid.Column("Email", "Email"),
             grid.Column("Username", "Nom d'utilisateur"),
             grid.Column(format: (item) =>
                 {
-                    return new HtmlString("<a href=\"" + Url.Action("Edit", new { id = item.ID }).ToString() + "\"class=\"modify\" title=\"Modifier\"></a>" +
-                                          "<a href=\"" + Url.Action("Delete", new { id = item.ID }).ToString() + "\"class=\"delete\" title=\"Supprimer\"></a>");
+                    return new HtmlString("<a href=\"" + Url.Action("Edit", new { id = item.ID, pType = item.pType }).ToString() + "\"class=\"modify\" title=\"Modifier\"></a>" +
+                                          "<a href=\"" + Url.Action("Delete", new { id = item.ID, pType = item.pType }).ToString() + "\"class=\"delete\" title=\"Supprimer\"></a>");
                 }, canSort: false))
         )
 
