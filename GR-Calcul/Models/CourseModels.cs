@@ -49,13 +49,13 @@ namespace GR_Calcul.Models
 
         public Course() { }
 
-        public Course(int id_course, String name, String key, bool active, int id_responsible)
+        public Course(int id_course, String name, String key, bool active, int id_person)
         {
             ID = id_course;
             Name = name;
             Key = key;
             Active = active;
-            Responsible = id_responsible;
+            Responsible = id_person;
         }
     }
 
@@ -78,9 +78,9 @@ namespace GR_Calcul.Models
                 transaction = db.BeginTransaction(IsolationLevel.ReadUncommitted);
                 try
                 {
-                    SqlCommand cmd = new SqlCommand("SELECT C.id_course, C.name, C.[key], C.active, R.id_responsible, R.firstname, R.lastname " +
+                    SqlCommand cmd = new SqlCommand("SELECT C.id_course, C.name, C.[key], C.active, R.id_person, R.firstname, R.lastname " +
                                                     "FROM Course C " +
-                                                    "INNER JOIN Responsible R ON R.id_responsible = C.id_responsible;", db, transaction);
+                                                    "INNER JOIN Responsible R ON R.id_person = C.id_person;", db, transaction);
 
 
                     SqlDataReader rdr = cmd.ExecuteReader();
@@ -91,11 +91,11 @@ namespace GR_Calcul.Models
                         string name = rdr.GetString(rdr.GetOrdinal("name"));
                         string key = rdr.GetString(rdr.GetOrdinal("Key"));
                         bool active = rdr.GetBoolean(rdr.GetOrdinal("active"));
-                        int id_responsible = rdr.GetInt32(rdr.GetOrdinal("id_responsible"));
+                        int id_person = rdr.GetInt32(rdr.GetOrdinal("id_person"));
                         int id_course = rdr.GetInt32(rdr.GetOrdinal("id_course"));
 
                         Course course = new Course(id_course, name, key,
-                                                   active, id_responsible);
+                                                   active, id_person);
 
                         course.ResponsibleString = rdr.GetString(rdr.GetOrdinal("firstname")) + " " + rdr.GetString(rdr.GetOrdinal("lastname"));
 
@@ -132,9 +132,9 @@ namespace GR_Calcul.Models
                 transaction = db.BeginTransaction(IsolationLevel.ReadCommitted);
                 try
                 {
-                    SqlCommand cmd = new SqlCommand("SELECT C.id_course, C.name, C.[key], C.active, R.id_responsible, R.firstname, R.lastname, C.timestamp " +
+                    SqlCommand cmd = new SqlCommand("SELECT C.id_course, C.name, C.[key], C.active, R.id_person, R.firstname, R.lastname, C.timestamp " +
                                                     "FROM Course C " +
-                                                    "INNER JOIN Responsible R ON R.id_responsible = C.id_responsible " +
+                                                    "INNER JOIN Responsible R ON R.id_person = C.id_person " +
                                                     "WHERE C.id_course=@id_course;", db, transaction);
 
                     cmd.Parameters.Add("@id_course", SqlDbType.Int).Value = id;
@@ -146,11 +146,11 @@ namespace GR_Calcul.Models
                         string name = rdr.GetString(rdr.GetOrdinal("name"));
                         string key = rdr.GetString(rdr.GetOrdinal("Key"));
                         bool active = rdr.GetBoolean(rdr.GetOrdinal("active"));
-                        int id_responsible = rdr.GetInt32(rdr.GetOrdinal("id_responsible"));
+                        int id_person = rdr.GetInt32(rdr.GetOrdinal("id_person"));
                         int id_course = rdr.GetInt32(rdr.GetOrdinal("id_course"));
 
                         course = new Course(id_course, name, key,
-                                                   active, id_responsible);
+                                                   active, id_person);
                         byte[] buffer = new byte[100];
                         rdr.GetBytes(rdr.GetOrdinal("timestamp"), 0, buffer, 0, 100);
                         course.setTimestamp(buffer);
@@ -185,28 +185,28 @@ namespace GR_Calcul.Models
                 try
                 {
                     SqlCommand cmd = new SqlCommand("INSERT INTO Course " +
-                                   "(name, [key], active, id_responsible) " +
-                                   "VALUES (@name, @key, @active, @id_responsible);", db, transaction);
+                                   "(name, [key], active, id_person) " +
+                                   "VALUES (@name, @key, @active, @id_person);", db, transaction);
                     cmd.Parameters.Add("@name", SqlDbType.Char);
                     cmd.Parameters.Add("@key", SqlDbType.Char);
                     cmd.Parameters.Add("@active", SqlDbType.Bit);
-                    cmd.Parameters.Add("@id_responsible", SqlDbType.Int);
+                    cmd.Parameters.Add("@id_person", SqlDbType.Int);
 
                     cmd.Parameters["@name"].Value = course.Name;
                     cmd.Parameters["@key"].Value = course.Key;
                     cmd.Parameters["@active"].Value = course.Active;
-                    cmd.Parameters["@id_responsible"].Value = course.Responsible;
+                    cmd.Parameters["@id_person"].Value = course.Responsible;
 
                     /*
                     cmd.Parameters.Add("@name", SqlDbType.Char).Value = course.Name;
                     cmd.Parameters.Add("@key", SqlDbType.Char).Value = course.Key;
                     cmd.Parameters.Add("@active", SqlDbType.Bit).Value = course.Active;
-                    cmd.Parameters.Add("@id_responsible", SqlDbType.Int).Value = course.Id_responsible;
+                    cmd.Parameters.Add("@id_person", SqlDbType.Int).Value = course.id_person;
                     */
                     /*
                     cmd.Parameters.AddWithValue("@key", "1234");
                     cmd.Parameters.AddWithValue("@active", "1");
-                    cmd.Parameters.AddWithValue("@id_responsible", "1");
+                    cmd.Parameters.AddWithValue("@id_person", "1");
                      */
                     cmd.ExecuteNonQuery();
 
@@ -253,14 +253,14 @@ namespace GR_Calcul.Models
                     {
                         rdr.Close();
                         cmd = new SqlCommand("UPDATE Course " +
-                                                    "SET name=@name, [key]=@key, active=@active, id_responsible=@id_responsible " +
+                                                    "SET name=@name, [key]=@key, active=@active, id_person=@id_person " +
                                                     "WHERE id_course=@id;", db, transaction);
 
                         cmd.Parameters.Add("@id", SqlDbType.Int).Value = course.ID;
                         cmd.Parameters.Add("@name", SqlDbType.Char).Value = course.Name;
                         cmd.Parameters.Add("@key", SqlDbType.Char).Value = course.Key;
                         cmd.Parameters.Add("@active", SqlDbType.Bit).Value = course.Active;
-                        cmd.Parameters.Add("@id_responsible", SqlDbType.Int).Value = course.Responsible;
+                        cmd.Parameters.Add("@id_person", SqlDbType.Int).Value = course.Responsible;
 
                         cmd.ExecuteNonQuery();
                     }
