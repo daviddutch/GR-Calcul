@@ -18,6 +18,13 @@
 {
     @Html.ValidationSummary(true)
     <fieldset>
+       @{
+            if (ViewData["Error"] != null)
+            {
+                <p style="color:Red">@ViewData["Error"]</p>
+            }
+        }
+
         <div class="wizard-step">
             <h3>Étape 1: informations sur la plage de créneaux</h3>
             @Html.EditorFor(model => model.Timestamp)
