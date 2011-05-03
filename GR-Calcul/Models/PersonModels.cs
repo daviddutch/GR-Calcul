@@ -313,68 +313,68 @@ namespace GR_Calcul.Models
 
         internal void UpdatePerson(Person person)
         {
-            bool updated = true;
+        //    bool updated = true;
 
-            try
-            {
-                SqlConnection db = new SqlConnection(connectionString);
-                SqlTransaction transaction;
+        //    try
+        //    {
+        //        SqlConnection db = new SqlConnection(connectionString);
+        //        SqlTransaction transaction;
 
-                db.Open();
+        //        db.Open();
 
-                transaction = db.BeginTransaction(IsolationLevel.RepeatableRead);
-                try
-                {
-                    byte[] timestamp = person.getByteTimestamp();
+        //        transaction = db.BeginTransaction(IsolationLevel.RepeatableRead);
+        //        try
+        //        {
+        //            byte[] timestamp = person.getByteTimestamp();
 
-                    SqlCommand cmd = new SqlCommand("SELECT * " +
-                                                    "FROM [" + person.Type.ToString + "] " + 
-                                                    "WHERE M.id_machine=@id_machine AND M.timestamp=@timestamp;", db, transaction);
+        //            SqlCommand cmd = new SqlCommand("SELECT * " +
+        //                                            "FROM [" + person.Type.ToString + "] " + 
+        //                                            "WHERE M.id_machine=@id_machine AND M.timestamp=@timestamp;", db, transaction);
 
-                    cmd.Parameters.Add("@id_machine", SqlDbType.Int).Value = person.id_machine;
-                    cmd.Parameters.Add("@timestamp", SqlDbType.Binary).Value = timestamp;
+        //            cmd.Parameters.Add("@id_machine", SqlDbType.Int).Value = person.id_machine;
+        //            cmd.Parameters.Add("@timestamp", SqlDbType.Binary).Value = timestamp;
 
-                    SqlDataReader rdr = cmd.ExecuteReader();
+        //            SqlDataReader rdr = cmd.ExecuteReader();
 
-                    if (rdr.Read())
-                    {
-                        rdr.Close();
-                        cmd = new SqlCommand("UPDATE Machine " +
-                                                    "SET name=@Name, IP=@IP " +
-                                                    ", id_room=@id_room " +
-                            //", id_os=@id_os " +
-                                                    "WHERE id_machine=@id_machine", db, transaction);
+        //            if (rdr.Read())
+        //            {
+        //                rdr.Close();
+        //                cmd = new SqlCommand("UPDATE Machine " +
+        //                                            "SET name=@Name, IP=@IP " +
+        //                                            ", id_room=@id_room " +
+        //                    //", id_os=@id_os " +
+        //                                            "WHERE id_machine=@id_machine", db, transaction);
 
-                        cmd.Parameters.Add("@id_machine", SqlDbType.Int).Value = machine.id_machine;
-                        cmd.Parameters.Add("@Name", SqlDbType.Char).Value = machine.Name;
-                        cmd.Parameters.Add("@IP", SqlDbType.Char).Value = machine.IP;
-                        cmd.Parameters.Add("@id_room", SqlDbType.Int).Value = machine.id_room;
+        //                cmd.Parameters.Add("@id_machine", SqlDbType.Int).Value = machine.id_machine;
+        //                cmd.Parameters.Add("@Name", SqlDbType.Char).Value = machine.Name;
+        //                cmd.Parameters.Add("@IP", SqlDbType.Char).Value = machine.IP;
+        //                cmd.Parameters.Add("@id_room", SqlDbType.Int).Value = machine.id_room;
 
-                        cmd.ExecuteNonQuery();
-                    }
-                    else
-                    {
-                        rdr.Close();
-                        System.Diagnostics.Debug.WriteLine("Cross modify");
-                        updated = false;
-                    }
+        //                cmd.ExecuteNonQuery();
+        //            }
+        //            else
+        //            {
+        //                rdr.Close();
+        //                System.Diagnostics.Debug.WriteLine("Cross modify");
+        //                updated = false;
+        //            }
 
-                    transaction.Commit();
-                }
-                catch (SqlException sqlError)
-                {
-                    System.Diagnostics.Debug.WriteLine(sqlError.Message);
-                    System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
-                    transaction.Rollback();
-                }
-                db.Close();
-            }
-            catch (SqlException sqlError)
-            {
-                System.Diagnostics.Debug.WriteLine(sqlError.Message);
-                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
-            }
-            if (!updated) throw new Exception("timestamp");
+        //            transaction.Commit();
+        //        }
+        //        catch (SqlException sqlError)
+        //        {
+        //            System.Diagnostics.Debug.WriteLine(sqlError.Message);
+        //            System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+        //            transaction.Rollback();
+        //        }
+        //        db.Close();
+        //    }
+        //    catch (SqlException sqlError)
+        //    {
+        //        System.Diagnostics.Debug.WriteLine(sqlError.Message);
+        //        System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+        //    }
+        //    if (!updated) throw new Exception("timestamp");
         }
 
         internal void DeleteMachine(int id)
