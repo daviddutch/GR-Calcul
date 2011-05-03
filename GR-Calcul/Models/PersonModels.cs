@@ -372,6 +372,10 @@ namespace GR_Calcul.Models
                 {
                     System.Diagnostics.Debug.WriteLine(sqlError.Message);
                     System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                    if (sqlError.Number == 50001)
+                    {
+                        System.Diagnostics.Debug.WriteLine("here we need to inform the user of the Error (duplicate user)!!!");
+                    }
                     transaction.Rollback();
                 }
                 db.Close();
