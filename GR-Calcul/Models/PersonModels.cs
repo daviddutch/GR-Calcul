@@ -105,9 +105,9 @@ namespace GR_Calcul.Models
                 transaction = db.BeginTransaction(IsolationLevel.ReadCommitted);
                 try
                 {
-                    SqlCommand cmd = new SqlCommand("SELECT R.id_person as id_person, R.firstname, R.lastname, R.email, R.username, R.password, R.timestamp " +
-                                                    "FROM Responsible R " +
-                                                    "ORDER BY R.firstname;", db, transaction);
+                    SqlCommand cmd = new SqlCommand("SELECT RE.id_person as id_person, RE.firstname, RE.lastname, RE.email, RE.username, RE.password, RE.timestamp " +
+                                                    "FROM Responsible RE " +
+                                                    "ORDER BY RE.firstname;", db, transaction);
 
 
                     SqlDataReader rdr = cmd.ExecuteReader();
@@ -162,8 +162,8 @@ namespace GR_Calcul.Models
                 {
                     SqlCommand cmd = new SqlCommand("SELECT RM.id_person as id_person, RM.email, RM.firstname, RM.lastname, RM.username, 'RM' AS pType " +
                                                     "FROM ResourceManager RM " +
-                                                    "UNION SELECT R.id_person, R.email, R.firstname, R.lastname, R.username, 'RE' AS pType FROM Responsible R " +
-                                                    "UNION SELECT U.id_person, U.email, U.firstname, U.lastname, U.username, 'US' AS pType FROM [User] U " +
+                                                    "UNION SELECT RE.id_person, RE.email, RE.firstname, RE.lastname, RE.username, 'RE' AS pType FROM Responsible RE " +
+                                                    "UNION SELECT US.id_person, US.email, US.firstname, US.lastname, US.username, 'US' AS pType FROM [User] US " +
                                                     "ORDER BY RM.firstname;", db, transaction);
 
 
@@ -269,10 +269,10 @@ namespace GR_Calcul.Models
                 transaction = conn.BeginTransaction(IsolationLevel.ReadUncommitted);
                 try
                 {
-                    SqlCommand cmd = new SqlCommand("SELECT RM.id_person as id_person, RM.email, RM.firstname, RM.lastname, RM.username, 'RM' AS pType " +
-                                                    "FROM ResourceManager RM WHERE RM.id_person = 3 " +
-                                                    "UNION SELECT R.id_person AS id_person, R.email, R.firstname, R.lastname, R.username, 'RE' AS pType FROM Responsible R WHERE R.id_person = 3 " +
-                                                    "UNION SELECT U.id_person AS id_person, U.email, U.firstname, U.lastname, U.username, 'US' AS pType FROM [User] U WHERE U.id_person = 3 " +
+                    SqlCommand cmd = new SqlCommand("SELECT RM.id_person as id_person, RM.email, RM.firstname, RM.lastname, RM.username, 'RM' AS pType, RM.timestamp " +
+                                                    "FROM ResourceManager RM WHERE RM.id_person = @id_person " +
+                                                    "UNION SELECT RE.id_person AS id_person, RE.email, RE.firstname, RE.lastname, RE.username, 'RE' AS pType, RE.timestamp FROM Responsible RE WHERE RE.id_person = @id_person " +
+                                                    "UNION SELECT US.id_person AS id_person, US.email, US.firstname, US.lastname, US.username, 'US' AS pType, US.timestamp FROM [User] US WHERE US.id_person = @id_person " +
                                                     "ORDER BY RM.firstname;", conn, transaction);
 
                     cmd.Parameters.Add("@id_person", SqlDbType.Int).Value = id;
@@ -290,6 +290,9 @@ namespace GR_Calcul.Models
 
                         person = new Person(Person.dbTypes[dbType], id_person, firstname, lastname, username, email, "");
 
+                        byte[] buffer = new byte[100];
+                        rdr.GetBytes(rdr.GetOrdinal("timestamp"), 0, buffer, 0, 100);
+                        person.setTimestamp(buffer);
                     }
                     rdr.Close();
                     transaction.Commit();
@@ -313,68 +316,67 @@ namespace GR_Calcul.Models
 
         internal void UpdatePerson(Person person)
         {
-        //    bool updated = true;
+            bool updated = true;
 
-        //    try
-        //    {
-        //        SqlConnection db = new SqlConnection(connectionString);
-        //        SqlTransaction transaction;
+            try
+            {
+                SqlConnection db = new SqlConnection(connectionString);
+                SqlTransaction transaction;
 
-        //        db.Open();
+                db.Open();
 
-        //        transaction = db.BeginTransaction(IsolationLevel.RepeatableRead);
-        //        try
-        //        {
-        //            byte[] timestamp = person.getByteTimestamp();
+                transaction = db.BeginTransaction(IsolationLevel.RepeatableRead);
+                try
+                {
+                    byte[] timestamp = person.getByteTimestamp();
 
-        //            SqlCommand cmd = new SqlCommand("SELECT * " +
-        //                                            "FROM [" + person.Type.ToString + "] " + 
-        //                                            "WHERE M.id_machine=@id_machine AND M.timestamp=@timestamp;", db, transaction);
+                    SqlCommand cmd = new SqlCommand("SELECT * " +
+                                                    "FROM [" + person.Type.ToString() + "] P " +
+                                                    "WHERE P.id_person=@id_person AND P.timestamp=@timestamp;", db, transaction);
 
-        //            cmd.Parameters.Add("@id_machine", SqlDbType.Int).Value = person.id_machine;
-        //            cmd.Parameters.Add("@timestamp", SqlDbType.Binary).Value = timestamp;
+                    cmd.Parameters.Add("@id_person", SqlDbType.Int).Value = person.ID;
+                    cmd.Parameters.Add("@timestamp", SqlDbType.Binary).Value = timestamp;
 
-        //            SqlDataReader rdr = cmd.ExecuteReader();
+                    SqlDataReader rdr = cmd.ExecuteReader();
 
-        //            if (rdr.Read())
-        //            {
-        //                rdr.Close();
-        //                cmd = new SqlCommand("UPDATE Machine " +
-        //                                            "SET name=@Name, IP=@IP " +
-        //                                            ", id_room=@id_room " +
-        //                    //", id_os=@id_os " +
-        //                                            "WHERE id_machine=@id_machine", db, transaction);
+                    if (rdr.Read())
+                    {
+                        rdr.Close();
+                        cmd = new SqlCommand("UPDATE " + person.Type.ToString() + " " +
+                            "SET [email]=@email, [firstname]=@firstname, [lastname]=@lastname, [username]=@username " +
+                                                    "WHERE id_person=@id_person", db, transaction);
 
-        //                cmd.Parameters.Add("@id_machine", SqlDbType.Int).Value = machine.id_machine;
-        //                cmd.Parameters.Add("@Name", SqlDbType.Char).Value = machine.Name;
-        //                cmd.Parameters.Add("@IP", SqlDbType.Char).Value = machine.IP;
-        //                cmd.Parameters.Add("@id_room", SqlDbType.Int).Value = machine.id_room;
+                        cmd.Parameters.Add("@email", SqlDbType.Char).Value = person.Email;
+                        cmd.Parameters.Add("@firstname", SqlDbType.Char).Value = person.FirstName;
+                        cmd.Parameters.Add("@lastname", SqlDbType.Char).Value = person.LastName;
+                        cmd.Parameters.Add("@username", SqlDbType.Char).Value = person.Username;
+                        cmd.Parameters.Add("@id_person", SqlDbType.Int).Value = person.ID;
 
-        //                cmd.ExecuteNonQuery();
-        //            }
-        //            else
-        //            {
-        //                rdr.Close();
-        //                System.Diagnostics.Debug.WriteLine("Cross modify");
-        //                updated = false;
-        //            }
+                        cmd.ExecuteNonQuery();
+                    }
+                    else
+                    {
+                        rdr.Close();
+                        System.Diagnostics.Debug.WriteLine("Cross modify");
+                        updated = false;
+                    }
 
-        //            transaction.Commit();
-        //        }
-        //        catch (SqlException sqlError)
-        //        {
-        //            System.Diagnostics.Debug.WriteLine(sqlError.Message);
-        //            System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
-        //            transaction.Rollback();
-        //        }
-        //        db.Close();
-        //    }
-        //    catch (SqlException sqlError)
-        //    {
-        //        System.Diagnostics.Debug.WriteLine(sqlError.Message);
-        //        System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
-        //    }
-        //    if (!updated) throw new Exception("timestamp");
+                    transaction.Commit();
+                }
+                catch (SqlException sqlError)
+                {
+                    System.Diagnostics.Debug.WriteLine(sqlError.Message);
+                    System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                    transaction.Rollback();
+                }
+                db.Close();
+            }
+            catch (SqlException sqlError)
+            {
+                System.Diagnostics.Debug.WriteLine(sqlError.Message);
+                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+            }
+            if (!updated) throw new Exception("timestamp");
         }
 
         internal void DeleteMachine(int id)
