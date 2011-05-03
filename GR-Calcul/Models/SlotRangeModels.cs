@@ -16,7 +16,23 @@ namespace GR_Calcul.Models
 
         [Timestamp]
         [HiddenInput(DisplayValue = false)]
-        public int Timestamp { get; set; }
+        public string Timestamp { get; set; }
+
+
+
+        public byte[] getByteTimestamp()
+        {
+            return Convert.FromBase64String(Timestamp);
+        }
+        public void setTimestamp(byte[] timestamp)
+        {
+            Timestamp = Convert.ToBase64String(timestamp);
+        }
+
+
+        //[Timestamp]
+        //[HiddenInput(DisplayValue = false)]
+        //public int Timestamp { get; set; }
 
         [HiddenInput(DisplayValue = false)]
         public int id_slotRange { get; set; }
@@ -319,9 +335,12 @@ namespace GR_Calcul.Models
                 transaction = db.BeginTransaction(IsolationLevel.ReadCommitted);
                 try
                 {
-                    SqlCommand cmd = new SqlCommand("SELECT [startRes], [endRes], [name], [id_course] , convert(int, [timestamp]) as timestamp " +
-                                                    "FROM SlotRange " +
-                                                    "WHERE id_slotRange=@id;", db, transaction);
+                    //SqlCommand cmd = new SqlCommand("SELECT [startRes] ,[endRes] ,"  +
+                    //    "[name] ,[id_course] , convert(int, [timestamp]) as timestamp FROM SlotRange WHERE id_slotRange=@id;", db, transaction);
+
+                    SqlCommand cmd = new SqlCommand("SELECT [startRes] ,[endRes] ," +
+                        "[name] ,[id_course] , [timestamp] FROM SlotRange WHERE id_slotRange=@id;", db, transaction);
+
 
                     cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
 
@@ -335,7 +354,10 @@ namespace GR_Calcul.Models
                         int id_course = rdr.GetInt32(rdr.GetOrdinal("id_course"));
 
                         range = new SlotRange(id, startRes, endRes, name, id_course);
-                        range.Timestamp = rdr.GetInt32(rdr.GetOrdinal("timestamp"));
+                        //range.Timestamp = rdr.GetInt32(rdr.GetOrdinal("timestamp"));
+                        byte[] buffer = new byte[100];
+                        rdr.GetBytes(rdr.GetOrdinal("timestamp"), 0, buffer, 0, 100);
+                        range.setTimestamp(buffer);
                         hasFound = true;
                     }
                     rdr.Close();
@@ -442,24 +464,14 @@ namespace GR_Calcul.Models
 
                     foreach (var machine in range.Machines)
                     {
-                        SqlCommand cmd3 = new SqlCommand("INSERT INTO MachineSlotRange(id_machine, id_slotRange) " +
-                        "VALUES(@id_machine, @id_slotRange);", db, transaction);
-
-                        cmd3.Parameters.Add("@id_machine", SqlDbType.Int);
-                        cmd3.Parameters.Add("@id_slotRange", SqlDbType.Int);
-
-                        cmd3.Parameters["@id_machine"].Value = machine;
-                        cmd3.Parameters["@id_slotRange"].Value = rangeId;
-
-                        cmd3.ExecuteNonQuery();
+                        InsertMachines(machine, rangeId, db, transaction);
                     }
-
 
                     transaction.Commit();
                 }
                 catch
                 {
-                    transaction.Rollback();                    
+                    transaction.Rollback();
                 }
                 finally
                 {
@@ -469,7 +481,20 @@ namespace GR_Calcul.Models
             catch
             {
             }
+        }
 
+        private void InsertMachines(int machine, int rangeId, SqlConnection db, SqlTransaction transaction)
+        {
+            SqlCommand cmd3 = new SqlCommand("INSERT INTO MachineSlotRange(id_machine, id_slotRange) " +
+                        "VALUES(@id_machine, @id_slotRange);", db, transaction);
+
+            cmd3.Parameters.Add("@id_machine", SqlDbType.Int);
+            cmd3.Parameters.Add("@id_slotRange", SqlDbType.Int);
+
+            cmd3.Parameters["@id_machine"].Value = machine;
+            cmd3.Parameters["@id_slotRange"].Value = rangeId;
+
+            cmd3.ExecuteNonQuery();
         }
 
         private void InsertAllSlots(SlotRange range, int rangeId, SqlConnection db, SqlTransaction transaction) 
@@ -551,13 +576,19 @@ namespace GR_Calcul.Models
                 transaction = db.BeginTransaction(IsolationLevel.RepeatableRead);
                 try
                 {
-                    int timestamp = range.Timestamp;
+                    //int timestamp = range.Timestamp;
+                    byte[] timestamp = range.getByteTimestamp();
+
+
+                    //SqlCommand cmd = new SqlCommand("SELECT * FROM SlotRange R " +
+                    //        "WHERE R.[id_slotRange]=@id AND convert(int, R.timestamp)=@timestamp;", db, transaction);
 
                     SqlCommand cmd = new SqlCommand("SELECT * FROM SlotRange R " +
-                            "WHERE R.[id_slotRange]=@id AND convert(int, R.timestamp)=@timestamp;", db, transaction);
+                        "WHERE R.[id_slotRange]=@id AND R.timestamp=@timestamp;", db, transaction);
 
                     cmd.Parameters.Add("@id", SqlDbType.Int).Value = range.id_slotRange;
-                    cmd.Parameters.Add("@timestamp", SqlDbType.Int).Value = timestamp;
+                    //cmd.Parameters.Add("@timestamp", SqlDbType.Int).Value = timestamp;
+                    cmd.Parameters.Add("@timestamp", SqlDbType.Binary).Value = timestamp;
 
                     SqlDataReader rdr = cmd.ExecuteReader();
 
@@ -577,8 +608,33 @@ namespace GR_Calcul.Models
                         cmd2.Parameters.Add("@id", SqlDbType.Int).Value = range.id_slotRange;
                         cmd2.ExecuteNonQuery();
 
+                        //do slots
                         InsertAllSlots(range, range.id_slotRange, db, transaction);
 
+                        //do machines
+                        //we update only as long as we keep at least as many machines as there already are in the database for this slotrange
+
+                        SqlCommand cmd3 = new SqlCommand("SELECT COUNT(id_slotRange) as cpt " +
+                            "FROM [GR-Calcul].[dbo].[MachineSlotRange] WHERE id_slotRange=@id;", db, transaction);
+                        cmd3.Parameters.Add("@id", SqlDbType.Int).Value = range.id_slotRange;
+
+                        SqlDataReader rdr2 = cmd3.ExecuteReader();
+                        int nMachines = 0;
+                        if (rdr2.Read())
+                        {
+                            nMachines = rdr2.GetInt32(rdr2.GetOrdinal("cpt"));
+                        }
+                        rdr2.Close();
+                        if (range.Machines.Count >= nMachines)
+                        {
+                            SqlCommand cmd4 = new SqlCommand("DELETE FROM MachineSlotRange WHERE id_slotRange=@id;", db, transaction);
+                            cmd4.Parameters.Add("@id", SqlDbType.Int).Value = range.id_slotRange;
+                            cmd4.ExecuteNonQuery();
+                            foreach (var machine in range.Machines)
+                            {
+                                InsertMachines(machine, range.id_slotRange, db, transaction);
+                            }
+                        }
                         transaction.Commit();
                     }
                     else
@@ -587,7 +643,7 @@ namespace GR_Calcul.Models
                         Console.WriteLine("Cross modify");
                     }
                 }
-                catch
+                catch(Exception ex)
                 {
                     transaction.Rollback();
                 }

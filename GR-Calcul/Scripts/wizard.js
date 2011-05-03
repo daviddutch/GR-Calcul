@@ -103,6 +103,10 @@ function createRow(rowId, i, suffix) {
     }
     var cols = 24 / duration;
     var nslots = $("#NumberOfSlots").val();
+
+    if (nslots < cols)
+        cols = nslots;
+
     var rows = Math.ceil(nslots / cols);
     var nOnLastRow = cols - (rows * cols - nslots);
 
@@ -164,6 +168,8 @@ function createLastStep() {
     var duration = $("#SlotDuration").val()
     var cols = 24 / duration;
     var nslots = $("#NumberOfSlots").val();
+    if (nslots < cols)
+        cols = nslots;
     var rows = Math.ceil(nslots / cols);
     var nOnLastRow = cols - (rows * cols - nslots);
     var startDate = $("#Beginning").val();

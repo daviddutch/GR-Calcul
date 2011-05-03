@@ -5,6 +5,8 @@ using System.Web;
 using System.Web.Mvc;
 using GR_Calcul.Models;
 using System.Data.SqlClient;
+using System.Web.Security;
+using GR_Calcul.Misc;
 
 
 namespace GR_Calcul.Controllers
@@ -20,12 +22,43 @@ namespace GR_Calcul.Controllers
             ViewBag.SlotDuration = new SelectList(Slot.durationList, "Text", "Text");
         }
 
-        //
-        // GET: /SlotRange/
-
-        public ActionResult Index()
+        public class User
         {
-            return View();
+            public string UserName { get; set; }
+            public UserRole Role { get; set; }
+
+            public static User GetCurrentUser { get; set; }
+
+            public Boolean IsInRole(UserRole[] roles)
+            {
+                foreach(UserRole r in roles){
+                    if(r.Equals(Role))
+                        return true;
+                }
+                return false;
+            }
+
+            public static void CreateInstance(string u, UserRole r){
+                GetCurrentUser = new User();
+                GetCurrentUser.UserName = u;
+                GetCurrentUser.Role = r;
+            }
+
+        }
+
+        //
+        //GET: /SlotRange/SignIn/user
+
+        public string SignIn()
+        {
+            string userName = "thomas";
+            if (String.IsNullOrEmpty(userName)) throw new ArgumentException("Value cannot be null or empty.", "userName");
+
+            FormsAuthentication.SetAuthCookie(userName, true);
+
+            User.CreateInstance(userName, UserRole.ResourceManager);
+
+            return "himode";
         }
 
         //
@@ -39,16 +72,15 @@ namespace GR_Calcul.Controllers
         }
 
         //
-        // GET: /SlotRange/Details/5
 
-        public ActionResult Details(int id)
+        public void SignOut()
         {
-            return View();
+            FormsAuthentication.SignOut();
         }
 
         //
         // GET: /SlotRange/Create
-
+        [DuffAuthorize(UserRole.Responsible)]
         public ActionResult Create()
         {
             InitViewbag();
@@ -61,6 +93,7 @@ namespace GR_Calcul.Controllers
         [HttpPost]
         public ActionResult Create(SlotRange range)
         {
+            InitViewbag();
             string invalidMessage = "";
             foreach (var value in ModelState.Values)
             {
@@ -80,15 +113,15 @@ namespace GR_Calcul.Controllers
                 }
                 catch (Exception error)
                 {
-                    ViewBag.ErrorMode = "la création";
-                    return View("Error", error);
+                    ViewBag.Error = error.Message;
+                    return View(range);
                 }
             }
-
+            ViewBag.Error = invalidMessage;
             return View("Invalid", invalidMessage);
         }
 
-        
+
         //
         // GET: /SlotRange/Edit/5
  
