@@ -72,6 +72,7 @@
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\CourseModels.cs" />
     <Compile Include="Models\MachineModels.cs" />
+    <Compile Include="Models\MyProvider.cs" />
     <Compile Include="Models\PersonModels.cs" />
     <Compile Include="Models\RoomModels.cs" />
     <Compile Include="Models\SlotRangeModels.cs" />

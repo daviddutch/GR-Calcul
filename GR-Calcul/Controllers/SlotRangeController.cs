@@ -56,7 +56,7 @@ namespace GR_Calcul.Controllers
 
             FormsAuthentication.SetAuthCookie(userName, true);
 
-            User.CreateInstance(userName, UserRole.ResourceManager);
+            User.CreateInstance(userName, UserRole.Responsible);
 
             return "himode";
         }
@@ -69,9 +69,15 @@ namespace GR_Calcul.Controllers
             FormsAuthentication.SignOut();
         }
 
+        [DuffAuthorize(UserRole.ResourceManager)]
+        public string Lol()
+        {
+
+            return "secure page !!!";
+        }
+
         //
         // GET: /SlotRange/Create
-        [DuffAuthorize(UserRole.Responsible)]
         public ActionResult Create()
         {
             InitViewbag();

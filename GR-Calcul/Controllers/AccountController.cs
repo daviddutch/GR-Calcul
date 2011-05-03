@@ -39,21 +39,25 @@ namespace GR_Calcul.Controllers
         {
             if (ModelState.IsValid)
             {
-                if (MembershipService.ValidateUser(model.UserName, model.Password))
+
+                //if (MembershipService.ValidateUser(model.UserName, model.Password))
+                //{
+                //    FormsService.SignIn(model.UserName, model.RememberMe);
+                //    if (Url.IsLocalUrl(returnUrl))
+                //    {
+                //        return Redirect(returnUrl);
+                //    }
+                //    else
+                //    {
+                //        return RedirectToAction("Index", "Home");
+                //    }
+                //}
+                if ()
                 {
-                    FormsService.SignIn(model.UserName, model.RememberMe);
-                    if (Url.IsLocalUrl(returnUrl))
-                    {
-                        return Redirect(returnUrl);
-                    }
-                    else
-                    {
-                        return RedirectToAction("Index", "Home");
-                    }
                 }
                 else
                 {
-                    ModelState.AddModelError("", "The user name or password provided is incorrect.");
+                    ModelState.AddModelError("", "The nom d'utilisateur ou le mot de passe est incorrect.");
                 }
             }
 

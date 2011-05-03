@@ -9,8 +9,13 @@
     <add name="ApplicationServices"
          connectionString="data source=.\SQLEXPRESS;Integrated Security=SSPI;AttachDBFilename=|DataDirectory|aspnetdb.mdf;User Instance=true"
          providerName="System.Data.SqlClient" />
+<<<<<<< HEAD
+      <!-- CD 2011-04-21 -->
     <add name="LocalDB" connectionString="Data Source=POMICHET08-IN;User Id=test; Password=test; Initial Catalog=GR-Calcul;integrated security=true;" />
     <!--<add name="LocalDB" connectionString="Data Source=.\SQLEXPRESS;Initial Catalog=GR-Calcul;integrated security=true;" />--> 
+=======
+      <add name="LocalDB" connectionString="Data Source=.\SQLEXPRESS;Initial Catalog=GR-Calcul;integrated security=true;" /> 
+>>>>>>> 9c9df96a55d1572bcf830b841aa3699ca4c09a6a
   </connectionStrings>
 
   <appSettings>
