@@ -82,9 +82,54 @@ namespace GR_Calcul.Models
         // CD 2011-04-21: more centralized this way for adaptation between computers/developers
         static private String connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString;
 
-        public List<Course> ListCourses()
+        public Boolean IsUserSubscribed(int userId, int courseId)
+        {
+            Boolean ret = false;
+            try
+            {
+                SqlConnection db = new SqlConnection(connectionString);
+                SqlTransaction transaction;
+
+                db.Open();
+
+                transaction = db.BeginTransaction(IsolationLevel.ReadUncommitted);
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("SELECT * FROM Subscription " +
+                        "WHERE id_person=@id AND id_course=@course;", db, transaction);
+
+                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = userId;
+                    cmd.Parameters.Add("@course", SqlDbType.Int).Value = courseId;
+
+                    SqlDataReader rdr = cmd.ExecuteReader();
+
+                    if(rdr.Read())
+                    {
+                        ret = true;
+                    }
+                    rdr.Close();
+                    transaction.Commit();
+                }
+                catch
+                {
+                    transaction.Rollback();
+                }
+                db.Close();
+            }
+            catch
+            {
+
+            }
+            return ret;
+        }
+
+        public List<Course> ListCourses(int? responsibleId)
         {
             List<Course> list = new List<Course>();
+            if (responsibleId == null)
+            {
+                return list;
+            }
 
             try
             {
@@ -98,8 +143,10 @@ namespace GR_Calcul.Models
                 {
                     SqlCommand cmd = new SqlCommand("SELECT C.id_course, C.name, C.[key], C.active, R.id_person, R.firstname, R.lastname " +
                                                     "FROM Course C " +
-                                                    "INNER JOIN Responsible R ON R.id_person = C.id_person;", db, transaction);
+                                                    "INNER JOIN Responsible R ON R.id_person = C.id_person " +
+                                                    "WHERE R.id_person=@id;", db, transaction);
 
+                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = responsibleId;
 
                     SqlDataReader rdr = cmd.ExecuteReader();
 
@@ -136,6 +183,62 @@ namespace GR_Calcul.Models
 
             return list;
         }
+
+        public List<Course> ListCourses()
+        {
+            List<Course> list = new List<Course>();
+
+            try
+            {
+                SqlConnection db = new SqlConnection(connectionString);
+                SqlTransaction transaction;
+
+                db.Open();
+
+                transaction = db.BeginTransaction(IsolationLevel.ReadUncommitted);
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("SELECT C.id_course, C.name, C.[key], C.active, R.id_person, R.firstname, R.lastname " +
+                            "FROM Course C INNER JOIN Responsible R ON R.id_person = C.id_person; ",
+                            db, transaction);
+
+                    SqlDataReader rdr = cmd.ExecuteReader();
+
+                    while (rdr.Read())
+                    {
+                        //string coltype = rdr.GetFieldType(rdr.GetOrdinal("active")).Name;
+                        string name = rdr.GetString(rdr.GetOrdinal("name"));
+                        string key = rdr.GetString(rdr.GetOrdinal("Key"));
+                        bool active = rdr.GetBoolean(rdr.GetOrdinal("active"));
+                        int id_person = rdr.GetInt32(rdr.GetOrdinal("id_person"));
+                        int id_course = rdr.GetInt32(rdr.GetOrdinal("id_course"));
+
+                        Course course = new Course(id_course, name, key,
+                                                   active, id_person);
+
+                        course.ResponsibleString = rdr.GetString(rdr.GetOrdinal("firstname")) + " " + rdr.GetString(rdr.GetOrdinal("lastname"));
+
+                        list.Add(course);
+
+                    }
+                    rdr.Close();
+                    transaction.Commit();
+                }
+                catch
+                {
+                    transaction.Rollback();
+                }
+                db.Close();
+            }
+            catch
+            {
+
+            }
+
+            return list;
+        }
+
+
         public Course GetCourse(int id)
         {
             Course course = null;

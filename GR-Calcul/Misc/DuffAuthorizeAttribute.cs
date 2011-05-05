@@ -3,27 +3,33 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using GR_Calcul.Models;
+using System.Web.Security;
 
 namespace GR_Calcul.Misc
 {
-    public enum UserRole { User, Responsible, ResourceManager };
-
     public class DuffAuthorizeAttribute : FilterAttribute, IAuthorizationFilter
     {
-        public DuffAuthorizeAttribute(params UserRole[] acceptedRoles)
+        private readonly PersonType[] _acceptedRoles;
+
+        public DuffAuthorizeAttribute(params PersonType[] acceptedRoles)
         {
             _acceptedRoles = acceptedRoles;
         }
 
         public void OnAuthorization(AuthorizationContext filterContext)
         {
-            GR_Calcul.Controllers.SlotRangeController.User currentUser = GR_Calcul.Controllers.SlotRangeController.User.GetCurrentUser;
-
-            if (!currentUser.IsInRole(_acceptedRoles))
-                throw new Exception("Access denied");
+            Exception ex = new Exception("Access denied");
+            MembershipUser u = Membership.GetUser(filterContext.HttpContext.User.Identity.Name);
+            if (u != null && u is Person)
+            {
+                Person p = (Person)u;
+                if (!p.IsInRole(_acceptedRoles))
+                    throw ex;
+                return;
+            }
+            throw ex;
         }
-
-        private readonly UserRole[] _acceptedRoles;
 
     }
 

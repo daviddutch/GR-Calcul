@@ -6,13 +6,14 @@ using System.ComponentModel.DataAnnotations;
 using System.Web.Mvc;
 using System.Data.SqlClient;
 using System.Data;
+using System.Web.Security;
 
 namespace GR_Calcul.Models
 {
     // CD 2011-05-02: IMPORTANT: enum names must be perfectly identical to DB Table names!
     public enum PersonType { User, Responsible, ResourceManager };
 
-    public class Person
+    public class Person : MembershipUser
     {
         public static readonly IDictionary<PersonType, string> pTypes = new Dictionary<PersonType, string>() 
         { 
@@ -53,7 +54,7 @@ namespace GR_Calcul.Models
 
         [Required]
         [Display(Name = "Email")]
-        public string Email { get; set; }
+        public override string Email { get; set; }
 
         [Required]
         [Display(Name = "Nom d'utilisateur")]
@@ -75,6 +76,16 @@ namespace GR_Calcul.Models
         public void setTimestamp(byte[] timestamp)
         {
             Timestamp = Convert.ToBase64String(timestamp);
+        }
+
+        public Boolean IsInRole(PersonType[] roles)
+        {
+            foreach (PersonType r in roles)
+            {
+                if (r.Equals(pType))
+                    return true;
+            }
+            return false;
         }
 
         public Person() { }
@@ -314,6 +325,119 @@ namespace GR_Calcul.Models
             return person;
         }
 
+        internal Person GetPerson(string username, string password)
+        {
+            Person person = null;
+
+            try
+            {
+                SqlConnection db = new SqlConnection(connectionString);
+                SqlTransaction transaction;
+
+                db.Open();
+
+                transaction = db.BeginTransaction(IsolationLevel.ReadUncommitted);
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("SELECT P.id_person as id_person, P.email, P.firstname, P.lastname, P.username, P.pType AS pType, P.timestamp " +
+                                                    "FROM [Person] P WHERE P.username = @username AND P.password=@password " +
+                                                    "ORDER BY P.firstname;", db, transaction);
+
+                    cmd.Parameters.Add("@username", SqlDbType.Char).Value = username;
+                    cmd.Parameters.Add("@password", SqlDbType.Char).Value = password;
+
+                    SqlDataReader rdr = cmd.ExecuteReader();
+
+                    if (rdr.Read())
+                    {
+                        string firstname = rdr.GetString(rdr.GetOrdinal("firstname"));
+                        string lastname = rdr.GetString(rdr.GetOrdinal("lastname"));
+                        string email = rdr.GetString(rdr.GetOrdinal("email"));
+                        int id_person = rdr.GetInt32(rdr.GetOrdinal("id_person"));
+                        string dbType = rdr.GetString(rdr.GetOrdinal("pType"));
+
+                        person = new Person(Person.dbTypes[dbType], id_person, firstname, lastname, username, email, password);
+
+                        byte[] buffer = new byte[100];
+                        rdr.GetBytes(rdr.GetOrdinal("timestamp"), 0, buffer, 0, 100);
+                        person.setTimestamp(buffer);
+                    }
+                    rdr.Close();
+                    transaction.Commit();
+                }
+                catch (SqlException sqlError)
+                {
+                    System.Diagnostics.Debug.WriteLine(sqlError.Message);
+                    System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                    transaction.Rollback();
+                }
+                db.Close();
+            }
+            catch (SqlException sqlError)
+            {
+                System.Diagnostics.Debug.WriteLine(sqlError.Message);
+                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+            }
+
+            return person;
+        }
+
+        internal Person GetPerson(string username)
+        {
+            Person person = null;
+
+            try
+            {
+                SqlConnection db = new SqlConnection(connectionString);
+                SqlTransaction transaction;
+
+                db.Open();
+
+                transaction = db.BeginTransaction(IsolationLevel.ReadUncommitted);
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("SELECT P.id_person as id_person, P.email, P.firstname, P.lastname, P.username, P.pType AS pType, P.timestamp " +
+                                                    "FROM [Person] P WHERE P.username = @username " +
+                                                    "ORDER BY P.firstname;", db, transaction);
+
+                    cmd.Parameters.Add("@username", SqlDbType.Char).Value = username;
+
+                    SqlDataReader rdr = cmd.ExecuteReader();
+
+                    if (rdr.Read())
+                    {
+                        string firstname = rdr.GetString(rdr.GetOrdinal("firstname"));
+                        string lastname = rdr.GetString(rdr.GetOrdinal("lastname"));
+                        string email = rdr.GetString(rdr.GetOrdinal("email"));
+                        int id_person = rdr.GetInt32(rdr.GetOrdinal("id_person"));
+                        string dbType = rdr.GetString(rdr.GetOrdinal("pType"));
+
+                        person = new Person(Person.dbTypes[dbType], id_person, firstname, lastname, username, email, "");
+
+                        byte[] buffer = new byte[100];
+                        rdr.GetBytes(rdr.GetOrdinal("timestamp"), 0, buffer, 0, 100);
+                        person.setTimestamp(buffer);
+                    }
+                    rdr.Close();
+                    transaction.Commit();
+                }
+                catch (SqlException sqlError)
+                {
+                    System.Diagnostics.Debug.WriteLine(sqlError.Message);
+                    System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                    transaction.Rollback();
+                }
+                db.Close();
+            }
+            catch (SqlException sqlError)
+            {
+                System.Diagnostics.Debug.WriteLine(sqlError.Message);
+                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+            }
+
+            return person;
+        }
+
         internal void UpdatePerson(Person person)
         {
             bool updated = true;
@@ -381,6 +505,73 @@ namespace GR_Calcul.Models
                 System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
             }
             if (!updated) throw new Exception("timestamp");
+        }
+
+        internal int ChangePassword(string username, string newpassword)
+        {
+            bool updated = true;
+            Person person = GetPerson(username);
+            int rows = 0;
+            if (person == null)
+                return rows;
+            try
+            {
+                SqlConnection db = new SqlConnection(connectionString);
+                SqlTransaction transaction;
+
+                db.Open();
+
+                transaction = db.BeginTransaction(IsolationLevel.RepeatableRead);
+                try
+                {
+                    byte[] timestamp = person.getByteTimestamp();
+
+                    SqlCommand cmd = new SqlCommand("SELECT * FROM [" + person.pType.ToString() + "] P " +
+                                "WHERE P.id_person=@id_person AND P.timestamp=@timestamp;", db, transaction);
+
+                    cmd.Parameters.Add("@id_person", SqlDbType.Int).Value = person.ID;
+                    cmd.Parameters.Add("@timestamp", SqlDbType.Binary).Value = timestamp;
+
+                    SqlDataReader rdr = cmd.ExecuteReader();
+                    if (rdr.Read())
+                    {
+                        rdr.Close();
+                        cmd = new SqlCommand("UPDATE [" + person.pType.ToString() + "] " +
+                            "SET [password]=@password WHERE id_person=@id_person; ", db, transaction);
+
+                        cmd.Parameters.Add("@password", SqlDbType.Char).Value = newpassword;
+                        cmd.Parameters.Add("@id_person", SqlDbType.Int).Value = person.ID;
+
+                        rows = cmd.ExecuteNonQuery();
+                    }
+                    else
+                    {
+                        rdr.Close();
+                        System.Diagnostics.Debug.WriteLine("Cross modify");
+                        updated = false;
+                    }
+
+                    transaction.Commit();
+                    return rows;
+                }
+                catch (SqlException sqlError)
+                {
+                    System.Diagnostics.Debug.WriteLine(sqlError.Message);
+                    System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                    transaction.Rollback();
+                }
+                finally
+                {
+                    db.Close();
+                }
+            }
+            catch (SqlException sqlError)
+            {
+                System.Diagnostics.Debug.WriteLine(sqlError.Message);
+                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+            }
+            if (!updated) throw new Exception("timestamp");
+            return rows;
         }
 
         internal void DeletePerson(Person person)

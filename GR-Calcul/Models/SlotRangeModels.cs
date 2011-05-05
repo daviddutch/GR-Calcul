@@ -7,6 +7,7 @@ using System.Data.Entity;
 using System.Data.SqlClient;
 using System.Data;
 using System.Web.Mvc;
+using System.Web.Security;
 
 namespace GR_Calcul.Models
 {
@@ -18,6 +19,8 @@ namespace GR_Calcul.Models
 
     public class SlotRange
     {
+        private CourseModel courseModel = new CourseModel();
+
         [Timestamp]
         [HiddenInput(DisplayValue = false)]
         public string Timestamp { get; set; }
@@ -31,10 +34,15 @@ namespace GR_Calcul.Models
             Timestamp = Convert.ToBase64String(timestamp);
         }
 
-
-        //[Timestamp]
-        //[HiddenInput(DisplayValue = false)]
-        //public int Timestamp { get; set; }
+        public int? GetResponsible()
+        {
+            Course c = courseModel.GetCourse(IdCourse);
+            if (c != null)
+            {
+                return c.Responsible;
+            }
+            return null;
+        }
 
         [HiddenInput(DisplayValue = false)]
         public int id_slotRange { get; set; }
@@ -656,6 +664,8 @@ namespace GR_Calcul.Models
                 catch(Exception ex)
                 {
                     transaction.Rollback();
+                    System.Diagnostics.Debug.WriteLine(ex.Message);
+                    System.Diagnostics.Debug.WriteLine(ex.StackTrace);
                 }
                 finally
                 {
@@ -667,6 +677,46 @@ namespace GR_Calcul.Models
 
             }
             if (!updated) throw new Exception("timestamp");
+        }
+
+        public void DeleteSlotRange(int id)
+        {
+            try
+            {
+                SqlConnection db = new SqlConnection(connectionString);
+                SqlTransaction transaction;
+
+                db.Open();
+
+                transaction = db.BeginTransaction(IsolationLevel.RepeatableRead);
+                try
+                {
+
+                    SqlCommand cmd = new SqlCommand("DELETE FROM Slot WHERE id_slotRange=@id;", db, transaction);
+                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
+                    cmd.ExecuteNonQuery();                    
+                    
+                    cmd = new SqlCommand("DELETE FROM MachineSlotRange WHERE id_slotRange=@id;", db, transaction);
+                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
+                    cmd.ExecuteNonQuery();
+
+                    cmd = new SqlCommand("DELETE FROM SlotRange WHERE id_slotRange=@id;", db, transaction);
+                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
+                    cmd.ExecuteNonQuery();
+
+                    transaction.Commit();
+                }
+                catch (SqlException sqlError)
+                {
+                    Console.WriteLine(sqlError);
+                    transaction.Rollback();
+                }
+                db.Close();
+            }
+            catch (SqlException sqlError)
+            {
+                Console.WriteLine(sqlError);
+            }
         }
     }
 

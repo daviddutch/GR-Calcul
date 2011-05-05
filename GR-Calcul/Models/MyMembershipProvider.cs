@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Security;
+using GR_Calcul.Models;
 
 public class MyMembershipProvider : MembershipProvider
 {
@@ -26,11 +27,7 @@ public class MyMembershipProvider : MembershipProvider
     //Regular expression the password should match (empty for none)
     private string passwordStrengthRegularExpression = String.Empty;
 
-
-    public override string GetUserNameByEmail(string email)
-    {
-        throw new NotImplementedException();
-    }
+    private PersonModel personModel = new PersonModel();
 
     public override bool EnablePasswordRetrieval
     {
@@ -68,18 +65,40 @@ public class MyMembershipProvider : MembershipProvider
         }
     }
 
-
     public override bool ValidateUser(string username, string password)
     {
+        Person p = personModel.GetPerson(username, password);
+        if (p == null)
+        {
+            return false;
+        }
+        HttpContext.Current.Session["username"] = username;
+        HttpContext.Current.Session["role"] = p.pType;
 
-        //TODO this
-        return username.Equals(password);
+        return true;
     }
 
-    //TODO
-    public override bool ChangePassword(string username, string oldPassword, string newPassword)
+    public override string GetUserNameByEmail(string email)
     {
         throw new NotImplementedException();
+    }
+
+    public override bool ChangePassword(string username, string oldPwd, string newPwd)
+    {
+        if (!ValidateUser(username, oldPwd))
+            return false;
+        ValidatePasswordEventArgs args =
+        new ValidatePasswordEventArgs(username, newPwd, true);
+
+        OnValidatingPassword(args);
+
+        if (args.Cancel)
+            if (args.FailureInformation != null)
+                throw args.FailureInformation;
+            else
+                throw new MembershipPasswordException("Change password canceled due to new password validation failure.");
+        int affectesRows = personModel.ChangePassword(username, newPwd);
+        return affectesRows > 0;
     }
 
     public override bool ChangePasswordQuestionAndAnswer(string username, string password, string newPasswordQuestion, string newPasswordAnswer)
@@ -109,7 +128,12 @@ public class MyMembershipProvider : MembershipProvider
 
     public override MembershipUserCollection GetAllUsers(int pageIndex, int pageSize, out int totalRecords)
     {
-        throw new NotImplementedException();
+        List<Person> list = personModel.ListPerson();
+        totalRecords = list.Count;
+        MembershipUserCollection ret = new MembershipUserCollection();
+        foreach (Person p in list)
+            ret.Add(p);
+        return ret;
     }
 
     public override int GetNumberOfUsersOnline()
@@ -119,12 +143,15 @@ public class MyMembershipProvider : MembershipProvider
 
     public override string GetPassword(string username, string answer)
     {
-        throw new NotImplementedException();
+        Person p = personModel.GetPerson(username);
+        if(p != null)
+            return p.Password;
+        return null;
     }
 
     public override MembershipUser GetUser(string username, bool userIsOnline)
-    {        
-        throw new NotImplementedException();
+    {
+        return personModel.GetPerson(username);
     }
 
     public override MembershipUser GetUser(object providerUserKey, bool userIsOnline)

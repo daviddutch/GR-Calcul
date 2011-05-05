@@ -5,17 +5,18 @@ using System.Web;
 using System.Web.Mvc;
 using GR_Calcul.Models;
 using System.Data.SqlClient;
+using GR_Calcul.Misc;
 
 namespace GR_Calcul.Controllers
 {
-    public class MachineController : Controller
+    public class MachineController : BaseController
     {
         private MachineModel model = new MachineModel();
         private RoomModel roomModel = new RoomModel();
 
         //
         // GET: /Machine/
-
+        [DuffAuthorize(PersonType.ResourceManager, PersonType.Responsible)]
         public ActionResult Index()
         {
             return RedirectToAction("List");
@@ -23,7 +24,7 @@ namespace GR_Calcul.Controllers
 
         //
         // GET: /Machine/List
-
+        [DuffAuthorize(PersonType.ResourceManager, PersonType.Responsible)]
         public ActionResult List()
         {
             return View(model.ListMachines());
@@ -39,7 +40,7 @@ namespace GR_Calcul.Controllers
 
         //
         // GET: /Machine/Create
-
+        [DuffAuthorize(PersonType.ResourceManager)]
         public ActionResult Create()
         {
             var items = roomModel.ListRooms().Select(x => new SelectListItem() { Value = x.ID.ToString(), Text = x.Name.ToString() }).ToList();
@@ -49,7 +50,7 @@ namespace GR_Calcul.Controllers
 
         //
         // POST: /Machine/Create
-
+        [DuffAuthorize(PersonType.ResourceManager)]
         [HttpPost]
         public ActionResult Create(Machine machine)
         {
@@ -69,7 +70,7 @@ namespace GR_Calcul.Controllers
         
         //
         // GET: /Machine/Edit/5
- 
+        [DuffAuthorize(PersonType.ResourceManager)] 
         public ActionResult Edit(int id)
         {
             Machine machine = model.getMachine(id);
@@ -80,7 +81,7 @@ namespace GR_Calcul.Controllers
 
         //
         // POST: /Machine/Edit/5
-
+        [DuffAuthorize(PersonType.ResourceManager)]
         [HttpPost]
         public ActionResult Edit(int id, Machine machine)
         {
@@ -99,7 +100,7 @@ namespace GR_Calcul.Controllers
 
         ////
         //// GET: /Machine/Delete/5
-
+        [DuffAuthorize(PersonType.ResourceManager)]
         public ActionResult Delete(int id)
         {
             return View(model.getMachine(id));
@@ -107,7 +108,7 @@ namespace GR_Calcul.Controllers
 
         //
         // POST: /Machine/Delete/5
-
+        [DuffAuthorize(PersonType.ResourceManager)]
         [HttpPost]
         public ActionResult Delete(int id, FormCollection collection)
         {

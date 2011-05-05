@@ -1,0 +1,36 @@
+﻿@model GR_Calcul.Models.SlotRange
+
+@{
+    ViewBag.Title = "Delete";
+}
+
+<h2>Delete</h2>
+
+<h3>Êtes vous sûr de vouloir supprimer cette plage de créneaux?</h3>
+<fieldset>
+    <legend>Plage de créneau</legend>
+
+    <div class="display-label">id_slotRange</div>
+    <div class="display-field">@Model.id_slotRange</div>
+
+    <div class="display-label">Name</div>
+    <div class="display-field">@Model.Name</div>
+
+    <div class="display-label">StartRes</div>
+    <div class="display-field">@String.Format("{0:g}", Model.StartRes)</div>
+
+    <div class="display-label">EndRes</div>
+    <div class="display-field">@String.Format("{0:g}", Model.EndRes)</div>
+
+    <div class="display-label">IdCourse</div>
+    <div class="display-field">@Model.IdCourse</div>
+
+</fieldset>
+@using (Html.BeginForm()) {
+    <p>
+        <input type="submit" value="Delete" /> |
+        @Html.ActionLink("Back to List", "Index")
+    </p>
+}
+
+

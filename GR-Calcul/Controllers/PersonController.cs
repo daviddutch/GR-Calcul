@@ -5,15 +5,16 @@ using System.Web;
 using System.Web.Mvc;
 using GR_Calcul.Models;
 using System.Data.SqlClient;
+using GR_Calcul.Misc;
 
 namespace GR_Calcul.Controllers
 {
-    public class PersonController : Controller
+    public class PersonController : BaseController
     {
         private PersonModel model = new PersonModel();
         //
         // GET: /Person/
-
+        [DuffAuthorize(PersonType.ResourceManager)]
         public ActionResult Index()
         {
             return View(model.ListPerson());
@@ -21,7 +22,7 @@ namespace GR_Calcul.Controllers
 
         //
         // GET: /Person/Create
-
+        [DuffAuthorize(PersonType.ResourceManager)]
         public ActionResult Create()
         {
             return View();
@@ -29,7 +30,7 @@ namespace GR_Calcul.Controllers
 
         //
         // POST: /Person/Create
-
+        [DuffAuthorize(PersonType.ResourceManager)]
         [HttpPost]
         public ActionResult Create(Person person)
         {
@@ -48,7 +49,7 @@ namespace GR_Calcul.Controllers
         
         //
         // GET: /Person/Edit/5
- 
+        [DuffAuthorize(PersonType.ResourceManager)]
         public ActionResult Edit(int id, PersonType pType)
         {
             Person person = model.getPerson(id, pType);
@@ -57,7 +58,7 @@ namespace GR_Calcul.Controllers
 
         //
         // POST: /Person/Edit/5
-
+        [DuffAuthorize(PersonType.ResourceManager)]
         [HttpPost]
         public ActionResult Edit(int id, Person person)
         {
@@ -76,7 +77,7 @@ namespace GR_Calcul.Controllers
 
         //
         // GET: /Person/Delete/5
- 
+        [DuffAuthorize(PersonType.ResourceManager)] 
         public ActionResult Delete(int id, PersonType pType)
         {
             return View(model.getPerson(id, pType));
@@ -84,7 +85,7 @@ namespace GR_Calcul.Controllers
 
         //
         // POST: /Person/Delete/5
-
+        [DuffAuthorize(PersonType.ResourceManager)]
         [HttpPost]
         public ActionResult Delete(int id, Person person)
         {

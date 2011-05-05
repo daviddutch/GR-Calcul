@@ -33,16 +33,16 @@ namespace GR_Calcul.Models
 
     public class LogOnModel
     {
-        [Required]
-        [Display(Name = "User name")]
+        [Required(ErrorMessage = "Le nom d'utilisateur doit être saisi.")]
+        [Display(Name = "Nom d'utilisateur")]
         public string UserName { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Le mot de passe doit être saisi.")]
         [DataType(DataType.Password)]
-        [Display(Name = "Password")]
+        [Display(Name = "Mot de passe")]
         public string Password { get; set; }
 
-        [Display(Name = "Remember me?")]
+        [Display(Name = "Enregistrer sur ce PC ?")]
         public bool RememberMe { get; set; }
     }
 
@@ -164,8 +164,6 @@ namespace GR_Calcul.Models
             if (String.IsNullOrEmpty(userName)) throw new ArgumentException("Value cannot be null or empty.", "userName");
 
             FormsAuthentication.SetAuthCookie(userName, createPersistentCookie);
-            HttpContext.Current.Session["username"] = userName+"-session!!";
-            HttpContext.Current.Session["role"] = "the role~~~";
         }
 
         public void SignOut()

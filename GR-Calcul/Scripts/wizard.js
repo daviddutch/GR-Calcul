@@ -136,7 +136,7 @@ function createRow(rowId, i, suffix) {
     }
     var html = "";
     html += "<tr id=\"" + rowId + "\" class=\"" + slotRowIdPrefix + "\">";
-    html += "<td><input novalidation=\"true\" type=\"text\" class=\"lollipop Slotdate\" name=\"Slotdate" + suffix + "\" id=\"Slotdate" + suffix + "\" value=\"" + currentDate.asString() + "\" size=\"8\" /><a href=\"javascript:deleteRow('" + rowId + "');\" class=\"delete delRow\"></a></td>";
+    html += "<td>&nbsp;<input novalidation=\"true\" type=\"text\" class=\"lollipop Slotdate\" name=\"Slotdate" + suffix + "\" id=\"Slotdate" + suffix + "\" value=\"" + currentDate.asString() + "\" size=\"8\" /><a href=\"javascript:deleteRow('" + rowId + "');\" class=\"delete delRow\"></a></td>";
     var max = (i == rows - 1 ? nOnLastRow : cols);
 
     for (var j = 0; j < max; j++) {
@@ -174,13 +174,13 @@ function createLastStep() {
     var nOnLastRow = cols - (rows * cols - nslots);
     var startDate = $("#Beginning").val();
     //header
-    var html = "<thead><tr><th style='text-align:center;'>&nbsp;</th>";
+    var html = "<thead><tr><th style='text-align:center;' colspan='2'>&nbsp;</th>";
     for (var i = 0; i < cols; i++) {
         html += "<th colspan='2'>Slot</th>";
     }
     html += "</tr>";
     html += "<tr class='subTitle'>";
-    html += "<th>&nbsp;</th>";
+    html += "<th colspan='2'>&nbsp;</th>";
     for (var i = 0; i < cols; i++) {
         html += "<th>Heure début</th><th>Heure fin</th>";
     }

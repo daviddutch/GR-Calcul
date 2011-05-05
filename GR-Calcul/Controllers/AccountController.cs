@@ -11,7 +11,7 @@ using GR_Calcul.Models;
 
 namespace GR_Calcul.Controllers
 {
-    public class AccountController : Controller
+    public class AccountController : BaseController
     {
 
         public IFormsAuthenticationService FormsService { get; set; }
@@ -54,7 +54,7 @@ namespace GR_Calcul.Controllers
                 }
                 else
                 {
-                    ModelState.AddModelError("", "The nom d'utilisateur ou le mot de passe est incorrect.");
+                    ModelState.AddModelError("", "Le nom d'utilisateur ou le mot de passe est incorrect.");
                 }
             }
 

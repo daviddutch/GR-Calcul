@@ -1,7 +1,7 @@
 ﻿@model GR_Calcul.Models.LogOnModel
 
 @{
-    ViewBag.Title = "Log On";
+    ViewBag.Title = "Login";
 }
 
 <h2>@ViewBag.Title</h2>
@@ -12,13 +12,11 @@
 <script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
 <script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
 
-@Html.ValidationSummary(true, "Impossible de vous authentifier. Veuillez corriger les erreur et réessayer.")
+@Html.ValidationSummary(true)
 
 @using (Html.BeginForm()) {
     <div>
         <fieldset>
-            <legend>Account Information</legend>
-
             <div class="editor-label">
                 @Html.LabelFor(m => m.UserName)
             </div>

@@ -5,17 +5,18 @@ using System.Web;
 using System.Web.Mvc;
 using GR_Calcul.Models;
 using System.Data.SqlClient;
+using GR_Calcul.Misc;
 
 namespace GR_Calcul.Controllers
 {
-    public class RoomController : Controller
+    public class RoomController : BaseController
     {
 
         private RoomModel roomModel = new RoomModel();
 
         //
         // GET: /Room/
-
+        [DuffAuthorize(PersonType.ResourceManager)]
         public ActionResult Index()
         {
             return View(roomModel.ListRooms());
@@ -23,7 +24,7 @@ namespace GR_Calcul.Controllers
 
         //
         // GET: /Room/Create
-
+        [DuffAuthorize(PersonType.ResourceManager)]
         public ActionResult Create()
         {
             return View();
@@ -31,7 +32,7 @@ namespace GR_Calcul.Controllers
 
         //
         // POST: /Room/Create
-
+        [DuffAuthorize(PersonType.ResourceManager)]
         [HttpPost]
         public ActionResult Create(Room room)
         {
@@ -51,7 +52,7 @@ namespace GR_Calcul.Controllers
         
         //
         // GET: /Room/Edit/5
- 
+        [DuffAuthorize(PersonType.ResourceManager)]
         public ActionResult Edit(int id)
         {
             return View(roomModel.GetRoom(id));
@@ -59,7 +60,7 @@ namespace GR_Calcul.Controllers
 
         //
         // POST: /Room/Edit/5
-
+        [DuffAuthorize(PersonType.ResourceManager)]
         [HttpPost]
         public ActionResult Edit(int id, Room room)
         {
@@ -79,7 +80,7 @@ namespace GR_Calcul.Controllers
 
         //
         // GET: /Room/Delete/5
- 
+        [DuffAuthorize(PersonType.ResourceManager)]
         public ActionResult Delete(int id)
         {
             return View(roomModel.GetRoom(id));
@@ -87,7 +88,7 @@ namespace GR_Calcul.Controllers
 
         //
         // POST: /Room/Delete/5
-
+        [DuffAuthorize(PersonType.ResourceManager)]
         [HttpPost]
         public ActionResult Delete(int id, FormCollection collection)
         {

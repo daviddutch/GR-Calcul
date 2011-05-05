@@ -91,21 +91,21 @@
         </div>
 
         <div class="wizard-step">
-            <h3>Étape 3: choix des créneaux</h3>
+            <h3>Étape 2: choix des créneaux</h3>
             <table class="simpleTable" id="slotTable">
                 @{
            int cols = Model.getNumberOfSlotCols();               
                 }
                     <thead>
 				    <tr style="text-align:center;">
-					    <th>&nbsp;</th>
+					    <th colspan="2">&nbsp;</th>
                         @for (int i = 0; i < cols; i++)
                         {
     					    <th colspan="2">Slot</th>
                         }
 				    </tr>
 				    <tr class="subTitle">
-                        <th>&nbsp;</th>
+                        <th colspan="2">&nbsp;</th>
                         @for (int i = 0; i < cols; i++)
                         {
 					        <th>Heure début</th>

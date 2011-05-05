@@ -1,0 +1,7 @@
+﻿@model IEnumerable<MyMenuItem>
+
+@foreach (var item in Model) {
+    <li>@Html.ActionLink(@item.LinkText, @item.ActionName, @item.ControllerName)</li>
+}
+
+
