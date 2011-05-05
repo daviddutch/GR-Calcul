@@ -23,36 +23,22 @@
     );
 }
 
-@{    
-    if(isManager){
-        @grid.GetHtml(
-            tableStyle: "simpleTable",
-            headerStyle: "head",
-            alternatingRowStyle: "alt",
-            columns: grid.Columns(
-                grid.Column("Name", "Nom"),
-                grid.Column("IP", "IP"),
-                grid.Column("RoomString", "Lieu"),
-                grid.Column(
-                    format: (item) =>
-                    {
-                        return new HtmlString("<a href=\"" + Url.Action("Edit", new { id = item.id_machine }).ToString() + "\"class=\"modify\" title=\"Modifier\"></a>" +
-                                                "<a href=\"" + Url.Action("Delete", new { id = item.id_machine }).ToString() + "\"class=\"delete\" title=\"Supprimer\"></a>");
-                    }, canSort: false
-                )
-            )
-        )        
-    }else{
-        @grid.GetHtml(
-            tableStyle: "simpleTable",
-            headerStyle: "head",
-            alternatingRowStyle: "alt",
-            columns: grid.Columns(
-                grid.Column("Name", "Nom"),
-                grid.Column("IP", "IP"),
-                grid.Column("RoomString", "Lieu")
-            )
-        )
-        
-    }
-}
+@grid.GetHtml(
+tableStyle: "simpleTable",
+headerStyle: "head",
+alternatingRowStyle: "alt",
+columns: grid.Columns(
+    grid.Column("Name", "Nom"),
+    grid.Column("IP", "IP"),
+    grid.Column("RoomString", "Lieu"),
+    grid.Column(
+        format: (item) =>
+        {
+            if (isManager)
+                return new HtmlString("<a href=\"" + Url.Action("Edit", new { id = item.id_machine }).ToString() + "\"class=\"modify\" title=\"Modifier\"></a>" +
+                                    "<a href=\"" + Url.Action("Delete", new { id = item.id_machine }).ToString() + "\"class=\"delete\" title=\"Supprimer\"></a>");
+            else return new HtmlString("");
+        }, canSort: false
+    )
+)
+) 

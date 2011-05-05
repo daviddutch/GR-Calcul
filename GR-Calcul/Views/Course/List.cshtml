@@ -7,7 +7,13 @@
 <h2>List</h2>
 
 <p>
-    @Html.ActionLink("Create New", "Create")
+    @{
+        var isResponsible = false;
+        if(((GR_Calcul.Models.Person)Membership.GetUser(Context.User.Identity.Name)).pType == GR_Calcul.Models.PersonType.Responsible){
+            isResponsible = true;
+            @Html.ActionLink("Create New", "Create")        
+        }
+    }
 </p>
 
 
@@ -26,10 +32,13 @@
             grid.Column("ResponsibleString", "Responsible"),                
             grid.Column(format: (item) =>
                 {
-                    return new HtmlString("<a href=\"" + Url.Action("Edit", new { id = item.ID }).ToString() + "\"class=\"modify\" title=\"Modifier\"></a>" +
+                    if (isResponsible)
+                        return new HtmlString("<a href=\"" + Url.Action("Edit", new { id = item.ID }).ToString() + "\"class=\"modify\" title=\"Modifier\"></a>" +
                                           "<a href=\"" + Url.Action("Duplicate", new { id = item.ID }).ToString() + "\"class=\"dupl\" title=\"Dupliquer\"></a>" +
                                           "<a href=\"" + Url.Action("GenerateScript", new { id = item.ID }).ToString() + "\"class=\"script\" title=\"Générer le script pour le cours\"></a>" +
                                           "<a href=\"" + Url.Action("Delete", new { id = item.ID }).ToString() + "\"class=\"delete\" title=\"Supprimer\"></a>");
+                    else 
+                        return new HtmlString("");
                 }, canSort: false))
         )
 
