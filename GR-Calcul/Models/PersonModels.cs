@@ -160,12 +160,7 @@ namespace GR_Calcul.Models
                 transaction = db.BeginTransaction(IsolationLevel.ReadCommitted);
                 try
                 {
-                    SqlCommand cmd = new SqlCommand("SELECT RM.id_person as id_person, RM.email, RM.firstname, RM.lastname, RM.username, 'RM' AS pType " +
-                                                    "FROM ResourceManager RM " +
-                                                    "UNION SELECT RE.id_person, RE.email, RE.firstname, RE.lastname, RE.username, 'RE' AS pType FROM Responsible RE " +
-                                                    "UNION SELECT US.id_person, US.email, US.firstname, US.lastname, US.username, 'US' AS pType FROM [User] US " +
-                                                    "ORDER BY RM.firstname;", db, transaction);
-
+                    SqlCommand cmd = new SqlCommand("SELECT * from Person ORDER BY firstname;", db, transaction);
 
                     SqlDataReader rdr = cmd.ExecuteReader();
 

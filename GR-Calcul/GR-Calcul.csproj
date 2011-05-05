@@ -72,7 +72,7 @@
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\CourseModels.cs" />
     <Compile Include="Models\MachineModels.cs" />
-    <Compile Include="Models\MyProvider.cs" />
+    <Compile Include="Models\MyMembershipProvider.cs" />
     <Compile Include="Models\PersonModels.cs" />
     <Compile Include="Models\RoomModels.cs" />
     <Compile Include="Models\SlotRangeModels.cs" />
@@ -208,7 +208,9 @@
     <Content Include="Views\SlotRange\EditorTemplates\Hide.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Machine\List.cshtml" />
@@ -239,6 +241,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Person\Delete.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Person\Create.cshtml" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" />

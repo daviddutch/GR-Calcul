@@ -40,20 +40,17 @@ namespace GR_Calcul.Controllers
             if (ModelState.IsValid)
             {
 
-                //if (MembershipService.ValidateUser(model.UserName, model.Password))
-                //{
-                //    FormsService.SignIn(model.UserName, model.RememberMe);
-                //    if (Url.IsLocalUrl(returnUrl))
-                //    {
-                //        return Redirect(returnUrl);
-                //    }
-                //    else
-                //    {
-                //        return RedirectToAction("Index", "Home");
-                //    }
-                //}
-                if ()
+                if (MembershipService.ValidateUser(model.UserName, model.Password))
                 {
+                    FormsService.SignIn(model.UserName, model.RememberMe);
+                    if (Url.IsLocalUrl(returnUrl))
+                    {
+                        return Redirect(returnUrl);
+                    }
+                    else
+                    {
+                        return RedirectToAction("Index", "Home");
+                    }
                 }
                 else
                 {

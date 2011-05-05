@@ -22,7 +22,7 @@ namespace GR_Calcul.Controllers
             ViewBag.SlotDuration = new SelectList(Slot.durationList, "Text", "Text");
         }
 
-        public class User
+        public new class  User
         {
             public string UserName { get; set; }
             public UserRole Role { get; set; }

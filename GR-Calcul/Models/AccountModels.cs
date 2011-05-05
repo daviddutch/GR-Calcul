@@ -10,7 +10,6 @@ using System.Web.Security;
 
 namespace GR_Calcul.Models
 {
-
     #region Models
 
     public class ChangePasswordModel
@@ -165,6 +164,8 @@ namespace GR_Calcul.Models
             if (String.IsNullOrEmpty(userName)) throw new ArgumentException("Value cannot be null or empty.", "userName");
 
             FormsAuthentication.SetAuthCookie(userName, createPersistentCookie);
+            HttpContext.Current.Session["username"] = userName+"-session!!";
+            HttpContext.Current.Session["role"] = "the role~~~";
         }
 
         public void SignOut()
