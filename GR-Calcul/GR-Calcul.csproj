@@ -240,6 +240,9 @@
     <Content Include="Views\Person\Edit.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Views\Person\Create.cshtml" />
+</ItemGroup>
+ <ItemGroup>
     <Content Include="Views\Person\Delete.cshtml" />
   </ItemGroup>
   <ItemGroup>

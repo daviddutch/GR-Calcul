@@ -10,6 +10,8 @@
 <fieldset>
     <legend>Person</legend>
 
+    @Html.HiddenFor(model => model.pType);
+
     <div class="display-label">FirstName</div>
     <div class="display-field">
         @Html.DisplayFor(model => model.FirstName)

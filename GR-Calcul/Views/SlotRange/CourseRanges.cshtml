@@ -1,15 +1,15 @@
-﻿@model List<GR_Calcul.Models.SlotRange>
+﻿@model GR_Calcul.Models.CourseRangesViewModel
            
 @{
     ViewBag.Title = "CourseRanges";
 }
 
-<h2>Reservation des ranges pour "GRID-1"<div style="float:right; margin-right:20px;"><button type="button">Ajouter range</button></div></h2>
+<h2>Reservation des ranges pour "GRID-1"<span style="float:right; margin-right:20px;"><button type="button">Ajouter range</button></span></h2>
 
 
-@foreach (var slotRange in Model)
+@foreach (var slotRange in Model.SlotRanges)
 {
-<h3>@slotRange.Name - @slotRange.StartRes - @slotRange.EndRes <div style="float:right; margin-right:20px;"><a href="#" class="modify"></a><a href="#" class="dupl"></a><a href="#" class="script"></a><a href="#" class="delete"></a></div></h3>
+<h3>@slotRange.Name - @slotRange.StartRes - @slotRange.EndRes <span style="float:right; margin-right:20px;"><a href="#" class="modify"></a><a href="#" class="dupl"></a><a href="#" class="script"></a><a href="#" class="delete"></a></span></h3>
 <table class="simpleTable">
 	<thead>
 		<tr>
@@ -45,33 +45,28 @@
 		</tr>
 	</thead>
 	<tbody>
+    @foreach (GR_Calcul.Models.Person person in Model.Course.Students)
+    {
 		<tr>
-			<td>Michou</td>
-			<td style="text-align:center;">X - 5</td>
-			<td></td>
-			<td></td>
-			<td></td>
-			<td></td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>Chrisou</td>
-			<td></td>
-			<td></td>
-			<td style="text-align:center;">X - 7</td>
-			<td></td>
-			<td></td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>Davidou</td>
-			<td></td>
-			<td></td>
-			<td></td>
-			<td></td>
-			<td></td>
-			<td style="text-align:center;">X - 11</td>
-		</tr>
+			<td>@person.FirstName - @person.LastName</td>
+
+            @for (int i = 0; i < slotRange.Slotdate.Count; i++)
+		    {
+                foreach (var slot in slotRange.GetSlotsForDate(slotRange.Slotdate[i]))
+				{
+                    GR_Calcul.Models.Reservation reservation = slot.getReservation(person.ID);
+                    if (reservation != null)
+                    {
+                        <td style="text-align:center;">@reservation.NumberMachines</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                }
+            }
+        </tr>
+    }
 	</tbody>
 </table>
 }
