@@ -190,7 +190,7 @@ namespace GR_Calcul.Controllers
         [HttpPost]
         [DuffAuthorize(PersonType.Responsible)]
         public ActionResult Delete(int id, FormCollection collection)
-        {            
+        {
             Exception ex = new Exception("Access denied");
             if (IsAuthorized(slotRangeModel.GetSlotRange(id)))
             {

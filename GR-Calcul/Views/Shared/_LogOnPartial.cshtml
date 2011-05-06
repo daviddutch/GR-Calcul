@@ -3,5 +3,5 @@
     [ @Html.ActionLink("Se déconnecter", "LogOff", "Account") ]</span>
 }
 else {
-    @:[ @Html.ActionLink("Se connecter", "LogOn", "Account") ]
+    @:[ @Html.ActionLink("Se connecter", "LogOn", "Account") ] [ @Html.ActionLink("Mot de passe oublié", "LostPassword", "Account")  ]
 }

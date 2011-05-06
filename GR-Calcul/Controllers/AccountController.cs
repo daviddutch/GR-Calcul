@@ -8,11 +8,15 @@ using System.Web.Mvc;
 using System.Web.Routing;
 using System.Web.Security;
 using GR_Calcul.Models;
+using GR_Calcul.Misc;
 
 namespace GR_Calcul.Controllers
 {
     public class AccountController : BaseController
     {
+
+        private PersonModel personModel = new PersonModel();
+        private LostPasswordChangeModel lostPwdChangeModel = new LostPasswordChangeModel();
 
         public IFormsAuthenticationService FormsService { get; set; }
         public IMembershipService MembershipService { get; set; }
@@ -31,7 +35,11 @@ namespace GR_Calcul.Controllers
 
         public ActionResult LogOn()
         {
-            return View();
+            if (SessionManager.IsLogged(HttpContext))
+            {
+                return new HomeController().Index();
+            }else
+                return View();
         }
 
         [HttpPost]
@@ -39,7 +47,6 @@ namespace GR_Calcul.Controllers
         {
             if (ModelState.IsValid)
             {
-
                 if (MembershipService.ValidateUser(model.UserName, model.Password))
                 {
                     FormsService.SignIn(model.UserName, model.RememberMe);
@@ -54,7 +61,7 @@ namespace GR_Calcul.Controllers
                 }
                 else
                 {
-                    ModelState.AddModelError("", "Le nom d'utilisateur ou le mot de passe est incorrect.");
+                    ModelState.AddModelError("", "Le nom d'utilisateur et/ou le mot de passe est incorrect.");
                 }
             }
 
@@ -73,37 +80,77 @@ namespace GR_Calcul.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        // **************************************
-        // URL: /Account/Register
-        // **************************************
-
-        public ActionResult Register()
+        //
+        // GET: /AccountController/LostPasswordChange/hgjfgdsajhfgjhsadfg
+        //public ActionResult LostPasswordChange(NonNullable<String> token)
+        public ActionResult LostPasswordChange(string token)
         {
-            ViewBag.PasswordLength = MembershipService.MinPasswordLength;
-            return View();
+            if (token == null)
+            {
+                throw new ArgumentNullException();
+            }
+            if (lostPwdChangeModel.IsTokenValid(token))
+            {
+                ViewBag.token = token;
+                ViewBag.PasswordLength = MembershipService.MinPasswordLength;
+                return View();
+            }
+            else
+            {
+                throw new Exception("Invalid token. The token may have expired.");
+            }
         }
 
         [HttpPost]
-        public ActionResult Register(RegisterModel model)
+        public ActionResult LostPasswordChange(LostPasswordChangeModel model, string token)
         {
             if (ModelState.IsValid)
             {
-                // Attempt to register the user
-                MembershipCreateStatus createStatus = MembershipService.CreateUser(model.UserName, model.Password, model.Email);
-
-                if (createStatus == MembershipCreateStatus.Success)
+                if (MembershipService.ChangePassword(token, model.NewPassword))
                 {
-                    FormsService.SignIn(model.UserName, false /* createPersistentCookie */);
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("ChangePasswordSuccess");
                 }
                 else
                 {
-                    ModelState.AddModelError("", AccountValidation.ErrorCodeToString(createStatus));
+                    ModelState.AddModelError("", "Le nouveau mot de passe est invalide.");
                 }
             }
 
             // If we got this far, something failed, redisplay form
             ViewBag.PasswordLength = MembershipService.MinPasswordLength;
+            return View(model);
+
+        }
+
+
+        public ActionResult LostPassword()
+        {
+            if (SessionManager.IsLogged(HttpContext))
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            else
+            {
+                return View();
+            }
+        }
+
+        [HttpPost]
+        public ActionResult LostPassword(LostPasswordModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                if (Membership.GetUserNameByEmail(model.Email) != null)
+                {
+                    return View("LostPasswordSuccess", model);
+                }
+                else
+                {
+                    ModelState.AddModelError("", "L'adresse email saisie n'a pas été trouvée dans notre système.");
+                }
+            }
+
+            // If we got this far, something failed, redisplay form
             return View(model);
         }
 
@@ -111,15 +158,15 @@ namespace GR_Calcul.Controllers
         // URL: /Account/ChangePassword
         // **************************************
 
-        [Authorize]
+        [DuffAuthorize(PersonType.Responsible, PersonType.ResourceManager, PersonType.User)]
         public ActionResult ChangePassword()
         {
             ViewBag.PasswordLength = MembershipService.MinPasswordLength;
             return View();
         }
 
-        [Authorize]
         [HttpPost]
+        [DuffAuthorize(PersonType.Responsible, PersonType.ResourceManager, PersonType.User)]
         public ActionResult ChangePassword(ChangePasswordModel model)
         {
             if (ModelState.IsValid)
@@ -130,7 +177,7 @@ namespace GR_Calcul.Controllers
                 }
                 else
                 {
-                    ModelState.AddModelError("", "The current password is incorrect or the new password is invalid.");
+                    ModelState.AddModelError("", "Le mot de passe courant est incorrect ou le nouveau mot de passe est invalide.");
                 }
             }
 
@@ -142,7 +189,8 @@ namespace GR_Calcul.Controllers
         // **************************************
         // URL: /Account/ChangePasswordSuccess
         // **************************************
-
+        //[DuffAuthorize(PersonType.Responsible, PersonType.ResourceManager, PersonType.User)]
+        //allow everyone so that we can use the same view for "lost password change" in which case the user is not logged
         public ActionResult ChangePasswordSuccess()
         {
             return View();
