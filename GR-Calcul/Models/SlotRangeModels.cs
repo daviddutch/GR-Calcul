@@ -55,8 +55,8 @@ namespace GR_Calcul.Models
         [StringLength(20)]
         public string Name { get; set; }
 
-        [Required(ErrorMessage="La date est invalide!")]
-        [Display(Name = "Début de Réservation", Description="dd/mm/yyyy")]
+        [Required(ErrorMessage = "La date est invalide!")]
+        [Display(Name = "Début de Réservation", Description = "dd/mm/yyyy")]
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
         [UIHint("lollipop")]
@@ -74,7 +74,7 @@ namespace GR_Calcul.Models
         public int IdCourse { get; set; }
 
         //[RegularExpression(@"((2[01234]|[01]?[0123456789]):([012345]?[0123456789]))", ErrorMessage = "Donnez une heure valide.")]
-        
+
         public List<string> Startz { get; set; }
 
         public List<string> Endz { get; set; }
@@ -97,7 +97,7 @@ namespace GR_Calcul.Models
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
         [UIHint("lollipop")]
         public DateTime Beginning { get; set; }
-        
+
         [Required]
         [Display(Name = "Durée d'un créneau")]
         public int SlotDuration { get; set; }
@@ -123,7 +123,8 @@ namespace GR_Calcul.Models
             SlotdateAdded = new List<DateTime>();
         }
 
-        public SlotRange(int id_slotRange, DateTime startRes, DateTime endRes, string name, int id_course) : this()
+        public SlotRange(int id_slotRange, DateTime startRes, DateTime endRes, string name, int id_course)
+            : this()
         {
             this.id_slotRange = id_slotRange;
             this.StartRes = startRes;
@@ -167,18 +168,19 @@ namespace GR_Calcul.Models
     {
         public static List<SelectListItem> durationList;
 
-        public static IEnumerable<int> durations = new[] { 1,2,3,4,6,8 };
+        public static IEnumerable<int> durations = new[] { 1, 2, 3, 4, 6, 8 };
 
         static Slot()
         {
             durationList = new List<SelectListItem>(durations.Count());
             foreach (var i in durations)
             {
-                durationList.Add(new SelectListItem() { Value = ""+i, Text = ""+i });
+                durationList.Add(new SelectListItem() { Value = "" + i, Text = "" + i });
             }
         }
 
-        public Slot(DateTime start, DateTime end){
+        public Slot(DateTime start, DateTime end)
+        {
             Start = start;
             End = end;
         }
@@ -235,7 +237,7 @@ namespace GR_Calcul.Models
 
     public class SlotRangeModel
     {
-        
+
         static private String connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString;
 
         public List<SlotRange> GetSlotRangesForCourse(int id)
@@ -310,7 +312,7 @@ namespace GR_Calcul.Models
                             cmd = new SqlCommand("SELECT [id_person], [id_slot], [numberMachines] FROM Reservation WHERE id_slot=@id;", db, transaction);
                             cmd.Parameters.Add("@id", SqlDbType.Int).Value = slot.ID;
                             rdr = cmd.ExecuteReader();
-                            
+
                             while (rdr.Read())
                             {
                                 int id_person = rdr.GetInt32(rdr.GetOrdinal("id_person"));
@@ -517,11 +519,11 @@ namespace GR_Calcul.Models
             cmd3.ExecuteNonQuery();
         }
 
-        private void InsertAllSlots(SlotRange range, int rangeId, SqlConnection db, SqlTransaction transaction) 
-        { 
-			InsertSlots(range.Startz, range.Endz, range.Slotdate, range.SlotDuration, rangeId, db, transaction);
-			InsertSlots(range.StartzAdded, range.EndzAdded, range.SlotdateAdded, range.SlotDuration, rangeId, db, transaction);
-		}
+        private void InsertAllSlots(SlotRange range, int rangeId, SqlConnection db, SqlTransaction transaction)
+        {
+            InsertSlots(range.Startz, range.Endz, range.Slotdate, range.SlotDuration, rangeId, db, transaction);
+            InsertSlots(range.StartzAdded, range.EndzAdded, range.SlotdateAdded, range.SlotDuration, rangeId, db, transaction);
+        }
 
         private void InsertSlots(List<string> start, List<string> end, List<DateTime> dt, int slotDuration, int rangeId, SqlConnection db, SqlTransaction transaction)
         {
@@ -558,7 +560,8 @@ namespace GR_Calcul.Models
             cmd2.ExecuteNonQuery();
         }
 
-        private DateTime buildDateTime(string time, DateTime datePart){
+        private DateTime buildDateTime(string time, DateTime datePart)
+        {
             int hour = Int32.Parse(time.Substring(0, time.IndexOf(':')));
             int minute = Int32.Parse(time.Substring(time.IndexOf(':') + 1, time.Length - time.IndexOf(':') - 1));
             if (hour < 0)
@@ -663,7 +666,7 @@ namespace GR_Calcul.Models
                         Console.WriteLine("Cross modify");
                     }
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     transaction.Rollback();
                     System.Diagnostics.Debug.WriteLine(ex.Message);
@@ -697,7 +700,7 @@ namespace GR_Calcul.Models
                     SqlCommand cmd = new SqlCommand("DELETE FROM Slot WHERE id_slotRange=@id;", db, transaction);
                     cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
                     cmd.ExecuteNonQuery();
-                    
+
                     cmd = new SqlCommand("DELETE FROM MachineSlotRange WHERE id_slotRange=@id;", db, transaction);
                     cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
                     cmd.ExecuteNonQuery();
@@ -725,41 +728,41 @@ namespace GR_Calcul.Models
         private String BuildScriptDataXML(Reservation reservation, Slot slot, List<Machine> machines)
         {
             // create document
-        XmlDocument doc = new XmlDocument();
+            XmlDocument doc = new XmlDocument();
 
             // create root <command> node
             XmlNode commandNode = doc.CreateElement("command");
             doc.AppendChild(commandNode);
 
             // create <username> child node and add to <command> node
-                XmlNode usernameNode = doc.CreateElement("username");
-                usernameNode.AppendChild(doc.CreateTextNode(escXML(reservation.Name)));
+            XmlNode usernameNode = doc.CreateElement("username");
+            usernameNode.AppendChild(doc.CreateTextNode(escXML(reservation.Name)));
             commandNode.AppendChild(usernameNode);
 
             // create <startTime> child node and add to <command> node
-                XmlNode startTimeNode = doc.CreateElement("startTime");
-                    XmlAttribute minutesAttribute = doc.CreateAttribute("minutes");
-                    minutesAttribute.Value = escXML(slot.Start.Minute.ToString()); 
-                    XmlAttribute hoursAttribute = doc.CreateAttribute("hours");
-                    hoursAttribute.Value = escXML(slot.Start.Hour.ToString()); 
+            XmlNode startTimeNode = doc.CreateElement("startTime");
+            XmlAttribute minutesAttribute = doc.CreateAttribute("minutes");
+            minutesAttribute.Value = escXML(slot.Start.Minute.ToString());
+            XmlAttribute hoursAttribute = doc.CreateAttribute("hours");
+            hoursAttribute.Value = escXML(slot.Start.Hour.ToString());
             commandNode.AppendChild(startTimeNode);
 
             // create <startDate> child node and add to <command> node
-                XmlNode startDateNode = doc.CreateElement("startDate");
-                string startDate = String.Format("{0:d/M/yyyy HH:mm:ss}", slot.Start);
-                startDateNode.AppendChild(doc.CreateTextNode(startDate)); // skipping escXML() here
+            XmlNode startDateNode = doc.CreateElement("startDate");
+            string startDate = String.Format("{0:d/M/yyyy HH:mm:ss}", slot.Start);
+            startDateNode.AppendChild(doc.CreateTextNode(startDate)); // skipping escXML() here
             commandNode.AppendChild(startDateNode);
 
             // create <machines> node and <machine> child nodes and add to <command> node
-                XmlNode machinesNode = doc.CreateElement("machines");
-                machines.ForEach(delegate(Machine machine)
-                {
-                    XmlNode machineNode = doc.CreateElement("machine");
-                        XmlNode nameNode = doc.CreateElement("name");
-                        nameNode.AppendChild(doc.CreateTextNode(escXML(machine.Name)));
-                    machineNode.AppendChild(nameNode);
+            XmlNode machinesNode = doc.CreateElement("machines");
+            machines.ForEach(delegate(Machine machine)
+            {
+                XmlNode machineNode = doc.CreateElement("machine");
+                XmlNode nameNode = doc.CreateElement("name");
+                nameNode.AppendChild(doc.CreateTextNode(escXML(machine.Name)));
+                machineNode.AppendChild(nameNode);
                 machinesNode.AppendChild(machineNode);
-                });
+            });
             commandNode.AppendChild(machinesNode);
 
             // return a XML string representation of the <command> node
@@ -772,11 +775,10 @@ namespace GR_Calcul.Models
             return SecurityElement.Escape(xmlString);
         }
 
-        protected void InsertCommandXML(Reservation reservation, Slot slot, List<Machine> machines)
+        // CD: this is really an Update
+        protected void InsertCommandXML(SlotRange range, Reservation reservation, Slot slot, List<Machine> machines)
         {
             bool updated = false;
-            //SlotRange slotRange = GetSlotRangeForReservation(reservation);
-            SlotRange range = null;
 
             try
             {
@@ -818,7 +820,7 @@ namespace GR_Calcul.Models
                         Console.WriteLine("Cross modify?");
                     }
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     transaction.Rollback();
                     System.Diagnostics.Debug.WriteLine(ex.Message);
@@ -836,8 +838,11 @@ namespace GR_Calcul.Models
             if (!updated) throw new Exception("timestamp");
         }
 
-        public void DeleteSlotRange(int id)
+        // CD: this is really an Update
+        protected void DeleteCommandXML(SlotRange range, string username)
         {
+            bool updated = false;
+
             try
             {
                 SqlConnection db = new SqlConnection(connectionString);
@@ -845,35 +850,56 @@ namespace GR_Calcul.Models
 
                 db.Open();
 
-                transaction = db.BeginTransaction(IsolationLevel.Serializable); // CD changed from RepeatableRead according to spec.
+                transaction = db.BeginTransaction(IsolationLevel.RepeatableRead); // CD: single row but multiple queries
                 try
                 {
+                    byte[] timestamp = range.getByteTimestamp();
 
-                    SqlCommand cmd = new SqlCommand("DELETE FROM Slot WHERE id_slotRange=@id;", db, transaction);
-                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
-                    cmd.ExecuteNonQuery();
-                    
-                    cmd = new SqlCommand("DELETE FROM MachineSlotRange WHERE id_slotRange=@id;", db, transaction);
-                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
-                    cmd.ExecuteNonQuery();
+                    SqlCommand cmd = new SqlCommand("SELECT * FROM SlotRange R " +
+                        "WHERE R.[id_slotRange]=@id AND R.timestamp=@timestamp;", db, transaction);
 
-                    cmd = new SqlCommand("DELETE FROM SlotRange WHERE id_slotRange=@id;", db, transaction);
-                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
-                    cmd.ExecuteNonQuery();
+                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = range.id_slotRange;
+                    cmd.Parameters.Add("@timestamp", SqlDbType.Binary).Value = timestamp;
 
-                    transaction.Commit();
+                    SqlDataReader rdr = cmd.ExecuteReader();
+
+                    if (rdr.Read())
+                    {
+                        rdr.Close();
+
+                        cmd = new SqlCommand("UPDATE SlotRange " +
+                            "SET scriptDataXML.modify('delete (/script/command[username=@username])') " +
+                            "WHERE id_slotRange=@id_slotRange", db, transaction);
+
+                        cmd.Parameters.Add("@username", SqlDbType.Char).Value = username;
+                        cmd.Parameters.Add("@id_slotRange", SqlDbType.Int).Value = range.id_slotRange;
+                        cmd.ExecuteNonQuery();
+                        updated = true;
+
+                        transaction.Commit();
+                    }
+                    else
+                    {
+                        rdr.Close();
+                        Console.WriteLine("Cross modify?");
+                    }
                 }
-                catch (SqlException sqlError)
+                catch (Exception ex)
                 {
-                    Console.WriteLine(sqlError);
                     transaction.Rollback();
+                    System.Diagnostics.Debug.WriteLine(ex.Message);
+                    System.Diagnostics.Debug.WriteLine(ex.StackTrace);
                 }
-                db.Close();
+                finally
+                {
+                    db.Close();
+                }
             }
-            catch (SqlException sqlError)
+            catch
             {
-                Console.WriteLine(sqlError);
+
             }
+            if (!updated) throw new Exception("timestamp");
         }
     }
 }
