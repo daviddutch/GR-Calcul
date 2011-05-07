@@ -282,8 +282,7 @@ namespace GR_Calcul.Models
                 try
                 {
                     SqlCommand cmd = new SqlCommand("SELECT P.id_person as id_person, P.email, P.firstname, P.lastname, P.username, P.pType AS pType, P.timestamp " +
-                                                    "FROM [Person] P WHERE P.id_person = @id_person AND P.pType=@pType " +
-                                                    "ORDER BY P.firstname;", conn, transaction);
+                            "FROM [Person] P WHERE P.id_person = @id_person AND P.pType=@pType;", conn, transaction);
 
                     cmd.Parameters.Add("@id_person", SqlDbType.Int).Value = id;
                     cmd.Parameters.Add("@pType", SqlDbType.Char).Value = Person.dbTypesRev[pType];
@@ -340,8 +339,7 @@ namespace GR_Calcul.Models
                 try
                 {
                     SqlCommand cmd = new SqlCommand("SELECT P.id_person as id_person, P.email, P.firstname, P.lastname, P.username, P.pType AS pType, P.timestamp " +
-                                                    "FROM [Person] P WHERE P.username = @username AND P.password=@password " +
-                                                    "ORDER BY P.firstname;", db, transaction);
+                                "FROM [Person] P WHERE P.username = @username AND P.password=@password;", db, transaction);
 
                     cmd.Parameters.Add("@username", SqlDbType.Char).Value = username;
                     cmd.Parameters.Add("@password", SqlDbType.Char).Value = password;
@@ -397,8 +395,7 @@ namespace GR_Calcul.Models
                 try
                 {
                     SqlCommand cmd = new SqlCommand("SELECT P.id_person as id_person, P.email, P.firstname, P.lastname, P.username, P.pType AS pType, P.timestamp " +
-                                                    "FROM [Person] P WHERE P.username = @username " +
-                                                    "ORDER BY P.firstname;", db, transaction);
+                                "FROM [Person] P WHERE P.username = @username; ", db, transaction);
 
                     cmd.Parameters.Add("@username", SqlDbType.Char).Value = username;
 
@@ -436,6 +433,50 @@ namespace GR_Calcul.Models
             }
 
             return person;
+        }
+
+        internal string GetPersonByEmail(string email)
+        {
+            string username= null;
+
+            try
+            {
+                SqlConnection db = new SqlConnection(connectionString);
+                SqlTransaction transaction;
+
+                db.Open();
+
+                transaction = db.BeginTransaction(IsolationLevel.ReadUncommitted);
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("SELECT P.username " +
+                            "FROM [Person] P WHERE P.email = @email;", db, transaction);
+
+                    cmd.Parameters.Add("@email", SqlDbType.Char).Value = email;
+                    SqlDataReader rdr = cmd.ExecuteReader();
+                    if (rdr.Read())
+                    {
+                        username = rdr.GetString(rdr.GetOrdinal("username"));
+                    }
+                    rdr.Close();
+
+                    transaction.Commit();
+                }
+                catch (SqlException sqlError)
+                {
+                    System.Diagnostics.Debug.WriteLine(sqlError.Message);
+                    System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                    transaction.Rollback();
+                }
+                db.Close();
+            }
+            catch (SqlException sqlError)
+            {
+                System.Diagnostics.Debug.WriteLine(sqlError.Message);
+                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+            }
+
+            return username;
         }
 
         internal void UpdatePerson(Person person)

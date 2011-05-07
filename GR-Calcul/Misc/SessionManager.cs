@@ -37,5 +37,10 @@ namespace GR_Calcul.Misc
             return null;
         }
 
+        public static Boolean IsLogged(HttpContextBase context)
+        {
+            return !String.IsNullOrEmpty(context.User.Identity.Name);
+        }
+
     }
 }

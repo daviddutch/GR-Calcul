@@ -7,6 +7,8 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
+using System.Data.SqlClient;
+using System.Data;
 
 namespace GR_Calcul.Models
 {
@@ -16,20 +18,126 @@ namespace GR_Calcul.Models
     {
         [Required]
         [DataType(DataType.Password)]
-        [Display(Name = "Current password")]
+        [Display(Name = "Mot de passe actuel")]
         public string OldPassword { get; set; }
 
         [Required]
         [ValidatePasswordLength]
         [DataType(DataType.Password)]
-        [Display(Name = "New password")]
+        [Display(Name = "Nouveau mot de passe")]
         public string NewPassword { get; set; }
 
         [DataType(DataType.Password)]
-        [Display(Name = "Confirm new password")]
-        [Compare("NewPassword", ErrorMessage = "The new password and confirmation password do not match.")]
+        [Display(Name = "Confirmer le mot de passe")]
+        [Compare("NewPassword", ErrorMessage = "Le nouveau mot de passe et la confirmation du nouveau mot de passe ne correspondent pas.")]
         public string ConfirmPassword { get; set; }
     }
+
+    public class LostPasswordChangeModel
+    {
+        [Required]
+        [ValidatePasswordLength]
+        [DataType(DataType.Password)]
+        [Display(Name = "Nouveau mot de passe")]
+        public string NewPassword { get; set; }
+
+        [DataType(DataType.Password)]
+        [Display(Name = "Confirmer le mot de passe")]
+        [Compare("NewPassword", ErrorMessage = "Le nouveau mot de passe et la confirmation du nouveau mot de passe ne correspondent pas.")]
+        public string ConfirmPassword { get; set; }
+
+        public string GetUserFromToken(string token)
+        {
+            string username = null;
+            try
+            {
+                SqlConnection db = new SqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString);
+                SqlTransaction transaction;
+                db.Open();
+
+                transaction = db.BeginTransaction(IsolationLevel.ReadUncommitted);
+                try
+                {
+
+                    //test whether there's already a pending request
+                    SqlCommand cmd = new SqlCommand("SELECT username FROM LostPassword WHERE token=@token; ", db, transaction);
+
+                    cmd.Parameters.Add("@token", SqlDbType.Char);
+                    cmd.Parameters["@token"].Value = token;
+
+                    SqlDataReader rdr = cmd.ExecuteReader();
+
+                    if (rdr.Read())
+                    {
+                        username = rdr.GetString(rdr.GetOrdinal("username"));
+                    }
+                    rdr.Close();
+
+                    transaction.Commit();
+                }
+                catch
+                {
+                    transaction.Rollback();
+                }
+                finally
+                {
+                    db.Close();
+                }
+            }
+            catch
+            {
+            }
+            return username;
+        }
+
+        public bool IsTokenValid(string token)
+        {
+            bool valid = false;
+            try
+            {
+                SqlConnection db = new SqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString);
+                SqlTransaction transaction;
+                db.Open();
+
+                transaction = db.BeginTransaction(IsolationLevel.ReadUncommitted);
+                try
+                {
+
+                    //test whether there's already a pending request
+                    SqlCommand cmd = new SqlCommand("SELECT token, DATEDIFF(hh, DATEADD(hh, 2, requestDate), GETDATE()) as diff " +
+                        "FROM LostPassword WHERE token=@token; ", db, transaction);
+
+                    cmd.Parameters.Add("@token", SqlDbType.Char);
+                    cmd.Parameters["@token"].Value = token;
+
+                    SqlDataReader rdr = cmd.ExecuteReader();
+
+                    if (rdr.Read())
+                    {
+                        int diff = rdr.GetInt32(rdr.GetOrdinal("diff"));
+                        valid = diff <= 0;
+                    }
+                    rdr.Close();
+
+                    transaction.Commit();
+                }
+                catch
+                {
+                    transaction.Rollback();
+                }
+                finally
+                {
+                    db.Close();
+                }
+            }
+            catch
+            {
+            }
+            return valid;
+        }
+
+    }
+
 
     public class LogOnModel
     {
@@ -46,29 +154,58 @@ namespace GR_Calcul.Models
         public bool RememberMe { get; set; }
     }
 
-
-    public class RegisterModel
+    public class LostPasswordModel
     {
-        [Required]
-        [Display(Name = "User name")]
-        public string UserName { get; set; }
-
-        [Required]
-        [DataType(DataType.EmailAddress)]
-        [Display(Name = "Email address")]
+        [Required(ErrorMessage = "L'adresse email doit être saisie.")]
+        [Display(Name = "Adresse email")]
         public string Email { get; set; }
 
-        [Required]
-        [ValidatePasswordLength]
-        [DataType(DataType.Password)]
-        [Display(Name = "Password")]
-        public string Password { get; set; }
+        public void InsertToken(string token, string email)
+        {
+            string username = Membership.GetUserNameByEmail(email);
+            if (username == null)
+            {
+                throw new NoNullAllowedException();
+            }
 
-        [DataType(DataType.Password)]
-        [Display(Name = "Confirm password")]
-        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
-        public string ConfirmPassword { get; set; }
+			SqlConnection db = new SqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString);
+            SqlTransaction transaction;
+            db.Open();
+
+            transaction = db.BeginTransaction(IsolationLevel.ReadUncommitted);
+            try
+            {
+                    
+                SqlCommand cmd = new SqlCommand("DELETE FROM LostPassword WHERE username=@name; ", db, transaction);
+                cmd.Parameters.Add("@name", SqlDbType.Char);
+                cmd.Parameters["@name"].Value = username;
+                cmd.ExecuteNonQuery();
+
+                cmd = new SqlCommand("INSERT INTO LostPassword (username, token, requestDate) "+
+                    "VALUES (@name, @token, GETDATE());", db, transaction);
+
+                cmd.Parameters.Add("@name", SqlDbType.Char);
+                cmd.Parameters.Add("@token", SqlDbType.Char);
+
+                cmd.Parameters["@name"].Value = username;
+                cmd.Parameters["@token"].Value = token;
+
+                cmd.ExecuteNonQuery();
+
+                transaction.Commit();
+            }
+            catch(Exception ex)
+            {
+                transaction.Rollback();
+				throw ex;
+            }
+            finally
+            {
+                db.Close();
+            }
+		}
     }
+
     #endregion
 
     #region Services
@@ -84,11 +221,14 @@ namespace GR_Calcul.Models
         bool ValidateUser(string userName, string password);
         MembershipCreateStatus CreateUser(string userName, string password, string email);
         bool ChangePassword(string userName, string oldPassword, string newPassword);
+        bool ChangePassword(string token, string newPassword);
     }
 
     public class AccountMembershipService : IMembershipService
     {
         private readonly MembershipProvider _provider;
+
+        private LostPasswordChangeModel model = new LostPasswordChangeModel();
 
         public AccountMembershipService()
             : this(null)
@@ -137,8 +277,12 @@ namespace GR_Calcul.Models
             // than return false in certain failure scenarios.
             try
             {
-                MembershipUser currentUser = _provider.GetUser(userName, true /* userIsOnline */);
-                return currentUser.ChangePassword(oldPassword, newPassword);
+                if (_provider.GetUser(userName, true /* userIsOnline */) != null)
+                {
+                    return _provider.ChangePassword(userName, oldPassword, newPassword);
+                }
+                return false;
+                //return currentUser.ChangePassword(oldPassword, newPassword);
             }
             catch (ArgumentException)
             {
@@ -149,6 +293,37 @@ namespace GR_Calcul.Models
                 return false;
             }
         }
+
+        public bool ChangePassword(string token, string newPassword)
+        {
+            if (String.IsNullOrEmpty(token)) throw new ArgumentException("Value cannot be null or empty.", "token");
+            if (String.IsNullOrEmpty(newPassword)) throw new ArgumentException("Value cannot be null or empty.", "newPassword");
+
+            // The underlying ChangePassword() will throw an exception rather
+            // than return false in certain failure scenarios.
+            try
+            {
+                string username = model.GetUserFromToken(token);
+                if (username != null && _provider is MyMembershipProvider)
+                {
+                    return ((MyMembershipProvider)_provider).ChangePassword(username, newPassword);
+                }
+                else
+                {
+                    return false;
+                }
+                return false;
+            }
+            catch (ArgumentException)
+            {
+                return false;
+            }
+            catch (MembershipPasswordException)
+            {
+                return false;
+            }
+        }
+
     }
 
     public interface IFormsAuthenticationService

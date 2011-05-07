@@ -80,15 +80,12 @@ public class MyMembershipProvider : MembershipProvider
 
     public override string GetUserNameByEmail(string email)
     {
-        throw new NotImplementedException();
+        return personModel.GetPersonByEmail(email);
     }
 
-    public override bool ChangePassword(string username, string oldPwd, string newPwd)
+    public bool ChangePassword(string username, string newPwd)
     {
-        if (!ValidateUser(username, oldPwd))
-            return false;
-        ValidatePasswordEventArgs args =
-        new ValidatePasswordEventArgs(username, newPwd, true);
+        ValidatePasswordEventArgs args = new ValidatePasswordEventArgs(username, newPwd, true);
 
         OnValidatingPassword(args);
 
@@ -99,6 +96,14 @@ public class MyMembershipProvider : MembershipProvider
                 throw new MembershipPasswordException("Change password canceled due to new password validation failure.");
         int affectesRows = personModel.ChangePassword(username, newPwd);
         return affectesRows > 0;
+    }
+
+    public override bool ChangePassword(string username, string oldPwd, string newPwd)
+    {
+        if (!ValidateUser(username, oldPwd))
+            return false;
+
+        return ChangePassword(username, newPwd);
     }
 
     public override bool ChangePasswordQuestionAndAnswer(string username, string password, string newPasswordQuestion, string newPasswordAnswer)
