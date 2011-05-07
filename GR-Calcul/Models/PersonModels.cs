@@ -491,7 +491,7 @@ namespace GR_Calcul.Models
                 {
                     System.Diagnostics.Debug.WriteLine(sqlError.Message);
                     System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
-                    if (sqlError.Number == 50001)
+                    if (sqlError.Number == 50001)// 50001 == duplicate user. C.f. Error Message Numbers List in separate file
                     {
                         System.Diagnostics.Debug.WriteLine("here we need to inform the user of the Error (duplicate user)!!!");
                     }
