@@ -10,6 +10,7 @@ using System.Web.Mvc;
 using System.Web.Security;
 using System.Xml;
 using System.Security;
+using System.Data.SqlTypes;
 
 namespace GR_Calcul.Models
 {
@@ -900,6 +901,27 @@ namespace GR_Calcul.Models
 
             }
             if (!updated) throw new Exception("timestamp");
+        }
+
+        protected string GenerateScript(SlotRange range)
+        {
+            // in-proc connection to server
+            SqlConnection conn = new SqlConnection(connectionString);
+
+            // prepare query to select xml data
+            SqlCommand cmd = new SqlCommand("SELECT xCol.query('//section') " +
+                "FROM slotRange " +
+                "WHERE id_slotRange=@id_slotRange", db, transaction);
+            cmd.Parameters.Add("@id_slotRange", SqlDbType.Int).Value = range.id_slotRange;
+            
+            // execute query and retrieve incoming data
+            SqlDataReader r = cmd.ExecuteReader();
+            r.Read();
+
+            // access XML data type field in rowset
+            SqlXml xml = r.GetSqlXml(0);
+            new XmlTextWriter(Console.Out).WriteNode(xml.CreateReader(), true);
+            return null;
         }
     }
 }
