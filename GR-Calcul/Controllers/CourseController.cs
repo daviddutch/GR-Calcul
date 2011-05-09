@@ -97,21 +97,14 @@ namespace GR_Calcul.Controllers
             }
         }
 
-        //
         // GET: /Course/Script/5
         [DuffAuthorize(PersonType.ResourceManager)]
         public ActionResult Script(int id)
         {
-            if (IsAuthorized(id))
-            {
-                Course course = CourseModel.GetCourse(id);
-                string allScripts = course.GenerateAllScripts();
-                return File(Encoding.UTF8.GetBytes(allScripts),"text/plain",string.Format("scripts_cours_{0}.sh", id));
-            }
-            else
-            {
-                throw new Exception("access denied");
-            }
+            throw new NotImplementedException(); // CD not tested yet
+            Course course = CourseModel.GetCourse(id);
+            string allScripts = course.GenerateAllScripts();
+            return File(Encoding.UTF8.GetBytes(allScripts),"text/plain",string.Format("scripts_cours_{0}.sh", id));
         }
 
         //

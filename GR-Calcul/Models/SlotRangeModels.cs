@@ -406,50 +406,39 @@ namespace GR_Calcul.Models
                     cmd.Parameters.Add("@id_slotRange", SqlDbType.Int).Value = this.id_slotRange;
 
                     // execute query and retrieve incoming data
-                    SqlDataReader r = cmd.ExecuteReader();
-                    r.Read();
-
-                    // access XML data type field in rowset
-                    //SqlXml xml = r.GetSqlXml(0);
-                    //new XmlTextWriter(Console.Out).WriteNode(xml.CreateReader(), true);
                     SqlDataReader rdr = cmd.ExecuteReader();
 
                     if (rdr.Read())
                     {
                         xml.Load(rdr.GetSqlXml(0).CreateReader());
                     }
+                    rdr.Close();
                 }
                 catch (Exception ex)
                 {
                     transaction.Rollback();
                     System.Diagnostics.Debug.WriteLine(ex.Message);
                     System.Diagnostics.Debug.WriteLine(ex.StackTrace);
-                }
-                finally
-                {
-                    db.Close();
+                    db.Close(); // only close upon exception
                 }
 
                 // get XSL file
                 try
                 {
                     // prepare query to select xsl data
-                    SqlCommand cmd = new SqlCommand("SELECT scriptTransformXML " +
+                    SqlCommand cmd = new SqlCommand("SELECT scriptTransformationXML " +
                         "FROM OS " +
                         // id_os is hard coded here - our client requires only 1 OS - better than 4 useless JOINS
                         "WHERE id_os=1", db, transaction);
 
                     // execute query and retrieve incoming data
-                    SqlDataReader r = cmd.ExecuteReader();
-                    r.Read();
-
-                    // access XML data type field in rowset
                     SqlDataReader rdr = cmd.ExecuteReader();
 
                     if (rdr.Read())
                     {
-                        xml.Load(rdr.GetSqlXml(0).CreateReader());
+                        xsl.Load(rdr.GetSqlXml(0).CreateReader());
                     }
+                    rdr.Close();
                 }
                 catch (Exception ex)
                 {
@@ -555,7 +544,7 @@ namespace GR_Calcul.Models
 
         static private String connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString;
 
-        public SlotRange GetSlotRange(int id)
+        public static SlotRange GetSlotRange(int id)
         {
             SlotRange range = null;
 

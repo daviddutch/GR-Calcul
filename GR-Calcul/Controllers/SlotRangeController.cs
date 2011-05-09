@@ -7,6 +7,7 @@ using GR_Calcul.Models;
 using System.Data.SqlClient;
 using System.Web.Security;
 using GR_Calcul.Misc;
+using System.Text;
 
 
 namespace GR_Calcul.Controllers
@@ -66,7 +67,15 @@ namespace GR_Calcul.Controllers
         //    range.DeleteCommandXML(str);
         //}
 
-        // CD test - DELETEME
+        //
+        // GET: /SlotRange/Script/5
+        [DuffAuthorize(PersonType.ResourceManager)]
+        public ActionResult Script(int id)
+        {
+            SlotRange range = SlotRangeModel.GetSlotRange(id);
+            string script = range.GenerateScript();
+            return File(Encoding.UTF8.GetBytes(script), "text/plain", string.Format("scripts_cours_{0}.sh", id));
+        }
 
         //
         // GET: /SlotRange/Create
@@ -140,7 +149,7 @@ namespace GR_Calcul.Controllers
         public ActionResult Edit(int id)
         {
             Exception ex = new Exception("Access denied");
-            SlotRange range = slotRangeModel.GetSlotRange(id);
+            SlotRange range = SlotRangeModel.GetSlotRange(id);
             if (range == null)
             {
                 return View("NoSuchRange");
@@ -202,7 +211,7 @@ namespace GR_Calcul.Controllers
         public ActionResult Delete(int id)
         {
             Exception ex = new Exception("Access denied");
-            SlotRange range = slotRangeModel.GetSlotRange(id);
+            SlotRange range = SlotRangeModel.GetSlotRange(id);
             if (range == null)
             {
                 return View("NoSuchRange");
@@ -226,7 +235,7 @@ namespace GR_Calcul.Controllers
         public ActionResult Delete(int id, FormCollection collection)
         {
             Exception ex = new Exception("Access denied");
-            if (IsAuthorized(slotRangeModel.GetSlotRange(id)))
+            if (IsAuthorized(SlotRangeModel.GetSlotRange(id)))
             {
                 try
                 {
