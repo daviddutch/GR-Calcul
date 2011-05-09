@@ -849,7 +849,7 @@ namespace GR_Calcul.Models
                     db.Close();
                 }
             }
-            catch
+            catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine(ex.Message);
                 System.Diagnostics.Debug.WriteLine(ex.StackTrace);
@@ -981,7 +981,7 @@ namespace GR_Calcul.Models
         {
             string script = "";
             XmlDocument xml = new XmlDocument();
-            XslTransform xsl = new XslTransform();
+            XslCompiledTransform xsl = new XslCompiledTransform();
 
             try
             {

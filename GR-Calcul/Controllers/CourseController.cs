@@ -17,7 +17,7 @@ namespace GR_Calcul.Controllers
         //
         // GET: /Course/
 
-        [DuffAuthorize(PersonType.Responsible, PersonType.User)]
+        [DuffAuthorize(PersonType.ResourceManager, PersonType.Responsible, PersonType.User)]
         public ActionResult Index()
         {
             return RedirectToAction("List");
@@ -26,7 +26,7 @@ namespace GR_Calcul.Controllers
         //
         // GET: /Course/List
 
-        [DuffAuthorize(PersonType.Responsible, PersonType.User)]
+        [DuffAuthorize(PersonType.ResourceManager, PersonType.Responsible, PersonType.User)]
         public ActionResult List()
         {
             switch (SessionManager.GetCurrentUserRole(HttpContext.User.Identity.Name))
@@ -34,6 +34,7 @@ namespace GR_Calcul.Controllers
                 case PersonType.Responsible:
                     return View(model.ListCourses(SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name)));
                 case PersonType.User:
+                case PersonType.ResourceManager:
                     return View(model.ListCourses());
                 default:
                     throw new Exception("Access denied");

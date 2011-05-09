@@ -13,6 +13,10 @@
             isResponsible = true;
             @Html.ActionLink("Create New", "Create")        
         }
+        var isResourceManager = false;
+        if(((GR_Calcul.Models.Person)Membership.GetUser(Context.User.Identity.Name)).pType == GR_Calcul.Models.PersonType.ResourceManager){
+            isResourceManager = true;
+        }
     }
 </p>
 
@@ -35,10 +39,12 @@
                     if (isResponsible)
                         return new HtmlString("<a href=\"" + Url.Action("Edit", new { id = item.ID }).ToString() + "\"class=\"modify\" title=\"Modifier\"></a>" +
                                           "<a href=\"" + Url.Action("Duplicate", new { id = item.ID }).ToString() + "\"class=\"dupl\" title=\"Dupliquer\"></a>" +
-                                          "<a href=\"" + Url.Action("GenerateScript", new { id = item.ID }).ToString() + "\"class=\"script\" title=\"Générer le script pour le cours\"></a>" +
                                           "<a href=\"" + Url.Action("Delete", new { id = item.ID }).ToString() + "\"class=\"delete\" title=\"Supprimer\"></a>");
-                    else 
+                    else if (isResourceManager)
+                    {
+                        return new HtmlString("<a href=\"" + Url.Action("GenerateScript", new { id = item.ID }).ToString() + "\"class=\"script\" title=\"Générer le script pour le cours\"></a>");
+                    }
+                    else
                         return new HtmlString("");
                 }, canSort: false))
         )
-
