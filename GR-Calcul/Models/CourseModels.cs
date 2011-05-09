@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.SqlClient;
 using System.Data;
 using System.Web.Mvc;
+using System.Text;
 
 namespace GR_Calcul.Models
 {
@@ -172,9 +173,15 @@ namespace GR_Calcul.Models
         {
             // get all slot ranges for this course
             List<SlotRange> slotRanges = this.GetSlotRangesForCourse();
-            // concat 
+            StringBuilder allScripts = new StringBuilder();
+            
+            // concat scripts
+            slotRanges.ForEach(delegate(SlotRange range)
+            {
+                allScripts.Append(range.GenerateScript());
+            });
 
-            throw new NotImplementedException();
+            return allScripts.ToString();
         }
     }
     public class Subscription
