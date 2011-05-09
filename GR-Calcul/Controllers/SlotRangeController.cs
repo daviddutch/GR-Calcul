@@ -10,7 +10,7 @@ using GR_Calcul.Misc;
 
 
 namespace GR_Calcul.Controllers
-{
+{ 
     public class SlotRangeController : BaseController
     {
         private CourseModel courseModel = new CourseModel();
@@ -24,13 +24,27 @@ namespace GR_Calcul.Controllers
 
         //
         // GET: /SlotRange/CourseRanges/5
-        public ActionResult CourseRanges(int id)
+        public ActionResult CourseRanges(int id_course)
         {
             InitViewbag();
             CourseRangesViewModel viewModel = new CourseRangesViewModel();
+            viewModel.SlotRanges = slotRangeModel.GetSlotRangesForCourse(id_course);
+            viewModel.Course = courseModel.GetCourse(id_course);
+            viewModel.Course.Students = courseModel.getCourseStudents(id_course);
+            return View(viewModel);
+        }
+
+        //
+        // GET: /SlotRange/CourseRanges/5
+
+        public ActionResult ReserveSlotRange(int id)
+        {
+            InitViewbag();
+            ReserveSlotRangeViewModel viewModel = new ReserveSlotRangeViewModel();
             viewModel.SlotRanges = slotRangeModel.GetSlotRangesForCourse(id);
             viewModel.Course = courseModel.GetCourse(id);
-            viewModel.Course.Students = courseModel.getCourseStudents(id);
+            int id_person = 1;
+            viewModel.Reservations = slotRangeModel.getReservations(id, id_person);
             return View(viewModel);
         }
 

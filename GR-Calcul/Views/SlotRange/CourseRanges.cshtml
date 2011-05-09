@@ -4,7 +4,7 @@
     ViewBag.Title = "CourseRanges";
 }
 
-<h2>Reservation des ranges pour "GRID-1"<span style="float:right; margin-right:20px;"><button type="button">Ajouter range</button></span></h2>
+<h2>Reservation des ranges pour @Model.Course.Name<span style="float:right; margin-right:20px;"><button type="button">Ajouter range</button></span></h2>
 
 
 @foreach (var slotRange in Model.SlotRanges)

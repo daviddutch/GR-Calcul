@@ -21,7 +21,21 @@ namespace GR_Calcul.Models
         public Course Course { get; set; }
         public List<SlotRange> SlotRanges { get; set; }
     }
+    public class ReserveSlotRangeViewModel
+    {
+        public Course Course { get; set; }
+        public List<SlotRange> SlotRanges { get; set; }
+        public List<Reservation> Reservations { get; set; }
 
+        public Reservation getSlotRangeReservation(int id_slotRange)
+        {
+            foreach (var reservation in Reservations)
+            {
+                if (reservation.id_slotRange == id_slotRange) return reservation;
+            }
+            return null;
+        }
+    }
     public class SlotRange
     {
         private CourseModel courseModel = new CourseModel();
@@ -228,6 +242,7 @@ namespace GR_Calcul.Models
         public int NumberMachines { get; set; }
 
         public String Name { get; set; } // CD: which name is this - person's username?
+        public int id_slotRange { get; set; }
 
         public Reservation(int id_person, int id_slot, int numberMachines)
         {
@@ -840,6 +855,61 @@ namespace GR_Calcul.Models
                 System.Diagnostics.Debug.WriteLine(ex.StackTrace);
             }
             if (!updated) throw new Exception("timestamp");
+        }
+
+        internal List<Reservation> getReservations(int id_course, int id_person)
+        {
+            List<Reservation> reservations = new List<Reservation>();
+
+            try
+            {
+                SqlConnection db = new SqlConnection(connectionString);
+                SqlTransaction transaction;
+
+                db.Open();
+
+                transaction = db.BeginTransaction(IsolationLevel.ReadCommitted);
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("SELECT R.[id_person], R.[id_slot], R.[numberMachines], SR.id_slotRange " +
+                                                    "FROM Reservation R " +
+                                                    "INNER JOIN Slot S ON S.id_slot = R.id_slot " +
+                                                    "INNER JOIN SlotRange SR ON SR.id_slotRange = S.id_slotRange " +
+                                                    "WHERE SR.id_course=@id_course AND R.id_person=@id_person;", db, transaction);
+
+                    cmd.Parameters.Add("@id_course", SqlDbType.Int).Value = id_course;
+                    cmd.Parameters.Add("@id_person", SqlDbType.Int).Value = id_person;
+
+                    SqlDataReader rdr = cmd.ExecuteReader();
+                    while (rdr.Read())
+                    {
+                        int id_slot = rdr.GetInt32(rdr.GetOrdinal("id_slot"));
+                        int id_slotRange = rdr.GetInt32(rdr.GetOrdinal("id_slotRange"));
+                        int numberMachines = rdr.GetInt32(rdr.GetOrdinal("numberMachines"));
+
+                        Reservation reservation = new Reservation(id_person, id_slot, numberMachines);
+                        reservation.id_slotRange = id_slotRange;
+                        reservations.Add(reservation);
+                    }
+                    rdr.Close();
+
+                    transaction.Commit();
+                }
+                catch
+                {
+                    transaction.Rollback();
+                }
+                finally
+                {
+                    db.Close();
+                }
+            }
+            catch
+            {
+
+            }
+
+            return reservations;
         }
 
         // CD: this is really an Update

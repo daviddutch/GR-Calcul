@@ -1,0 +1,74 @@
+﻿@model GR_Calcul.Models.ReserveSlotRangeViewModel
+           
+@{
+    ViewBag.Title = "CourseRanges";
+}
+
+<h2>Reservation des ranges pour @Model.Course.Name</h2>
+
+<button type="button">Se désinscrire du cours</button>
+
+@foreach (var slotRange in Model.SlotRanges)
+{
+<h3>@slotRange.Name - @slotRange.StartRes - @slotRange.EndRes</h3>
+<table class="simpleTable">
+	<thead>
+		<tr>
+			<th>&nbsp;</th>
+            @for (int i = 0; i < slotRange.Slotdate.Count; i++)
+            {
+                DateTime date = slotRange.Slotdate[i];
+                string id = "slotRow" + i;
+                string value = String.Format("{0:dd/MM/yyyy}", date);
+			    <th colspan="@slotRange.GetSlotsForDate(date).Count">@value</th>
+            }
+		</tr>
+		<tr class="subTitle">
+			<th>Nb. machines</th>
+            @for (int i = 0; i < slotRange.Slotdate.Count; i++)
+            {
+                DateTime date = slotRange.Slotdate[i];
+                string id = "slotRow" + i;
+                string value = String.Format("{0:dd/MM/yyyy}", date);
+
+                foreach (var slot in slotRange.GetSlotsForDate(date))
+                {
+                    int startHour = slot.Start.Hour;
+                    int startMinute = slot.Start.Minute;
+                    int endHour = slot.End.Hour;
+                    int endMinute = slot.End.Minute;
+                    string start = startHour + ":" + startMinute;
+                    string end = endHour + ":" + endMinute;
+					
+					<th>@start - @end</th>
+                }
+            }
+		</tr>
+	</thead>
+   @{
+    GR_Calcul.Models.Reservation reservation = Model.getSlotRangeReservation(slotRange.id_slotRange);
+    }
+	<tbody class="slotRangeRow">
+		<tr class="center">
+		    <td><input type="text" size="4" />/20</td>
+
+            @for (int i = 0; i < slotRange.Slotdate.Count; i++)
+		    {
+                foreach (var slot in slotRange.GetSlotsForDate(slotRange.Slotdate[i]))
+				{
+                    var name = "reserv" + slotRange.id_slotRange + "[]";
+                    if (reservation != null && reservation.id_slot==slot.ID)
+                    {
+                        <!-- <td style="text-align:center;">@reservation.NumberMachines</td> -->
+                        <td><input type="radio" name="@name" value="@slot.ID" checked="checked" /></td>
+                    }
+                    else
+                    {
+                        <td><input type="radio" name="@name" value="@slot.ID" /></td>
+                    }
+                }
+            }
+        </tr>
+	</tbody>
+</table>
+}
