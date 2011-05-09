@@ -23,3 +23,13 @@ function loadTooltips(selector) {
         });
     });	
 }
+
+$(document).ready(function () {
+    $(".slotRangeRow input:radio").change(function () {
+        if ($(this).is(":checked")) {
+            $(".slotRangeRow input:radio[name=\"" + $(this).name + "\"]:not(:checked)").removeClass("RadioSelected");
+            $(".RadioSelected:not(:checked)").removeClass("RadioSelected");
+            $(this).next("label").addClass("RadioSelected");
+        }
+    });
+});
