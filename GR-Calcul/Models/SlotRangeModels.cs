@@ -11,6 +11,8 @@ using System.Web.Security;
 using System.Xml;
 using System.Security;
 using System.Data.SqlTypes;
+using System.Xml.Xsl;
+using System.IO;
 
 namespace GR_Calcul.Models
 {
@@ -834,7 +836,8 @@ namespace GR_Calcul.Models
             }
             catch
             {
-
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+                System.Diagnostics.Debug.WriteLine(ex.StackTrace);
             }
             if (!updated) throw new Exception("timestamp");
         }
@@ -896,32 +899,108 @@ namespace GR_Calcul.Models
                     db.Close();
                 }
             }
-            catch
+            catch (Exception ex)
             {
-
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+                System.Diagnostics.Debug.WriteLine(ex.StackTrace);
             }
             if (!updated) throw new Exception("timestamp");
         }
 
         protected string GenerateScript(SlotRange range)
         {
-            // in-proc connection to server
-            SqlConnection conn = new SqlConnection(connectionString);
+            string script = "";
+            XmlDocument xml = new XmlDocument();
+            XslTransform xsl = new XslTransform();
 
-            // prepare query to select xml data
-            SqlCommand cmd = new SqlCommand("SELECT xCol.query('//section') " +
-                "FROM slotRange " +
-                "WHERE id_slotRange=@id_slotRange", db, transaction);
-            cmd.Parameters.Add("@id_slotRange", SqlDbType.Int).Value = range.id_slotRange;
+            try
+            {
+                SqlConnection db = new SqlConnection(connectionString);
+                SqlTransaction transaction;
+
+                db.Open();
+
+                transaction = db.BeginTransaction(IsolationLevel.ReadCommitted); 
+    
+                // get XML Document
+                try
+                {
+                    // prepare query to select xml data
+                    SqlCommand cmd = new SqlCommand("SELECT scriptDataXML " +
+                        "FROM slotRange " +
+                        "WHERE id_slotRange=@id_slotRange", db, transaction);
+                    cmd.Parameters.Add("@id_slotRange", SqlDbType.Int).Value = range.id_slotRange;
             
-            // execute query and retrieve incoming data
-            SqlDataReader r = cmd.ExecuteReader();
-            r.Read();
+                    // execute query and retrieve incoming data
+                    SqlDataReader r = cmd.ExecuteReader();
+                    r.Read();
 
-            // access XML data type field in rowset
-            SqlXml xml = r.GetSqlXml(0);
-            new XmlTextWriter(Console.Out).WriteNode(xml.CreateReader(), true);
-            return null;
+                    // access XML data type field in rowset
+                    //SqlXml xml = r.GetSqlXml(0);
+                    //new XmlTextWriter(Console.Out).WriteNode(xml.CreateReader(), true);
+                    SqlDataReader rdr = cmd.ExecuteReader();
+
+                    if (rdr.Read())
+                    {
+                        xml.Load(rdr.GetSqlXml(0).CreateReader());
+                    }
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    System.Diagnostics.Debug.WriteLine(ex.Message);
+                    System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+                }
+                finally
+                {
+                    db.Close();
+                }
+
+                // get XSL file
+                try
+                {
+                    // prepare query to select xsl data
+                    SqlCommand cmd = new SqlCommand("SELECT scriptTransformXML " +
+                        "FROM OS " +
+                        // id_os is hard coded here - our client requires only 1 OS - better than 4 useless JOINS
+                        "WHERE id_os=1", db, transaction); 
+
+                    // execute query and retrieve incoming data
+                    SqlDataReader r = cmd.ExecuteReader();
+                    r.Read();
+
+                    // access XML data type field in rowset
+                    SqlDataReader rdr = cmd.ExecuteReader();
+
+                    if (rdr.Read())
+                    {
+                        xml.Load(rdr.GetSqlXml(0).CreateReader());
+                    }
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    System.Diagnostics.Debug.WriteLine(ex.Message);
+                    System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+                }
+                finally
+                {
+                    db.Close();
+                }
+
+                // perform XSLT
+                StringWriter strWriter = new StringWriter();
+                XmlTextWriter xmlWriter = new XmlTextWriter(strWriter);
+                xsl.Transform(xml, null, xmlWriter);
+                script = strWriter.ToString();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+                System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+            }
+
+            return script;
         }
     }
 }
