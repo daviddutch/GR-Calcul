@@ -24,6 +24,7 @@ namespace GR_Calcul.Controllers
 
         //
         // GET: /SlotRange/CourseRanges/5
+        [DuffAuthorize(PersonType.Responsible)]
         public ActionResult CourseRanges(int id_course)
         {
             InitViewbag();
@@ -36,7 +37,7 @@ namespace GR_Calcul.Controllers
 
         //
         // GET: /SlotRange/CourseRanges/5
-
+        [DuffAuthorize(PersonType.User)]
         public ActionResult ReserveSlotRange(int id)
         {
             InitViewbag();
