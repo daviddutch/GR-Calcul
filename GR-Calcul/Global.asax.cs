@@ -22,10 +22,10 @@ namespace GR_Calcul
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
             routes.MapRoute(
-    "Blog",                                           // Route name
-    "Account/LostPasswordChange/{token}",                            // URL with parameters
-    new { controller = "Account", action = "LostPasswordChange" }  // Parameter defaults
-);
+                "Token",                                           // Route name
+                "Account/LostPasswordChange/{token}",                            // URL with parameters
+                new { controller = "Account", action = "LostPasswordChange" }  // Parameter defaults
+            );
 
 
             routes.MapRoute(

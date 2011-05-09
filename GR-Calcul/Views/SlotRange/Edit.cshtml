@@ -118,7 +118,7 @@
                     {
                         DateTime date = Model.Slotdate[i];
                         string id = "slotRow" + i;
-                        string value = String.Format("{0:dd/MM/yyyy}", date);
+                        string value = String.Format("{0:dd.MM.yyyy}", date);
                         
                         <tr id="@id" class="slotRow">
                             <td><input novalidation="true" type="text" class="lollipop Slotdate" name="Slotdate" id="Slotdate" value="@value" size="8" /><a href="javascript:deleteRow('@id');" class="delete delRow"></a></td>

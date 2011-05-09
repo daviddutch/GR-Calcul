@@ -24,14 +24,14 @@ namespace GR_Calcul.Controllers
 
         //
         // GET: /SlotRange/CourseRanges/5
-        public ActionResult CourseRanges(int id_course)
+        public ActionResult CourseRanges(int id)
         {
             InitViewbag();
             CourseRangesViewModel viewModel = new CourseRangesViewModel();
-            Course course = courseModel.GetCourse(id_course);
+            Course course = courseModel.GetCourse(id);
             viewModel.Course = course;
             viewModel.SlotRanges = course.GetSlotRangesForCourse();
-            viewModel.Course.Students = courseModel.getCourseStudents(id_course);
+            viewModel.Course.Students = courseModel.getCourseStudents(id);
             return View(viewModel);
         }
 
