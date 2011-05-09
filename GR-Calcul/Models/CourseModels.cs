@@ -243,14 +243,53 @@ namespace GR_Calcul.Models
             }
             return ret;
         }
+        public List<Course> ListMyCourses(int? id_user)
+        {
+            List<Course> list = new List<Course>();
 
+            if (id_user == null) return list;
+
+            try
+            {
+                SqlConnection db = new SqlConnection(connectionString);
+                SqlTransaction transaction;
+
+                db.Open();
+
+                transaction = db.BeginTransaction(IsolationLevel.ReadUncommitted);
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("SELECT C.id_course, C.name, C.[key], C.active, R.id_person, R.firstname, R.lastname " +
+                                                    "FROM Course C " +
+                                                    "INNER JOIN Responsible R ON R.id_person = C.id_person " +
+                                                    "INNER JOIN Subscription S ON S.id_course = C.id_course " +
+                                                    "WHERE S.id_person=@id_person; ",
+                                                    db, transaction);
+
+                    cmd.Parameters.Add("@id_person", SqlDbType.Int).Value = id_user;
+
+                    list = ListCourses(cmd);
+
+                    transaction.Commit();
+                }
+                catch
+                {
+                    transaction.Rollback();
+                }
+                db.Close();
+            }
+            catch
+            {
+
+            }
+
+            return list;
+        }
         public List<Course> ListCourses(int? responsibleId)
         {
             List<Course> list = new List<Course>();
-            if (responsibleId == null)
-            {
-                return list;
-            }
+
+            if (responsibleId == null) return list;
 
             try
             {
@@ -269,26 +308,8 @@ namespace GR_Calcul.Models
 
                     cmd.Parameters.Add("@id", SqlDbType.Int).Value = responsibleId;
 
-                    SqlDataReader rdr = cmd.ExecuteReader();
+                    list = ListCourses(cmd);
 
-                    while (rdr.Read())
-                    {
-                        //string coltype = rdr.GetFieldType(rdr.GetOrdinal("active")).Name;
-                        string name = rdr.GetString(rdr.GetOrdinal("name"));
-                        string key = rdr.GetString(rdr.GetOrdinal("Key"));
-                        bool active = rdr.GetBoolean(rdr.GetOrdinal("active"));
-                        int id_person = rdr.GetInt32(rdr.GetOrdinal("id_person"));
-                        int id_course = rdr.GetInt32(rdr.GetOrdinal("id_course"));
-
-                        Course course = new Course(id_course, name, key,
-                                                   active, id_person);
-
-                        course.ResponsibleString = rdr.GetString(rdr.GetOrdinal("firstname")) + " " + rdr.GetString(rdr.GetOrdinal("lastname"));
-
-                        list.Add(course);
-
-                    }
-                    rdr.Close();
                     transaction.Commit();
                 }
                 catch
@@ -304,7 +325,6 @@ namespace GR_Calcul.Models
 
             return list;
         }
-
         public List<Course> ListCourses()
         {
             List<Course> list = new List<Course>();
@@ -320,29 +340,11 @@ namespace GR_Calcul.Models
                 try
                 {
                     SqlCommand cmd = new SqlCommand("SELECT C.id_course, C.name, C.[key], C.active, R.id_person, R.firstname, R.lastname " +
-                            "FROM Course C INNER JOIN Responsible R ON R.id_person = C.id_person; ",
-                            db, transaction);
+                                                    "FROM Course C INNER JOIN Responsible R ON R.id_person = C.id_person; ",
+                                                    db, transaction);
 
-                    SqlDataReader rdr = cmd.ExecuteReader();
+                    list = ListCourses(cmd);
 
-                    while (rdr.Read())
-                    {
-                        //string coltype = rdr.GetFieldType(rdr.GetOrdinal("active")).Name;
-                        string name = rdr.GetString(rdr.GetOrdinal("name"));
-                        string key = rdr.GetString(rdr.GetOrdinal("Key"));
-                        bool active = rdr.GetBoolean(rdr.GetOrdinal("active"));
-                        int id_person = rdr.GetInt32(rdr.GetOrdinal("id_person"));
-                        int id_course = rdr.GetInt32(rdr.GetOrdinal("id_course"));
-
-                        Course course = new Course(id_course, name, key,
-                                                   active, id_person);
-
-                        course.ResponsibleString = rdr.GetString(rdr.GetOrdinal("firstname")) + " " + rdr.GetString(rdr.GetOrdinal("lastname"));
-
-                        list.Add(course);
-
-                    }
-                    rdr.Close();
                     transaction.Commit();
                 }
                 catch
@@ -355,6 +357,33 @@ namespace GR_Calcul.Models
             {
 
             }
+
+            return list;
+        }
+        private List<Course> ListCourses(SqlCommand cmd)
+        {
+            List<Course> list = new List<Course>();
+
+            SqlDataReader rdr = cmd.ExecuteReader();
+
+            while (rdr.Read())
+            {
+                //string coltype = rdr.GetFieldType(rdr.GetOrdinal("active")).Name;
+                string name = rdr.GetString(rdr.GetOrdinal("name"));
+                string key = rdr.GetString(rdr.GetOrdinal("Key"));
+                bool active = rdr.GetBoolean(rdr.GetOrdinal("active"));
+                int id_person = rdr.GetInt32(rdr.GetOrdinal("id_person"));
+                int id_course = rdr.GetInt32(rdr.GetOrdinal("id_course"));
+
+                Course course = new Course(id_course, name, key,
+                                            active, id_person);
+
+                course.ResponsibleString = rdr.GetString(rdr.GetOrdinal("firstname")) + " " + rdr.GetString(rdr.GetOrdinal("lastname"));
+
+                list.Add(course);
+
+            }
+            rdr.Close();
 
             return list;
         }

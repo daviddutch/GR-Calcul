@@ -10,11 +10,11 @@
 
 @foreach (var slotRange in Model.SlotRanges)
 {
-<h3>@slotRange.Name - @slotRange.StartRes - @slotRange.EndRes</h3>
-<table class="simpleTable">
+<h3>@slotRange.Name - @String.Format(@"{0:dd.MM.yyyy}", slotRange.StartRes) - @String.Format(@"{0:dd.MM.yyyy}", slotRange.EndRes)</h3>
+<table class="slotRange">
 	<thead>
 		<tr>
-			<th>&nbsp;</th>
+			<th class="empty">&nbsp;</th>
             @for (int i = 0; i < slotRange.Slotdate.Count; i++)
             {
                 DateTime date = slotRange.Slotdate[i];
@@ -24,7 +24,7 @@
             }
 		</tr>
 		<tr class="subTitle">
-			<th>Nb. machines</th>
+			<th class="empty">Nb. machines :</th>
             @for (int i = 0; i < slotRange.Slotdate.Count; i++)
             {
                 DateTime date = slotRange.Slotdate[i];
@@ -46,21 +46,21 @@
 		</tr>
 	</thead>
    @{
-    GR_Calcul.Models.Reservation reservation = Model.getSlotRangeReservation(slotRange.id_slotRange);
+            GR_Calcul.Models.Reservation reservation = Model.getSlotRangeReservation(slotRange.id_slotRange);
     }
 	<tbody class="slotRangeRow">
 		<tr class="center">
 		    <td><input type="text" size="4" />/20</td>
 
             @for (int i = 0; i < slotRange.Slotdate.Count; i++)
-		    {
+            {
                 foreach (var slot in slotRange.GetSlotsForDate(slotRange.Slotdate[i]))
-				{
+                {
                     var name = "reserv" + slotRange.id_slotRange + "[]";
-                    if (reservation != null && reservation.id_slot==slot.ID)
+                    if (reservation != null && reservation.id_slot == slot.ID)
                     {
                         <!-- <td style="text-align:center;">@reservation.NumberMachines</td> -->
-                        <td><input type="radio" name="@name" value="@slot.ID" checked="checked" /></td>
+                        <td class="reserved"><input type="radio" name="@name" value="@slot.ID" checked="checked" /></td>
                     }
                     else
                     {
