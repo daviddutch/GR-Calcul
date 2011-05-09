@@ -41,6 +41,14 @@ namespace GR_Calcul.Controllers
                     throw new Exception("Access denied");
             }
         }
+        //
+        // GET: /Course/List
+
+        [DuffAuthorize(PersonType.User)]
+        public ActionResult ListMyCourse()
+        {
+            return View(model.ListMyCourses(SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name)));
+        }
 
         //
         // GET: /Course/Details/5

@@ -25,23 +25,20 @@ namespace GR_Calcul.Controllers
 
         //
         // GET: /SlotRange/CourseRanges/5
-        [DuffAuthorize(PersonType.Responsible, PersonType.ResourceManager)]
-        public ActionResult CourseRanges(int id)
+        public ActionResult CourseRanges(int id_course)
         {
             InitViewbag();
             CourseRangesViewModel viewModel = new CourseRangesViewModel();
             Course course = CourseModel.GetCourse(id_course);
             viewModel.Course = course;
             viewModel.SlotRanges = course.GetSlotRangesForCourse();
-            viewModel.Course.Students = courseModel.getCourseStudents(id);
             viewModel.Course.Students = courseModel.getCourseStudents(id_course);
             return View(viewModel);
         }
 
         //
         // GET: /SlotRange/ReserveSlotRange/5
-        // GET: /SlotRange/CourseRanges/5
-        [DuffAuthorize(PersonType.User)]
+
         public ActionResult ReserveSlotRange(int id)
         {
             InitViewbag();

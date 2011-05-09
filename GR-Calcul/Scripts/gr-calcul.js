@@ -32,4 +32,5 @@ $(document).ready(function () {
             $(this).next("label").addClass("RadioSelected");
         }
     });
+    $("a.button").button();
 });

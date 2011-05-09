@@ -6,15 +6,16 @@ body {
 	background: #666;
 }
 #page-wrap {
-	width: 900px;
+	width: 960px;
 	background: #979797 url('img/wrapper.bg.png') repeat-y;
 	margin: 0 auto;
 	position: relative;
+	padding:0 20px 20px 20px;
 	/*zoom: 1; */
 }
 #header {
-	width: 900px;
-	height:112px;
+	width: 1000px;
+	height:107px;
 	background: #fff url('img/header.png') no-repeat;
 	margin: 0 auto 0 auto;
 }
@@ -33,14 +34,9 @@ body {
 	display:none;
 }
 
-#slotrange-content
-{
-	overflow: auto;
-	width: 660px;
-}
-
 #main-content {
-	padding: 0 15px 20px 215px;
+	padding: 0 ;
+	overflow: auto;
 }
 	#main-content p {line-height:1.5;}
 	#main-content p, #main-content address {
@@ -49,20 +45,21 @@ body {
 		margin-left: 15px ;
 	}
 	a {
-		color: #096E9A ;
+		color: #3333ff ;
+		text-decoration:none;
 	}
 	a:hover {
 		color: #0e8dc5 ;
 	}
 	h2 {
-		border-bottom:1px solid #DCDCDB;
+		border-bottom:1px solid #3333ff;
 		margin-bottom:7px;
+		color:#3333ff;
 	}
 	h3 {
 		margin-left:0;
 		margin-bottom:7px;
-		border-bottom:1px solid #096E9A;
-		color:#096E9A;
+		border-bottom:1px solid #DCDCDB;
 		font-size:17px;
 	}
 	h4 {
@@ -71,34 +68,35 @@ body {
 	h5 {
 		margin-left: 15px ;
 	}
-#main-sidebar {
-	position: absolute;
-	left: 0; top: 0; bottom: 0;
-	width: 183px;
-	padding-left: 17px;
-}
 #menu {
 	list-style:none;
-	width:170px;
+	height:40px;
+	background:#fff;
+	padding-top:3px;
+	margin-bottom:5px;
 }
 	#menu li{
-		
+		float:left;
+		text-align:center;
 	}
 	#menu li a{
 		display:block;
 		width:170px;
-		height:25px;
-		line-height:25px;
+		height:35px;
+		line-height:35px;
 		padding-left:5px;
-		background:#eee;
+		background:#333333;
+		color:#fff;
 		text-decoration:none;
+		font-weight:bold;
+		border-right:1px solid #fff;
 	}
 	#menu li a:hover{
 		background:#222;
 		color:#eee;
 	}
 #footer {
-	width: 900px;
+	width: 1000px;
 	height: 73px;
 	background: #2c2c29 url('img/footer.png') no-repeat;
 	margin: 0 auto 15px;
@@ -187,7 +185,7 @@ form label{
 		width:450px;
 	}
 	form .text-box:focus, form .text-box:hover {
-		border:1px solid #096E9A;
+		border:1px solid #3333ff;
 		background: #fff;
 	}
 	button {
@@ -256,12 +254,68 @@ form label{
 		padding: 6px 8px;
 	}
 	.simpleTable tbody tr:hover td {
-		color: #096E9A;
+		color: #3333ff;
 	}
 	.simpleTable tbody .center td {
 		text-align:center;
 	}
-	
+
+.slotRange {
+	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+	font-size: 12px;
+	background: #FFCCCA;
+	border-collapse: collapse;
+	text-align: left;
+	margin:0 auto 10px 10px;
+}
+    .slotRange .empty {
+        background:#fff;
+        color:#333;
+        font-weight:bold;
+    }
+	.slotRange thead {
+		background:#555;
+	}
+
+	.slotRange thead .subTitle th{
+		font-size:11px;
+		white-space: nowrap;
+		border-bottom: 3px solid #fff;
+	}
+	.slotRange th, .slotRange th a {
+		font-size: 14px;
+		font-weight: normal;
+		color: #fff;
+		padding: 10px 8px;
+		
+		white-space: nowrap;
+	}
+	.slotRange tbody th {
+	    color:#000;
+	    background:#CBCBCB;
+	    border-bottom: 3px solid #fff;
+	}
+	.simpleTable .dragRow {
+		background:#000;
+	}
+	.slotRange td {
+		border-bottom: 3px solid #fff;
+		border-right: 1px solid #fff;
+		color: #333;
+		padding: 6px 8px;
+		
+	}
+	.slotRange tbody tr:hover td {
+		color: #3333ff;
+	}
+	.slotRange tbody .center td {
+		text-align:center;
+	}
+	.slotRange .reserved {
+	    text-align:center;
+	    background:#D1F3D1;
+	    font-weight:bold;
+	}
 	
 .delete, .modify, .dupl, .add, .refuse, .script{
 	margin-left:5px;
