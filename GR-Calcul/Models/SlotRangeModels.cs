@@ -285,7 +285,7 @@ namespace GR_Calcul.Models
                                 "SET scriptDataXML.modify('insert sql:variable(\"@xml_string\") as last into (/script)[1]') " +
                                 "WHERE id_slotRange = @id_slotRange ", db, transaction);
                         cmd.Parameters.Add("@id_slotRange", SqlDbType.Int).Value = this.id_slotRange;
-                        cmd.Parameters.Add("@xml_string", SqlDbType.Char).Value = xml_string;
+                        cmd.Parameters.Add("@xml_string", SqlDbType.Xml).Value = xml_string;
                         cmd.ExecuteNonQuery();
                         updated = true;
 
@@ -346,7 +346,7 @@ namespace GR_Calcul.Models
                     //    rdr.Close();
 
                         cmd = new SqlCommand("UPDATE SlotRange " +
-                            "SET scriptDataXML.modify('delete (/script/command[username={sql:variable(\"@username\")])') " +
+                            "SET scriptDataXML.modify('delete (/script/command[username=sql:variable(\"@username\")])') " +
                             "WHERE id_slotRange=@id_slotRange", db, transaction);
 
                         cmd.Parameters.Add("@username", SqlDbType.Char).Value = username;

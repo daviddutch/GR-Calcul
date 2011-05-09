@@ -50,21 +50,23 @@ namespace GR_Calcul.Controllers
             return View(viewModel);
         }
 
-        // CD test - DELETEME
-        public void TestSlotReservation()
-        {
-            SlotRange range = new SlotRange(3, DateTime.Parse("2008-11-01T19:35:00.0000000Z"), DateTime.Parse("2008-11-01T19:35:00.0000000Z"), "test", 3, "0x00000000000008AA");
-            List<Machine> machines = new List<Machine>();
-            machines.Add(new Machine(1, "test333", "1.1.1.1", 1));
-            range.InsertCommandXML(new Person(PersonType.User, 1, "Christopher", "Dickinson", "chris", "as@base.c", "asdf"), new Slot(3, DateTime.Parse("2008-11-01T19:35:00.0000000Z"), DateTime.Parse("2008-11-01T19:35:00.0000000Z")), machines);
-        }
+        //// CD test - DELETEME
+        //public void TestSlotReservation(string str)
+        //{
+        //    SlotRange range = new SlotRange(3, DateTime.Parse("2008-11-01T19:35:00.0000000Z"), DateTime.Parse("2008-11-01T19:35:00.0000000Z"), "test", 3, "0x00000000000008AA");
+        //    List<Machine> machines = new List<Machine>();
+        //    machines.Add(new Machine(1, "test333", "1.1.1.1", 1));
+        //    range.InsertCommandXML(new Person(PersonType.User, 1, "Christopher", "Dickinson", str, "as@base.c", "asdf"), new Slot(3, DateTime.Parse("2008-11-01T19:35:00.0000000Z"), DateTime.Parse("2008-11-01T19:35:00.0000000Z")), machines);
+        //}
+
+        //// CD test - DELETEME
+        //public void TestSlotUnReservation(string str)
+        //{
+        //    SlotRange range = new SlotRange(3, DateTime.Parse("2008-11-01T19:35:00.0000000Z"), DateTime.Parse("2008-11-01T19:35:00.0000000Z"), "test", 3, "0x00000000000008AA");
+        //    range.DeleteCommandXML(str);
+        //}
 
         // CD test - DELETEME
-        public void TestSlotUnReservation()
-        {
-            SlotRange range = new SlotRange(3, DateTime.Parse("2008-11-01T19:35:00.0000000Z"), DateTime.Parse("2008-11-01T19:35:00.0000000Z"), "test", 3, "0x00000000000008AA");
-            range.DeleteCommandXML("chris");
-        }
 
         //
         // GET: /SlotRange/Create
