@@ -36,7 +36,7 @@ namespace GR_Calcul.Controllers
         }
 
         //
-        // GET: /SlotRange/CourseRanges/5
+        // GET: /SlotRange/ReserveSlotRange/5
 
         public ActionResult ReserveSlotRange(int id)
         {
@@ -48,6 +48,22 @@ namespace GR_Calcul.Controllers
             int id_person = 1;
             viewModel.Reservations = slotRangeModel.getReservations(id, id_person);
             return View(viewModel);
+        }
+
+        // CD test - DELETEME
+        public void TestSlotReservation()
+        {
+            SlotRange range = new SlotRange(3, DateTime.Parse("2008-11-01T19:35:00.0000000Z"), DateTime.Parse("2008-11-01T19:35:00.0000000Z"), "test", 3, "0x00000000000008AA");
+            List<Machine> machines = new List<Machine>();
+            machines.Add(new Machine(1, "test333", "1.1.1.1", 1));
+            range.InsertCommandXML(new Person(PersonType.User, 1, "Christopher", "Dickinson", "chris", "as@base.c", "asdf"), new Slot(3, DateTime.Parse("2008-11-01T19:35:00.0000000Z"), DateTime.Parse("2008-11-01T19:35:00.0000000Z")), machines);
+        }
+
+        // CD test - DELETEME
+        public void TestSlotUnReservation()
+        {
+            SlotRange range = new SlotRange(3, DateTime.Parse("2008-11-01T19:35:00.0000000Z"), DateTime.Parse("2008-11-01T19:35:00.0000000Z"), "test", 3, "0x00000000000008AA");
+            range.DeleteCommandXML("chris");
         }
 
         //
