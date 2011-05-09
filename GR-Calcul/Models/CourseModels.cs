@@ -360,7 +360,7 @@ namespace GR_Calcul.Models
         }
 
 
-        public Course GetCourse(int id)
+        public static Course GetCourse(int id)
         {
             Course course = null;
 

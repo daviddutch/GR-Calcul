@@ -57,7 +57,7 @@ namespace GR_Calcul.Models
 
         public int? GetResponsible()
         {
-            Course c = courseModel.GetCourse(IdCourse);
+            Course c = CourseModel.GetCourse(IdCourse);
             if (c != null)
             {
                 return c.Responsible;

@@ -7,6 +7,7 @@ using GR_Calcul.Models;
 using System.Data.SqlClient;
 using System.Data;
 using GR_Calcul.Misc;
+using System.Text;
 
 namespace GR_Calcul.Controllers
 {
@@ -56,7 +57,7 @@ namespace GR_Calcul.Controllers
                     if (k != null)
                     {
                         if (model.IsUserSubscribed((int)k, id))
-                            return View(model.GetCourse(id));
+                            return View(CourseModel.GetCourse(id));
                         else throw ex;
                     }
                     else
@@ -97,6 +98,23 @@ namespace GR_Calcul.Controllers
         }
 
         //
+        // GET: /Course/Script/5
+        [DuffAuthorize(PersonType.ResourceManager)]
+        public ActionResult Script(int id)
+        {
+            if (IsAuthorized(id))
+            {
+                Course course = CourseModel.GetCourse(id);
+                string allScripts = course.GenerateAllScripts();
+                return File(Encoding.UTF8.GetBytes(allScripts),"text/plain",string.Format("scripts_cours_{0}.sh", id));
+            }
+            else
+            {
+                throw new Exception("access denied");
+            }
+        }
+
+        //
         // GET: /Course/Edit/5
 
         [DuffAuthorize(PersonType.Responsible)]
@@ -104,7 +122,7 @@ namespace GR_Calcul.Controllers
         {
             if (IsAuthorized(id))
             {
-                Course course = model.GetCourse(id);
+                Course course = CourseModel.GetCourse(id);
                 var items = personModel.GetResponsibles().Select(x => new SelectListItem() { Value = x.ID.ToString(), Text = x.toString() }).ToList();
                 ViewData["Responsibles"] = new SelectList(items, "Value", "Text", course.Responsible);
                 return View(course);
@@ -150,7 +168,7 @@ namespace GR_Calcul.Controllers
         {
             if (IsAuthorized(id))
             {
-                return View(model.GetCourse(id));
+                return View(CourseModel.GetCourse(id));
             }
             else
             {
@@ -189,7 +207,7 @@ namespace GR_Calcul.Controllers
         {
             if (IsAuthorized(id))
             {
-                return View(model.GetCourse(id));
+                return View(CourseModel.GetCourse(id));
             }
             else
             {
@@ -226,7 +244,7 @@ namespace GR_Calcul.Controllers
 
         private bool IsAuthorized(int courseId)
         {
-            Course c = model.GetCourse(courseId);
+            Course c = CourseModel.GetCourse(courseId);
 
             int? pId = SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name);
             if (pId != null)

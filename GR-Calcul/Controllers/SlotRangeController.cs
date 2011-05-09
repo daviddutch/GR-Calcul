@@ -28,7 +28,7 @@ namespace GR_Calcul.Controllers
         {
             InitViewbag();
             CourseRangesViewModel viewModel = new CourseRangesViewModel();
-            Course course = courseModel.GetCourse(id_course);
+            Course course = CourseModel.GetCourse(id_course);
             viewModel.Course = course;
             viewModel.SlotRanges = course.GetSlotRangesForCourse();
             viewModel.Course.Students = courseModel.getCourseStudents(id_course);
@@ -42,7 +42,7 @@ namespace GR_Calcul.Controllers
         {
             InitViewbag();
             ReserveSlotRangeViewModel viewModel = new ReserveSlotRangeViewModel();
-            Course course = courseModel.GetCourse(id);
+            Course course = CourseModel.GetCourse(id);
             viewModel.Course = course;
             viewModel.SlotRanges = course.GetSlotRangesForCourse();
             int id_person = 1;
