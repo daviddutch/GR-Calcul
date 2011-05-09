@@ -22,11 +22,9 @@
 			<div id="user">@Html.Partial("_LogOnPartial")</div>
 		</div>
 		<div id="page-wrap">
-			<div id="main-sidebar">
-				<ul id="menu">
-                     @Html.Partial("_Menu", ViewData["Menu"]) 
-				</ul>
-			</div>
+			<ul id="menu">
+                    @Html.Partial("_Menu", ViewData["Menu"]) 
+			</ul>
 			<div id="main-content">
 					
 				 @RenderBody()

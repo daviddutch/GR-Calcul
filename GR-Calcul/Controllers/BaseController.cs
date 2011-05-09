@@ -30,6 +30,7 @@ namespace GR_Calcul.Controllers
                 MyMenuItem menu2 = new MyMenuItem("Liste des machines", "List", "Machine");
                 MyMenuItem menu3 = new MyMenuItem("Liste des cours", "List", "Course");
                 MyMenuItem menu4 = new MyMenuItem("Liste des salles", "Index", "Room");
+                MyMenuItem menu5 = new MyMenuItem("Liste de mes cours", "ListMyCourse", "Course");
                 switch (p.pType)
                 {
                     case PersonType.ResourceManager:
@@ -43,6 +44,7 @@ namespace GR_Calcul.Controllers
                         break;
                     case PersonType.User:
                         list.Add(menu3);
+                        list.Add(menu5);
                         break;
                 }
                 

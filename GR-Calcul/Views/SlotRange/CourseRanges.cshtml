@@ -4,26 +4,27 @@
     ViewBag.Title = "CourseRanges";
 }
 
-<h2>Reservation des ranges pour @Model.Course.Name<span style="float:right; margin-right:20px;"><button type="button">Ajouter range</button></span></h2>
+<h2>Reservation des ranges pour @Model.Course.Name<span style="float:right; margin-right:20px;"><a href="@Url.Action("Create").ToString()" class="button">Ajouter range</a></span></h2>
 
 
 @foreach (var slotRange in Model.SlotRanges)
 {
-<h3>@slotRange.Name - @slotRange.StartRes - @slotRange.EndRes <span style="float:right; margin-right:20px;"><a href="#" class="modify"></a><a href="#" class="dupl"></a><a href="#" class="script"></a><a href="#" class="delete"></a></span></h3>
-<table class="simpleTable">
+    
+<h3>@slotRange.Name - @String.Format(@"{0:dd.MM.yyyy}", slotRange.StartRes) - @String.Format(@"{0:dd.MM.yyyy}", slotRange.EndRes)<span style="float:right; margin-right:20px;"><a href="@Url.Action("Edit", new { id = slotRange.id_slotRange }).ToString()" class="modify"></a><a href="@Url.Action("Duplicate", new { id = slotRange.id_slotRange }).ToString()" class="dupl"></a><a href="@Url.Action("Script", new { id = slotRange.id_slotRange }).ToString()" class="script"></a><a href="@Url.Action("Delete", new { id = slotRange.id_slotRange }).ToString()" class="delete"></a></span></h3>
+<table class="slotRange">
 	<thead>
 		<tr>
-			<th colspan="2">&nbsp;</th>
+			<th class="empty">&nbsp;</th>
             @for (int i = 0; i < slotRange.Slotdate.Count; i++)
 		    {
 			    DateTime date = slotRange.Slotdate[i];
 			    string id = "slotRow" + i;
-			    string value = String.Format("{0:dd/MM/yyyy}", date);
+			    string value = String.Format(@"{0:dd.MM.yyyy}", date);
 			    <th colspan="@slotRange.GetSlotsForDate(date).Count">@value</th>
 		    }
 		</tr>
 		<tr class="subTitle">
-			<th colspan="2">&nbsp;</th>
+			<th class="empty">&nbsp;</th>
             @for (int i = 0; i < slotRange.Slotdate.Count; i++)
 		    {
                 DateTime date = slotRange.Slotdate[i];
@@ -48,7 +49,7 @@
     @foreach (GR_Calcul.Models.Person person in Model.Course.Students)
     {
 		<tr>
-			<td>@person.FirstName - @person.LastName</td>
+			<th>@person.FirstName @person.LastName</th>
 
             @for (int i = 0; i < slotRange.Slotdate.Count; i++)
 		    {
@@ -57,7 +58,7 @@
                     GR_Calcul.Models.Reservation reservation = slot.getReservation(person.ID);
                     if (reservation != null)
                     {
-                        <td style="text-align:center;">@reservation.NumberMachines</td>
+                        <td class="reserved">@reservation.NumberMachines</td>
                     }
                     else
                     {
