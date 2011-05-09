@@ -308,10 +308,6 @@ namespace GR_Calcul.Models
                 {
                     return ((MyMembershipProvider)_provider).ChangePassword(username, newPassword);
                 }
-                else
-                {
-                    return false;
-                }
                 return false;
             }
             catch (ArgumentException)

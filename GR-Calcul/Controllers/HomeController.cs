@@ -14,10 +14,5 @@ namespace GR_Calcul.Controllers
 
             return View();
         }
-
-        public ActionResult About()
-        {
-            return View();
-        }
     }
 }

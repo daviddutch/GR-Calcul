@@ -6,11 +6,14 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.SqlClient;
 using System.Data;
 using System.Web.Mvc;
+using System.Text;
 
 namespace GR_Calcul.Models
 {
     public class Course
     {
+        static private String connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString;
+
         public int ID { get; set; }
 
         [Required]
@@ -61,6 +64,124 @@ namespace GR_Calcul.Models
             Active = active;
             Responsible = id_person;
             Students = new List<Person>();
+        }
+
+        public List<SlotRange> GetSlotRangesForCourse()
+        {
+            List<SlotRange> ranges = new List<SlotRange>();
+
+            try
+            {
+                SqlConnection db = new SqlConnection(connectionString);
+                SqlTransaction transaction;
+
+                db.Open();
+
+                transaction = db.BeginTransaction(IsolationLevel.ReadCommitted);
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("SELECT [id_slotRange], [startRes] ,[endRes], [name] ,[id_course]" +
+                                                    "FROM SlotRange SR " +
+                                                    "WHERE id_course=@id;", db, transaction);
+
+                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = this.ID;
+
+                    SqlDataReader rdr = cmd.ExecuteReader();
+                    while (rdr.Read())
+                    {
+                        DateTime startRes = rdr.GetDateTime(rdr.GetOrdinal("startRes"));
+                        DateTime endRes = rdr.GetDateTime(rdr.GetOrdinal("endRes"));
+                        string name = rdr.GetString(rdr.GetOrdinal("name"));
+                        int id_course = rdr.GetInt32(rdr.GetOrdinal("id_course"));
+
+                        SlotRange range = new SlotRange(rdr.GetInt32(rdr.GetOrdinal("id_slotRange")), startRes, endRes, name, id_course);
+
+                        ranges.Add(range);
+                    }
+                    rdr.Close();
+
+                    foreach (var range in ranges)
+                    {
+                        //get slots
+                        cmd = new SqlCommand("SELECT [id_slot], [start], [end] FROM Slot WHERE id_slotRange=@id;", db, transaction);
+                        cmd.Parameters.Add("@id", SqlDbType.Int).Value = range.id_slotRange;
+                        rdr = cmd.ExecuteReader();
+                        //bool hasSetDuration = false;
+                        int cpt = 0;
+                        while (rdr.Read())
+                        {
+                            int id_slot = rdr.GetInt32(rdr.GetOrdinal("id_slot"));
+                            DateTime start = rdr.GetDateTime(rdr.GetOrdinal("start"));
+                            DateTime end = rdr.GetDateTime(rdr.GetOrdinal("end"));
+
+                            int startHour = start.Hour;
+                            int startMinute = start.Minute;
+
+                            int endHour = end.Hour;
+                            int endMinute = end.Minute;
+                            range.Startz.Add(startHour + ":" + startMinute);
+                            range.Endz.Add(endHour + ":" + endMinute);
+                            if (!range.Slotdate.Contains(start.Date))
+                            {
+                                range.Slotdate.Add(start.Date);
+                            }
+                            cpt++;
+
+                            range.Slots.Add(new Slot(id_slot, start, end));
+                        }
+                        rdr.Close();
+                        range.NumberOfSlots = cpt;
+
+                        foreach (var slot in range.Slots)
+                        {
+                            //get subscriptions
+                            cmd = new SqlCommand("SELECT [id_person], [id_slot], [numberMachines] FROM Reservation WHERE id_slot=@id;", db, transaction);
+                            cmd.Parameters.Add("@id", SqlDbType.Int).Value = slot.ID;
+                            rdr = cmd.ExecuteReader();
+
+                            while (rdr.Read())
+                            {
+                                int id_person = rdr.GetInt32(rdr.GetOrdinal("id_person"));
+                                int id_slot = rdr.GetInt32(rdr.GetOrdinal("id_slot"));
+                                int numberMachines = rdr.GetInt32(rdr.GetOrdinal("numberMachines"));
+
+                                slot.Reservations.Add(new Reservation(id_person, id_slot, numberMachines));
+                            }
+                            rdr.Close();
+                        }
+                    }
+                    transaction.Commit();
+                }
+                catch
+                {
+                    transaction.Rollback();
+                }
+                finally
+                {
+                    db.Close();
+                }
+            }
+            catch
+            {
+
+            }
+
+            return ranges;
+        }
+
+        public string GenerateAllScripts()
+        {
+            // get all slot ranges for this course
+            List<SlotRange> slotRanges = this.GetSlotRangesForCourse();
+            StringBuilder allScripts = new StringBuilder();
+            
+            // concat scripts
+            slotRanges.ForEach(delegate(SlotRange range)
+            {
+                allScripts.Append(range.GenerateScript());
+            });
+
+            return allScripts.ToString();
         }
     }
     public class Subscription

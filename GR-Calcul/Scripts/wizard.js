@@ -4,7 +4,7 @@
 /// <reference path="EditorHookup.js" />
 
 var slotRowIdPrefix = "slotRow";
-Date.format = "dd/mm/yyyy";
+Date.format = "dd.mm.yyyy";
 
 function enableWizard(buildLastStep) {
     $(function () {
@@ -127,9 +127,9 @@ function createRow(rowId, i, suffix) {
         }
     }
 
-    var day = startDate.substring(0, startDate.indexOf("/"));
-    var month = startDate.substring(startDate.indexOf("/") + 1, startDate.indexOf("/", startDate.indexOf("/") + 1));
-    var year = startDate.substring(startDate.indexOf("/", startDate.indexOf("/") + 1) + 1, startDate.length);
+    var day = startDate.substring(0, startDate.indexOf("."));
+    var month = startDate.substring(startDate.indexOf(".") + 1, startDate.indexOf(".", startDate.indexOf(".") + 1));
+    var year = startDate.substring(startDate.indexOf(".", startDate.indexOf(".") + 1) + 1, startDate.length);
     var currentDate = new Date(year, parseInt(month - 1, 10), parseInt(day, 10));
     if (!beginning) {
         currentDate.addDays(1);

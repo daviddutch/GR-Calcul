@@ -36,6 +36,7 @@ namespace GR_Calcul.Controllers
                     case PersonType.ResourceManager:
                         list.Add(menu1);
                         list.Add(menu2);
+                        list.Add(menu3);
                         list.Add(menu4);
                         break;
                     case PersonType.Responsible:
