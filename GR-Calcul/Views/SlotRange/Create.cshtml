@@ -1,25 +1,21 @@
 ﻿@model GR_Calcul.Models.SlotRange
 <script src="@Url.Content("~/Scripts/wizard.js")" type="text/javascript"></script>
-
 @{
     ViewBag.Title = "Créer une plage de créneaux";
 }
-
 <h2>@ViewBag.Title</h2>
-
 <script type="text/javascript">
     enableWizard(true);
     enableRoomBoxes();
-    //loadTooltips("fieldset :input.lollipop");
+    //loadTooltips("#slotrange-content :input.lollipop");
 </script>
-
 @using (Html.BeginForm())
 {
     @Html.ValidationSummary(true)
-    <fieldset>
-        <!-- <legend>SlotRangeModels</legend> -->
+    <div id="slotrange-content">
         <div class="wizard-step">
-            <h3>Étape 1: informations sur la plage de créneaux</h3>
+            <h3>
+                Étape 1: informations sur la plage de créneaux</h3>
             <div class="editor-label">
                 @Html.LabelFor(model => model.Name)
             </div>
@@ -27,7 +23,6 @@
                 @Html.EditorFor(model => model.Name)
                 @Html.ValidationMessageFor(model => model.Name)
             </div>
-
             <div class="editor-label">
                 @Html.LabelFor(model => model.StartRes)
             </div>
@@ -35,7 +30,6 @@
                 @Html.EditorFor(model => model.StartRes)
                 @Html.ValidationMessageFor(model => model.StartRes)
             </div>
-
             <div class="editor-label">
                 @Html.LabelFor(model => model.EndRes)
             </div>
@@ -43,7 +37,6 @@
                 @Html.EditorFor(model => model.EndRes)
                 @Html.ValidationMessageFor(model => model.EndRes)
             </div>
-
             <div class="editor-label">
                 @Html.LabelFor(model => model.IdCourse)
             </div>
@@ -51,16 +44,18 @@
                 @Html.DropDownList("IdCourse")
                 @Html.ValidationMessageFor(model => model.IdCourse)
             </div>
-
             <div class="editor-label">
-                <label>Machines</label>
+                <label>
+                    Machines</label>
             </div>
-            <div>&nbsp;</div>
+            <div>
+                &nbsp;</div>
             <div class="editor-field">
                 <ul class="machines">
                     @foreach (var room in new GR_Calcul.Models.RoomModel().ListRooms())
                     {
-						<li><input novalidation="true" type="checkbox" id="room-@room.ID" class="roomBox" title="select all machines in room @room.Name" /><label for="@room.ID">@room.Name</label>
+                        <li>
+                            <input novalidation="true" type="checkbox" id="room-@room.ID" class="roomBox" title="select all machines in room @room.Name" /><label for="@room.ID">@room.Name</label>
                             <ul>
                                 @foreach (var machine in new GR_Calcul.Models.MachineModel().ListMachines(@room.ID))
                                 {
@@ -72,18 +67,18 @@
                                             isChecked = "checked='checked'";
                                         }
                                     }
-                                    <li><input novalidation="true" type="checkbox" id="machine-@machine.id_machine" value="@machine.id_machine" name="Machines" room="inroom-room-@room.ID" @isChecked /><label for="@machine.id_machine">@machine.Name</label></li>
+                                    <li>
+                                        <input novalidation="true" type="checkbox" id="machine-@machine.id_machine" value="@machine.id_machine" name="Machines" room="inroom-room-@room.ID" @isChecked /><label for="@machine.id_machine">@machine.Name</label></li>
                                 }
-							</ul>
-						</li>
+                            </ul>
+                        </li>
                     }
                 </ul>
             </div>
         </div>
-
         <div class="wizard-step">
-            <h3>Étape 2: définition des créneaux</h3>
-
+            <h3>
+                Étape 2: définition des créneaux</h3>
             <div class="editor-label">
                 @Html.LabelFor(model => model.Beginning)
             </div>
@@ -91,15 +86,13 @@
                 @Html.EditorFor(model => model.Beginning)
                 @Html.ValidationMessageFor(model => model.Beginning)
             </div>
-            
             <div class="editor-label">
                 @Html.LabelFor(model => model.SlotDuration)
             </div>
-            <div class="editor-field">    
+            <div class="editor-field">
                 @Html.DropDownList("SlotDuration")
                 @Html.ValidationMessageFor(model => model.SlotDuration)
             </div>
-
             <div class="editor-label">
                 @Html.LabelFor(model => model.NumberOfSlots)
             </div>
@@ -108,19 +101,15 @@
                 @Html.ValidationMessageFor(model => model.NumberOfSlots)
             </div>
         </div>
-
         <div class="wizard-step">
-            <h3>Étape 3: choix des créneaux</h3>
+            <h3>
+                Étape 3: choix des créneaux</h3>
             <table class="simpleTable" id="slotTable">
-                
             </table>
         </div>
-
         <p>
             <input type="button" id="back-step" name="back-step" value="Précédent" />
             <input type="button" id="next-step" name="next-step" value="Suivant" />
         </p>
-    </fieldset>
+    </div>
 }
-
-

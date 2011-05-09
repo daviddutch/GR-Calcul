@@ -24,12 +24,7 @@
 		<div id="page-wrap">
 			<div id="main-sidebar">
 				<ul id="menu">
-					<li>@Html.ActionLink("Home", "Index", "Home")</li>
-                    <li>@Html.ActionLink("List course", "List", "Course")</li>
-                    <li>@Html.ActionLink("List machine", "List", "Machine")</li>
-                    <li>@Html.ActionLink("List person", "Index", "Person")</li>
-                    <li>@Html.ActionLink("Create slotRange", "Create", "SlotRange")</li>
-                    <li>@Html.ActionLink("About", "About", "Home")</li>
+                     @Html.Partial("_Menu", ViewData["Menu"]) 
 				</ul>
 			</div>
 			<div id="main-content">

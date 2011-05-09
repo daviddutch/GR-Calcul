@@ -11,59 +11,19 @@ using GR_Calcul.Misc;
 
 namespace GR_Calcul.Controllers
 { 
-    public class SlotRangeController : Controller
+    public class SlotRangeController : BaseController
     {
         private CourseModel courseModel = new CourseModel();
         private SlotRangeModel slotRangeModel = new SlotRangeModel();
 
         private void InitViewbag()
         {
-            ViewBag.IdCourse = new SelectList(courseModel.ListCourses(), "ID", "Name");
+            ViewBag.IdCourse = new SelectList(courseModel.ListCourses(SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name)), "ID", "Name");
             ViewBag.SlotDuration = new SelectList(Slot.durationList, "Text", "Text");
-        }
-
-        public class User
-        {
-            public string UserName { get; set; }
-            public UserRole Role { get; set; }
-
-            public static User GetCurrentUser { get; set; }
-
-            public Boolean IsInRole(UserRole[] roles)
-            {
-                foreach(UserRole r in roles){
-                    if(r.Equals(Role))
-                        return true;
-                }
-                return false;
-            }
-
-            public static void CreateInstance(string u, UserRole r){
-                GetCurrentUser = new User();
-                GetCurrentUser.UserName = u;
-                GetCurrentUser.Role = r;
-            }
-
-        }
-
-        //
-        //GET: /SlotRange/SignIn/user
-
-        public string SignIn()
-        {
-            string userName = "thomas";
-            if (String.IsNullOrEmpty(userName)) throw new ArgumentException("Value cannot be null or empty.", "userName");
-
-            FormsAuthentication.SetAuthCookie(userName, true);
-
-            User.CreateInstance(userName, UserRole.ResourceManager);
-
-            return "himode";
         }
 
         //
         // GET: /SlotRange/CourseRanges/5
-
         public ActionResult CourseRanges(int id_course)
         {
             InitViewbag();
@@ -89,37 +49,22 @@ namespace GR_Calcul.Controllers
         }
 
         //
-
-        public void SignOut()
-        {
-            FormsAuthentication.SignOut();
-        }
-
-        //
         // GET: /SlotRange/Create
-        [DuffAuthorize(UserRole.Responsible)]
+        [DuffAuthorize(PersonType.Responsible)]
         public ActionResult Create()
         {
             InitViewbag();
             return View();
-        } 
+        }
 
         //
         // POST: /SlotRange/Create
 
         [HttpPost]
+        [DuffAuthorize(PersonType.Responsible)]
         public ActionResult Create(SlotRange range)
         {
             InitViewbag();
-            string invalidMessage = "";
-            foreach (var value in ModelState.Values)
-            {
-                foreach (var error in value.Errors)
-                {
-                    invalidMessage += error.ErrorMessage;
-                }
-            }
-
             if (ModelState.IsValid)
             {
                 try
@@ -130,30 +75,66 @@ namespace GR_Calcul.Controllers
                 }
                 catch (Exception error)
                 {
+                    ModelState.AddModelError("", "Une erreur est survenue: " + error.Message);
                     ViewBag.Error = error.Message;
                     return View(range);
                 }
             }
-            ViewBag.Error = invalidMessage;
-            return View("Invalid", invalidMessage);
+            ModelState.AddModelError("", "Il y a des données incorrectes. Corriger les erreurs!");
+            return View(range);
         }
 
+        private bool IsAuthorized(SlotRange range)
+        {
+            if (range == null)
+                return false;
+            int? rId = range.GetResponsible();
+            if (rId != null)
+            {
+                int? pId = SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name);
+                if (pId != null)
+                {
+                    if (pId == rId)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }                
+            }
+            else
+            {
+                return false;
+            }
+        }
 
         //
         // GET: /SlotRange/Edit/5
- 
+        [DuffAuthorize(PersonType.Responsible)]
         public ActionResult Edit(int id)
         {
+            Exception ex = new Exception("Access denied");
             SlotRange range = slotRangeModel.GetSlotRange(id);
             if (range == null)
             {
                 return View("NoSuchRange");
             }
-            else
+            int? rId = range.GetResponsible();
+            if (IsAuthorized(range))
             {
-                ViewBag.IdCourse = new SelectList(courseModel.ListCourses(), "ID", "Name", range.IdCourse);
+                ViewBag.IdCourse = new SelectList(courseModel.ListCourses(SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name)), "ID", "Name", range.IdCourse);
                 ViewBag.SlotDuration = new SelectList(Slot.durationList, "Text", "Text", range.SlotDuration);
                 return View(range);
+            }
+            else
+            {
+                throw ex;
             }
         }
 
@@ -161,61 +142,87 @@ namespace GR_Calcul.Controllers
         // POST: /SlotRange/Edit/5
 
         [HttpPost]
+        [DuffAuthorize(PersonType.Responsible)]
         public ActionResult Edit(int id, SlotRange range)
         {
+            Exception ex = new Exception("Access denied");
+            if (IsAuthorized(range))
+            {
+                if (ModelState.IsValid)
+                {
+                    try
+                    {
+                        slotRangeModel.UpdateSlotRange(range);
+                        ViewBag.Mode = "mise a jour";
+                        return View("Complete", range);
+                    }
+                    catch (Exception exx)
+                    {
+                        ViewBag.ErrorMode = "la mise à jour";
+                        return View("Error", exx);
+                    }
+                }
+                ViewBag.IdCourse = new SelectList(courseModel.ListCourses(SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name)), "ID", "Name", range.IdCourse);
+                ViewBag.SlotDuration = new SelectList(Slot.durationList, "Text", "Text", range.SlotDuration);
 
-            string invalidMessage = "";
-            foreach (var value in ModelState.Values)
-            {
-                foreach (var error in value.Errors)
-                {
-                    invalidMessage += error.ErrorMessage;
-                }
-            }
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    slotRangeModel.UpdateSlotRange(range);
-                    ViewBag.Mode = "mise a jour";
-                    return View("Complete", range);
-                }
-                catch(Exception ex)
-                {
-                    ViewBag.ErrorMode = "la mise à jour";
-                    return View("Error", ex);
-                }
+                ModelState.AddModelError("", "Il y a des données incorrectes. Corriger les erreurs!");
+                return View(range);
+
             }
             else
             {
-                return View("Invalid", invalidMessage);
+                throw ex;
             }
         }
 
         //
         // GET: /SlotRange/Delete/5
- 
+
+        [DuffAuthorize(PersonType.Responsible)]
         public ActionResult Delete(int id)
         {
-            return View();
+            Exception ex = new Exception("Access denied");
+            SlotRange range = slotRangeModel.GetSlotRange(id);
+            if (range == null)
+            {
+                return View("NoSuchRange");
+            }
+            int? rId = range.GetResponsible();
+            if (IsAuthorized(range))
+            {
+                return View(range);
+            }
+            else
+            {
+                throw ex;
+            }
         }
 
         //
         // POST: /SlotRange/Delete/5
 
         [HttpPost]
+        [DuffAuthorize(PersonType.Responsible)]
         public ActionResult Delete(int id, FormCollection collection)
         {
-            try
+            Exception ex = new Exception("Access denied");
+            if (IsAuthorized(slotRangeModel.GetSlotRange(id)))
             {
-                // TODO: Add delete logic here
- 
-                return RedirectToAction("Index");
+                try
+                {
+                    slotRangeModel.DeleteSlotRange(id);
+                    return RedirectToAction("CourseRanges");
+                }
+                catch (Exception exx)
+                {
+                    ViewBag.ErrorMode = "la suppression";
+                    return View("Error", exx);
+                }
             }
-            catch
+            else
             {
-                return View();
-            }
+                throw ex;
+            }            
         }
     }
 }

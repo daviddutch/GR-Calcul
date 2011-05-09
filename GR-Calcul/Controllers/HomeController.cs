@@ -6,11 +6,11 @@ using System.Web.Mvc;
 
 namespace GR_Calcul.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
         public ActionResult Index()
         {
-            ViewBag.Message = "Welcome to ASP.NET MVC!";
+            ViewBag.Message = "Bienvenue sur le site de GRID";
 
             return View();
         }

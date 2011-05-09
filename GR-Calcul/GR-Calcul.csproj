@@ -70,6 +70,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\CourseController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\MachineController.cs" />
@@ -80,9 +81,12 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Misc\DuffAuthorizeAttribute.cs" />
+    <Compile Include="Misc\SessionManager.cs" />
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\CourseModels.cs" />
     <Compile Include="Models\MachineModels.cs" />
+    <Compile Include="Models\MyMembershipProvider.cs" />
+    <Compile Include="Models\MyMenuItem.cs" />
     <Compile Include="Models\PersonModels.cs" />
     <Compile Include="Models\RoomModels.cs" />
     <Compile Include="Models\SlotRangeModels.cs" />
@@ -148,7 +152,6 @@
     <Content Include="Views\Account\ChangePassword.cshtml" />
     <Content Include="Views\Account\ChangePasswordSuccess.cshtml" />
     <Content Include="Views\Account\LogOn.cshtml" />
-    <Content Include="Views\Account\Register.cshtml" />
     <Content Include="Views\Home\About.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
@@ -200,12 +203,6 @@
     <Content Include="Views\Machine\Details.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Views\SlotRange\Error.cshtml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Views\SlotRange\Invalid.cshtml" />
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Views\SlotRange\EditorTemplates\Lollipop.cshtml" />
   </ItemGroup>
   <ItemGroup>
@@ -218,7 +215,9 @@
     <Content Include="Views\SlotRange\EditorTemplates\Hide.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Machine\List.cshtml" />
@@ -255,6 +254,24 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\SlotRange\ReserveSlotRange.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Shared\_Menu.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\SlotRange\Error.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\SlotRange\Delete.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Account\LostPassword.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Account\LostPasswordSuccess.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Account\LostPasswordChange.cshtml" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" />
