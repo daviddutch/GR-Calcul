@@ -30,11 +30,10 @@ namespace GR_Calcul.Controllers
         {
             InitViewbag();
             CourseRangesViewModel viewModel = new CourseRangesViewModel();
-            Course course = CourseModel.GetCourse(id_course);
+            Course course = CourseModel.GetCourse(id);
             viewModel.Course = course;
             viewModel.SlotRanges = course.GetSlotRangesForCourse();
             viewModel.Course.Students = courseModel.getCourseStudents(id);
-            viewModel.Course.Students = courseModel.getCourseStudents(id_course);
             return View(viewModel);
         }
 
