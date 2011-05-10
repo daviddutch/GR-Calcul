@@ -1,88 +1,77 @@
 ﻿@model GR_Calcul.Models.Person
 
 @{
-    ViewBag.Title = "Create";
+    ViewBag.Title = "Créer une personne";
 }
 
-<h2>Create</h2>
+<h2>Créer une personne</h2>
 
 <script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
 <script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
 
 @using (Html.BeginForm()) {
     @Html.ValidationSummary(true)
-    <fieldset>
-        <legend>Person</legend>
 
-        <div class="editor-label">
-            @Html.LabelFor(model => model.FirstName)
-        </div>
-        <div class="editor-field">
-            @Html.EditorFor(model => model.FirstName)
-            @Html.ValidationMessageFor(model => model.FirstName)
-        </div>
+    <div class="editor-label">
+        @Html.LabelFor(model => model.FirstName)
+    </div>
+    <div class="editor-field">
+        @Html.EditorFor(model => model.FirstName)
+        @Html.ValidationMessageFor(model => model.FirstName)
+    </div>
 
-        <div class="editor-label">
-            @Html.LabelFor(model => model.LastName)
-        </div>
-        <div class="editor-field">
-            @Html.EditorFor(model => model.LastName)
-            @Html.ValidationMessageFor(model => model.LastName)
-        </div>
+    <div class="editor-label">
+        @Html.LabelFor(model => model.LastName)
+    </div>
+    <div class="editor-field">
+        @Html.EditorFor(model => model.LastName)
+        @Html.ValidationMessageFor(model => model.LastName)
+    </div>
 
-        <div class="editor-label">
-            @Html.LabelFor(model => model.Email)
-        </div>
-        <div class="editor-field">
-            @Html.EditorFor(model => model.Email)
-            @Html.ValidationMessageFor(model => model.Email)
-        </div>
+    <div class="editor-label">
+        @Html.LabelFor(model => model.Email)
+    </div>
+    <div class="editor-field">
+        @Html.EditorFor(model => model.Email)
+        @Html.ValidationMessageFor(model => model.Email)
+    </div>
 
-        <div class="editor-label">
-            @Html.LabelFor(model => model.Username)
-        </div>
-        <div class="editor-field">
-            @Html.EditorFor(model => model.Username)
-            @Html.ValidationMessageFor(model => model.Username)
-        </div>
+    <div class="editor-label">
+        @Html.LabelFor(model => model.Username)
+    </div>
+    <div class="editor-field">
+        @Html.EditorFor(model => model.Username)
+        @Html.ValidationMessageFor(model => model.Username)
+    </div>
 
-        <div class="editor-label">
-            @Html.LabelFor(model => model.Password)
-        </div>
-        <div class="editor-field">
-            @Html.EditorFor(model => model.Password)
-            @Html.ValidationMessageFor(model => model.Password)
-        </div>
+    <div class="editor-label">
+        @Html.LabelFor(model => model.Password)
+    </div>
+    <div class="editor-field">
+        @Html.EditorFor(model => model.Password)
+        @Html.ValidationMessageFor(model => model.Password)
+    </div>
 
-       @* <div class="editor-label">
-            @Html.LabelFor(model => model.pType)
-        </div>
-        <div class="editor-field">
-            @Html.EditorFor(model => model.pType)
-            @Html.ValidationMessageFor(model => model.pType)
-        </div>*@
+    @* <div class="editor-label">
+        @Html.LabelFor(model => model.pType)
+    </div>
+    <div class="editor-field">
+        @Html.EditorFor(model => model.pType)
+        @Html.ValidationMessageFor(model => model.pType)
+    </div>*@
 
-        <div class="editor-label">
-            @Html.LabelFor(model => model.pType)
-        </div>
-        <div class="editor-field">
-            @Html.DropDownList("Type", GR_Calcul.Models.Person.pTypeSel)
-        </div>
+    <div class="editor-label">
+        @Html.LabelFor(model => model.pType)
+    </div>
+    <div class="editor-field">
+        @Html.DropDownList("Type", GR_Calcul.Models.Person.pTypeSel)
+    </div>
 
-        <div class="editor-label">
-            @Html.LabelFor(model => model.Timestamp)
-        </div>
-        <div class="editor-field">
-            @Html.EditorFor(model => model.Timestamp)
-            @Html.ValidationMessageFor(model => model.Timestamp)
-        </div>
-
-        <p>
-            <input type="submit" value="Create" />
-        </p>
-    </fieldset>
+    <p>
+        <input type="submit" value="Valider" />
+    </p>
 }
 
 <div>
-    @Html.ActionLink("Back to List", "Index")
+    @Html.ActionLink("Retour à la liste", "Index")
 </div>

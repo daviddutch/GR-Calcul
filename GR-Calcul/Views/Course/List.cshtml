@@ -4,14 +4,14 @@
     ViewBag.Title = "List";
 }
 
-<h2>List</h2>
+<h2>Liste des cours</h2>
 
 <p>
     @{
         var isResponsible = false;
         if(((GR_Calcul.Models.Person)Membership.GetUser(Context.User.Identity.Name)).pType == GR_Calcul.Models.PersonType.Responsible){
             isResponsible = true;
-            @Html.ActionLink("Create New", "Create")        
+            <a href="@Url.Action("Create")" class="button" title="Créer cours">Créer un cours</a>
         }
         var isResourceManager = false;
         if(((GR_Calcul.Models.Person)Membership.GetUser(Context.User.Identity.Name)).pType == GR_Calcul.Models.PersonType.ResourceManager){
@@ -33,7 +33,7 @@
             grid.Column("Name", "Nom"),
             grid.Column("Key", "Clefs"),
             grid.Column("Active", "Actif"),
-            grid.Column("ResponsibleString", "Responsible"),                
+            grid.Column("ResponsibleString", "Responsable"),                
             grid.Column(format: (item) =>
                 {
                     
@@ -47,7 +47,7 @@
                         return new HtmlString("<a href=\"" + Url.Action("GenerateScript", new { id = item.ID }).ToString() + "\"class=\"script\" title=\"Générer le script pour le cours\"></a>");
                     }
                     else
-                        return new HtmlString("");
+                        return new HtmlString("<a href=\"" + Url.Action("Subscribe", new { id = item.ID }).ToString() + "\"class=\"modify\" title=\"S'inscrire à ce cours\"></a>");
                     
                 }, canSort: false))
         )

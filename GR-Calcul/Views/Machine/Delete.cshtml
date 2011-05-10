@@ -7,23 +7,12 @@
 <h2>@ViewBag.Title</h2>
 
 <h3>Êtes vous sûr de vouloir supprimer cette machine?</h3>
-<fieldset>
-    <legend>Machine</legend>
+@using (Html.BeginForm()) {
+    <p><b>Id machine : </b>@Html.DisplayFor(model => model.id_machine)</p>
 
-    <div class="display-label">id_machine</div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.id_machine)
-    </div>
+    <p><b>Nom : </b>@Html.DisplayFor(model => model.Name)</p>
 
-    <div class="display-label">Name</div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.Name)
-    </div>
-
-    <div class="display-label">IP</div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.IP)
-    </div>
+    <p><b>IP : </b>@Html.DisplayFor(model => model.IP)</p>
 
 @*    <div class="display-label">room</div>
     <div class="display-field">
@@ -34,10 +23,8 @@
     <div class="display-field">
         @Html.DisplayFor(model => model.os)
     </div>*@
-</fieldset>
-@using (Html.BeginForm()) {
     <p>
-        <input type="submit" value="Delete" /> |
-        @Html.ActionLink("Back to List", "Index")
+        <input type="submit" value="Supprimer" /> |
+        @Html.ActionLink("Retour à la liste", "Index")
     </p>
 }

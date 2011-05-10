@@ -184,6 +184,40 @@ namespace GR_Calcul.Models
 
             return allScripts.ToString();
         }
+
+        public void Subscribe(int? id_person)
+        {
+            try
+            {
+                SqlConnection db = new SqlConnection(connectionString);
+                SqlTransaction transaction;
+
+                db.Open();
+
+                transaction = db.BeginTransaction(IsolationLevel.ReadUncommitted);
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("INSERT INTO Subscription " +
+                                                   "([id_person], [id_course]) " +
+                                                   "VALUES (@id_person, @id_course);", db, transaction);
+                    cmd.Parameters.Add("@id_course", SqlDbType.Int).Value = ID;
+                    cmd.Parameters.Add("@id_person", SqlDbType.Int).Value = id_person;
+
+                    cmd.ExecuteNonQuery();
+
+                    transaction.Commit();
+                }
+                catch
+                {
+                    transaction.Rollback();
+                }
+                db.Close();
+            }
+            catch
+            {
+
+            }
+        }
     }
     public class Subscription
     {
@@ -389,7 +423,7 @@ namespace GR_Calcul.Models
         }
 
 
-        public Course GetCourse(int id)
+        public static Course GetCourse(int id)
         {
             Course course = null;
 

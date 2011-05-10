@@ -11,48 +11,43 @@
 
 @using (Html.BeginForm()) {
     @Html.ValidationSummary(true)
-    <fieldset>
-        <legend>Machine</legend>
 
-        @{
-            if (ViewData["error"] != null)
-            {
-                <p style="color:Red">@ViewData["error"]</p>
-            }
-        }
+    if (ViewData["error"] != null)
+    {
+        <p style="color:Red">@ViewData["error"]</p>
+    }
 
-        @Html.HiddenFor(model => model.id_machine)
-        @Html.HiddenFor(model => Model.Timestamp)
+    @Html.HiddenFor(model => model.id_machine)
+    @Html.HiddenFor(model => Model.Timestamp)
 
-        <div class="editor-label">
-            @Html.LabelFor(model => model.Name)
-        </div>
-        <div class="editor-field">
-            @Html.EditorFor(model => model.Name)
-            @Html.ValidationMessageFor(model => model.Name)
-        </div>
+    <div class="editor-label">
+        @Html.LabelFor(model => model.Name)
+    </div>
+    <div class="editor-field">
+        @Html.EditorFor(model => model.Name)
+        @Html.ValidationMessageFor(model => model.Name)
+    </div>
 
-        <div class="editor-label">
-            @Html.LabelFor(model => model.IP)
-        </div>
-        <div class="editor-field">
-            @Html.EditorFor(model => model.IP)
-            @Html.ValidationMessageFor(model => model.IP)
-        </div>
+    <div class="editor-label">
+        @Html.LabelFor(model => model.IP)
+    </div>
+    <div class="editor-field">
+        @Html.EditorFor(model => model.IP)
+        @Html.ValidationMessageFor(model => model.IP)
+    </div>
 
-        <div class="editor-label">
-            @Html.LabelFor(model => model.id_room)
-        </div>
-        <div class="editor-field">
-            @Html.DropDownList("id_room", ViewData["Rooms"] as SelectList)
-        </div>
+    <div class="editor-label">
+        @Html.LabelFor(model => model.id_room)
+    </div>
+    <div class="editor-field">
+        @Html.DropDownList("id_room", ViewData["Rooms"] as SelectList)
+    </div>
 
-        <p>
-            <input type="submit" value="Save" />
-        </p>
-    </fieldset>
+    <p>
+        <input type="submit" value="Valider" />
+    </p>
 }
 
 <div>
-    @Html.ActionLink("Back to List", "Index")
+    @Html.ActionLink("Retour à la liste", "Index")
 </div>

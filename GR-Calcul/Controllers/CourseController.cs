@@ -7,6 +7,7 @@ using GR_Calcul.Models;
 using System.Data.SqlClient;
 using System.Data;
 using GR_Calcul.Misc;
+using System.Text;
 
 namespace GR_Calcul.Controllers
 {
@@ -64,7 +65,7 @@ namespace GR_Calcul.Controllers
                     if (k != null)
                     {
                         if (model.IsUserSubscribed((int)k, id))
-                            return View(model.GetCourse(id));
+                            return View(CourseModel.GetCourse(id));
                         else
                         {
                             SessionManager.RedirectAccessDenied(HttpContext.Request.RequestContext);
@@ -112,6 +113,16 @@ namespace GR_Calcul.Controllers
             }
         }
 
+        // GET: /Course/Script/5
+        [DuffAuthorize(PersonType.ResourceManager)]
+        public ActionResult Script(int id)
+        {
+            throw new NotImplementedException(); // CD not tested yet
+            Course course = CourseModel.GetCourse(id);
+            string allScripts = course.GenerateAllScripts();
+            return File(Encoding.UTF8.GetBytes(allScripts),"text/plain",string.Format("scripts_cours_{0}.sh", id));
+        }
+
         //
         // GET: /Course/Edit/5
 
@@ -120,7 +131,7 @@ namespace GR_Calcul.Controllers
         {
             if (IsAuthorized(id))
             {
-                Course course = model.GetCourse(id);
+                Course course = CourseModel.GetCourse(id);
                 var items = personModel.GetResponsibles().Select(x => new SelectListItem() { Value = x.ID.ToString(), Text = x.toString() }).ToList();
                 ViewData["Responsibles"] = new SelectList(items, "Value", "Text", course.Responsible);
                 return View(course);
@@ -168,7 +179,7 @@ namespace GR_Calcul.Controllers
         {
             if (IsAuthorized(id))
             {
-                return View(model.GetCourse(id));
+                return View(CourseModel.GetCourse(id));
             }
             else
             {
@@ -209,7 +220,7 @@ namespace GR_Calcul.Controllers
         {
             if (IsAuthorized(id))
             {
-                return View(model.GetCourse(id));
+                return View(CourseModel.GetCourse(id));
             }
             else
             {
@@ -246,9 +257,46 @@ namespace GR_Calcul.Controllers
             }
         }
 
+        //
+        // GET: /Course/Subscribe/5
+
+        [DuffAuthorize(PersonType.User)]
+        public ActionResult Subscribe(int id)
+        {
+            Course course = CourseModel.GetCourse(id);
+            course.Key = "";
+            return View(course);
+        }
+
+        //
+        // POST: /Course/Subscribe/5
+
+        [HttpPost]
+        [DuffAuthorize(PersonType.User)]
+        public ActionResult Subscribe(int id, Course course)
+        {            
+            try
+            {
+                if (CourseModel.GetCourse(id).Key == course.Key)
+                {
+                    course.Subscribe(SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name));
+                    return RedirectToAction("ListMyCourse");
+                }
+                else
+                {
+                    ModelState.AddModelError("", "La clefs n'est pas correct.");
+                    return View(course);
+                }
+            }
+            catch
+            {
+                return View();
+            }
+        }
+
         private bool IsAuthorized(int courseId)
         {
-            Course c = model.GetCourse(courseId);
+            Course c = CourseModel.GetCourse(courseId);
 
             int? pId = SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name);
             if (pId != null)

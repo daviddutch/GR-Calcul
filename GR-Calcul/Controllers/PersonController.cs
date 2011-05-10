@@ -17,7 +17,7 @@ namespace GR_Calcul.Controllers
         [DuffAuthorize(PersonType.ResourceManager)]
         public ActionResult Index()
         {
-            return View(model.ListPerson());
+            return View(model.ListPerson2());
         }
 
         //

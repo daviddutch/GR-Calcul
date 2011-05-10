@@ -58,7 +58,7 @@ namespace GR_Calcul.Models
 
         public int? GetResponsible()
         {
-            Course c = courseModel.GetCourse(IdCourse);
+            Course c = CourseModel.GetCourse(IdCourse);
             if (c != null)
             {
                 return c.Responsible;
@@ -153,6 +153,13 @@ namespace GR_Calcul.Models
             this.IdCourse = id_course;
         }
 
+        // CD: should perhaps replace the simpler constructor
+        public SlotRange(int id_slotRange, DateTime startRes, DateTime endRes, string name, int id_course, string Timestamp)
+            : this(id_slotRange, startRes, endRes, name, id_course)
+        {
+            this.Timestamp = Timestamp;
+        }
+
         public List<Slot> GetSlotsForDate(DateTime date)
         {
             List<Slot> slots = new List<Slot>(Slots.Count);
@@ -186,7 +193,7 @@ namespace GR_Calcul.Models
         // CD: XML methods - should always be called from Reservation C(R)UD methods in other models (User?)
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        private String BuildScriptDataXML(Reservation reservation, Slot slot, List<Machine> machines)
+        private String BuildScriptDataXML(Person person, Slot slot, List<Machine> machines)
         {
             // create document
             XmlDocument doc = new XmlDocument();
@@ -197,7 +204,8 @@ namespace GR_Calcul.Models
 
             // create <username> child node and add to <command> node
             XmlNode usernameNode = doc.CreateElement("username");
-            usernameNode.AppendChild(doc.CreateTextNode(escXML(reservation.Name)));
+            XmlText usernameTextNode = doc.CreateTextNode(escXML(person.Username));
+            usernameNode.AppendChild(usernameTextNode);
             commandNode.AppendChild(usernameNode);
 
             // create <startTime> child node and add to <command> node
@@ -206,11 +214,13 @@ namespace GR_Calcul.Models
             minutesAttribute.Value = escXML(slot.Start.Minute.ToString());
             XmlAttribute hoursAttribute = doc.CreateAttribute("hours");
             hoursAttribute.Value = escXML(slot.Start.Hour.ToString());
+            startTimeNode.Attributes.Append(hoursAttribute);
+            startTimeNode.Attributes.Append(minutesAttribute);
             commandNode.AppendChild(startTimeNode);
 
             // create <startDate> child node and add to <command> node
             XmlNode startDateNode = doc.CreateElement("startDate");
-            string startDate = String.Format("{0:d/M/yyyy HH:mm:ss}", slot.Start);
+            string startDate = String.Format("{0:d.M.yyyy}", slot.Start);
             startDateNode.AppendChild(doc.CreateTextNode(startDate)); // skipping escXML() here
             commandNode.AppendChild(startDateNode);
 
@@ -227,7 +237,10 @@ namespace GR_Calcul.Models
             commandNode.AppendChild(machinesNode);
 
             // return a XML string representation of the <command> node
-            return commandNode.ToString();
+            StringWriter sw = new StringWriter();
+	        XmlTextWriter xw = new XmlTextWriter(sw);
+            doc.WriteTo(xw);
+            return sw.ToString();
         }
 
         // CD: shorter version - force valid XML strings
@@ -237,7 +250,7 @@ namespace GR_Calcul.Models
         }
 
         // CD: this is really an Update
-        protected void InsertCommandXML(Reservation reservation, Slot slot, List<Machine> machines)
+        public void InsertCommandXML(Person person, Slot slot, List<Machine> machines)
         {
             bool updated = false;
 
@@ -252,34 +265,38 @@ namespace GR_Calcul.Models
                 try
                 {
                     //int timestamp = range.Timestamp;
-                    byte[] timestamp = this.getByteTimestamp();
+                    //byte[] timestamp = this.getByteTimestamp();
 
                     SqlCommand cmd = new SqlCommand("SELECT * FROM SlotRange R " +
                         "WHERE R.[id_slotRange]=@id AND R.timestamp=@timestamp;", db, transaction);
 
-                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = this.id_slotRange;
-                    cmd.Parameters.Add("@timestamp", SqlDbType.Binary).Value = timestamp;
+                    //cmd.Parameters.Add("@id", SqlDbType.Int).Value = this.id_slotRange;
+                    //cmd.Parameters.Add("@timestamp", SqlDbType.Binary).Value = timestamp;
 
-                    SqlDataReader rdr = cmd.ExecuteReader();
+                    //SqlDataReader rdr = cmd.ExecuteReader();
 
-                    if (rdr.Read())
-                    {
-                        rdr.Close();
+                    //if (rdr.Read())
+                    //{
+                        //rdr.Close();
+                        //cmd = new SqlCommand("UPDATE SlotRange " +
+                        //        "SET scriptDataXML.modify('insert @commandXML as last into (/script)[1]') " +
+                        //        "WHERE id_slotRange = @id_slotRange ", db, transaction);
+                        string xml_string = BuildScriptDataXML(person, slot, machines);
                         cmd = new SqlCommand("UPDATE SlotRange " +
-                                "SET scriptDataXML.modify('insert @commandXML as last into (/script)[1]') " +
+                                "SET scriptDataXML.modify('insert sql:variable(\"@xml_string\") as last into (/script)[1]') " +
                                 "WHERE id_slotRange = @id_slotRange ", db, transaction);
-                        cmd.Parameters.Add("@commandXML", SqlDbType.Char).Value = BuildScriptDataXML(reservation, slot, machines);
                         cmd.Parameters.Add("@id_slotRange", SqlDbType.Int).Value = this.id_slotRange;
+                        cmd.Parameters.Add("@xml_string", SqlDbType.Xml).Value = xml_string;
                         cmd.ExecuteNonQuery();
                         updated = true;
 
                         transaction.Commit();
-                    }
-                    else
-                    {
-                        rdr.Close();
-                        Console.WriteLine("Cross modify?");
-                    }
+                    //}
+                    //else
+                    //{
+                    //    rdr.Close();
+                    //    Console.WriteLine("Cross modify?");
+                    //}
                 }
                 catch (Exception ex)
                 {
@@ -301,7 +318,7 @@ namespace GR_Calcul.Models
         }
 
         // CD: this is really an Update
-        protected void DeleteCommandXML(string username)
+        public void DeleteCommandXML(string username)
         {
             bool updated = false;
 
@@ -315,22 +332,22 @@ namespace GR_Calcul.Models
                 transaction = db.BeginTransaction(IsolationLevel.RepeatableRead); // CD: single row but multiple queries
                 try
                 {
-                    byte[] timestamp = this.getByteTimestamp();
+                    //byte[] timestamp = this.getByteTimestamp();
 
                     SqlCommand cmd = new SqlCommand("SELECT * FROM SlotRange R " +
                         "WHERE R.[id_slotRange]=@id AND R.timestamp=@timestamp;", db, transaction);
 
-                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = this.id_slotRange;
-                    cmd.Parameters.Add("@timestamp", SqlDbType.Binary).Value = timestamp;
+                    //cmd.Parameters.Add("@id", SqlDbType.Int).Value = this.id_slotRange;
+                    //cmd.Parameters.Add("@timestamp", SqlDbType.Binary).Value = timestamp;
 
-                    SqlDataReader rdr = cmd.ExecuteReader();
+                    //SqlDataReader rdr = cmd.ExecuteReader();
 
-                    if (rdr.Read())
-                    {
-                        rdr.Close();
+                    //if (rdr.Read())
+                    //{
+                    //    rdr.Close();
 
                         cmd = new SqlCommand("UPDATE SlotRange " +
-                            "SET scriptDataXML.modify('delete (/script/command[username=@username])') " +
+                            "SET scriptDataXML.modify('delete (/script/command[username=sql:variable(\"@username\")])') " +
                             "WHERE id_slotRange=@id_slotRange", db, transaction);
 
                         cmd.Parameters.Add("@username", SqlDbType.Char).Value = username;
@@ -339,12 +356,12 @@ namespace GR_Calcul.Models
                         updated = true;
 
                         transaction.Commit();
-                    }
-                    else
-                    {
-                        rdr.Close();
-                        Console.WriteLine("Cross modify?");
-                    }
+                    //}
+                    //else
+                    //{
+                    //    rdr.Close();
+                    //    Console.WriteLine("Cross modify?");
+                    //}
                 }
                 catch (Exception ex)
                 {
@@ -390,50 +407,39 @@ namespace GR_Calcul.Models
                     cmd.Parameters.Add("@id_slotRange", SqlDbType.Int).Value = this.id_slotRange;
 
                     // execute query and retrieve incoming data
-                    SqlDataReader r = cmd.ExecuteReader();
-                    r.Read();
-
-                    // access XML data type field in rowset
-                    //SqlXml xml = r.GetSqlXml(0);
-                    //new XmlTextWriter(Console.Out).WriteNode(xml.CreateReader(), true);
                     SqlDataReader rdr = cmd.ExecuteReader();
 
                     if (rdr.Read())
                     {
                         xml.Load(rdr.GetSqlXml(0).CreateReader());
                     }
+                    rdr.Close();
                 }
                 catch (Exception ex)
                 {
                     transaction.Rollback();
                     System.Diagnostics.Debug.WriteLine(ex.Message);
                     System.Diagnostics.Debug.WriteLine(ex.StackTrace);
-                }
-                finally
-                {
-                    db.Close();
+                    db.Close(); // only close upon exception
                 }
 
                 // get XSL file
                 try
                 {
                     // prepare query to select xsl data
-                    SqlCommand cmd = new SqlCommand("SELECT scriptTransformXML " +
+                    SqlCommand cmd = new SqlCommand("SELECT scriptTransformationXML " +
                         "FROM OS " +
                         // id_os is hard coded here - our client requires only 1 OS - better than 4 useless JOINS
                         "WHERE id_os=1", db, transaction);
 
                     // execute query and retrieve incoming data
-                    SqlDataReader r = cmd.ExecuteReader();
-                    r.Read();
-
-                    // access XML data type field in rowset
                     SqlDataReader rdr = cmd.ExecuteReader();
 
                     if (rdr.Read())
                     {
-                        xml.Load(rdr.GetSqlXml(0).CreateReader());
+                        xsl.Load(rdr.GetSqlXml(0).CreateReader());
                     }
+                    rdr.Close();
                 }
                 catch (Exception ex)
                 {
@@ -539,7 +545,7 @@ namespace GR_Calcul.Models
 
         static private String connectionString = ConnectionManager.GetConnectionString();//System.Configuration.ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString;
 
-        public SlotRange GetSlotRange(int id)
+        public static SlotRange GetSlotRange(int id)
         {
             SlotRange range = null;
 
