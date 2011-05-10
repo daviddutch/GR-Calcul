@@ -10,10 +10,13 @@
     @Html.ActionLink("Créer une personne", "Create")
 </p>
 
+
 @{
     foreach (var m in Model)
     {
         <p>@m.Email</p>
+        defaultSort: "Name"
+    );
     }
 
     
@@ -36,5 +39,6 @@
                                                 "<a href=\"" + Url.Action("Delete", new { id = item.ID, pType = item.pType }).ToString() + "\"class=\"delete\" title=\"Supprimer\"></a>");
                     }, canSort: false))
             );
+
     
 }

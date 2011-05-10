@@ -7,6 +7,7 @@ using System.Web.Mvc;
 using System.Data.SqlClient;
 using System.Data;
 using System.Web.Security;
+using GR_Calcul.Misc;
 
 namespace GR_Calcul.Models
 {
@@ -200,7 +201,7 @@ namespace GR_Calcul.Models
     }
     public class PersonModel
     {
-        static private String connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString;
+        //static private String connectionString = ConnectionManager.GetConnectionString();//System.Configuration.ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString;
 
         public List<Person> GetResponsibles()
         {
@@ -208,7 +209,7 @@ namespace GR_Calcul.Models
 
             try
             {
-                SqlConnection db = new SqlConnection(connectionString);
+                SqlConnection db = new SqlConnection(ConnectionManager.GetConnectionString());
                 SqlTransaction transaction;
 
                 db.Open();
@@ -263,7 +264,7 @@ namespace GR_Calcul.Models
 
             try
             {
-                SqlConnection db = new SqlConnection(connectionString);
+                SqlConnection db = new SqlConnection(ConnectionManager.GetUnauthentifiedConnectionString());
                 SqlTransaction transaction;
 
                 db.Open();
@@ -382,7 +383,7 @@ namespace GR_Calcul.Models
         {
             try
             {
-                SqlConnection db = new SqlConnection(connectionString);
+                SqlConnection db = new SqlConnection(ConnectionManager.GetConnectionString());
                 SqlTransaction transaction;
 
                 db.Open();
@@ -426,7 +427,7 @@ namespace GR_Calcul.Models
 
             try
             {
-                SqlConnection conn = new SqlConnection(connectionString);
+                SqlConnection conn = new SqlConnection(ConnectionManager.GetUnauthentifiedConnectionString());
                 SqlTransaction transaction;
 
                 conn.Open();
@@ -483,7 +484,7 @@ namespace GR_Calcul.Models
 
             try
             {
-                SqlConnection db = new SqlConnection(connectionString);
+                SqlConnection db = new SqlConnection(ConnectionManager.GetUnauthentifiedConnectionString());
                 SqlTransaction transaction;
 
                 db.Open();
@@ -539,7 +540,7 @@ namespace GR_Calcul.Models
 
             try
             {
-                SqlConnection db = new SqlConnection(connectionString);
+                SqlConnection db = new SqlConnection(ConnectionManager.GetUnauthentifiedConnectionString());
                 SqlTransaction transaction;
 
                 db.Open();
@@ -594,7 +595,7 @@ namespace GR_Calcul.Models
 
             try
             {
-                SqlConnection db = new SqlConnection(connectionString);
+                SqlConnection db = new SqlConnection(ConnectionManager.GetUnauthentifiedConnectionString());
                 SqlTransaction transaction;
 
                 db.Open();
@@ -638,7 +639,7 @@ namespace GR_Calcul.Models
 
             try
             {
-                SqlConnection db = new SqlConnection(connectionString);
+                SqlConnection db = new SqlConnection(ConnectionManager.GetConnectionString());
                 SqlTransaction transaction;
 
                 db.Open();
@@ -710,7 +711,7 @@ namespace GR_Calcul.Models
                 return rows;
             try
             {
-                SqlConnection db = new SqlConnection(connectionString);
+                SqlConnection db = new SqlConnection(ConnectionManager.GetConnectionString());
                 SqlTransaction transaction;
 
                 db.Open();
@@ -771,8 +772,8 @@ namespace GR_Calcul.Models
         internal void DeletePerson(Person person)
         {
             try
-            { 
-                SqlConnection conn = new SqlConnection(connectionString);
+            {
+                SqlConnection conn = new SqlConnection(ConnectionManager.GetConnectionString());
                 SqlTransaction transaction;
 
                 conn.Open();

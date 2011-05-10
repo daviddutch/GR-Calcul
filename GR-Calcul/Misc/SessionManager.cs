@@ -4,11 +4,20 @@ using System.Linq;
 using System.Web;
 using GR_Calcul.Models;
 using System.Web.Security;
+using System.Web.Mvc;
+using System.Web.Routing;
 
 namespace GR_Calcul.Misc
 {
     public class SessionManager
     {
+
+        public static void RedirectAccessDenied(RequestContext context)
+        {
+            UrlHelper helper = new UrlHelper(context);
+            String url = helper.Action("AccessDenied", "Account");
+            HttpContext.Current.Response.Redirect(url);
+        }
 
         public static PersonType? GetCurrentUserRole(string username)
         {

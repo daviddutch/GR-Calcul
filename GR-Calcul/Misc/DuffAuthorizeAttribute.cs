@@ -20,22 +20,17 @@ namespace GR_Calcul.Misc
 
         public void OnAuthorization(AuthorizationContext filterContext)
         {
-            Exception ex = new Exception("Access denied");
             MembershipUser u = Membership.GetUser(filterContext.HttpContext.User.Identity.Name);
-            HttpContext ctx = HttpContext.Current;
-            UrlHelper helper = new UrlHelper(filterContext.RequestContext);
-            String url = helper.Action("AccessDenied", "Account");
             if (u != null && u is Person)
             {
                 Person p = (Person)u;
                 if (!p.IsInRole(_acceptedRoles))
                 {
-                    ctx.Response.Redirect(url);
+                    SessionManager.RedirectAccessDenied(filterContext.RequestContext);
                 }
                 return;
             }
-            ctx.Response.Redirect(url);
-            
+            SessionManager.RedirectAccessDenied(filterContext.RequestContext);
         }
 
     }

@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.SqlClient;
 using System.Data;
 using System.Web.Mvc;
+using GR_Calcul.Misc;
 
 namespace GR_Calcul.Models
 {
@@ -39,7 +40,7 @@ namespace GR_Calcul.Models
     public class RoomModel
     {
 
-        static private String connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString;
+        static private String connectionString = ConnectionManager.GetConnectionString();//System.Configuration.ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString;
 
         public List<Room> ListRooms()
         {
