@@ -26,20 +26,29 @@ function loadTooltips(selector) {
 
 $(document).ready(function () {
 
-    $(".slotRangeRow input:radio").click(function () {
+    $(".slotRangeRow input:radio").change(function () {
         if ($(this).is(":checked")) {
             $(this).parent().parent().find("td").removeClass("reserved");
             $(this).parent().addClass("reserved");
         } else {
-            alert("unsubscribe");
+            $(this).parent().parent().find("td").removeClass("reserved");
+        }
+    });
+
+    $(".slotRangeRow input:radio").click(function (e) {
+        e.stopPropagation();
+        if ($(this).parent().hasClass("reserved")) {
+            $(this).attr("checked", false).trigger("change");
+        } else {
+            $(this).attr("checked", true).trigger("change");
         }
     });
 
     $(".slotRangeRow input:radio").parent().click(function () {
         if ($(this).find("input:radio").is(":checked")) {
-            $(this).find("input:radio").attr("checked", false).trigger("click");
+            $(this).find("input:radio").attr("checked", false).trigger("change");
         } else {
-            $(this).find("input:radio").attr("checked", true).trigger("click");
+            $(this).find("input:radio").attr("checked", true).trigger("change");
         }
     });
 
