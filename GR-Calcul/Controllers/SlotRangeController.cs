@@ -40,7 +40,7 @@ namespace GR_Calcul.Controllers
 
         //
         // GET: /SlotRange/ReserveSlotRange/5
-        // GET: /SlotRange/CourseRanges/5
+
         [DuffAuthorize(PersonType.User)]
         public ActionResult ReserveSlotRange(int id)
         {
@@ -49,11 +49,33 @@ namespace GR_Calcul.Controllers
             Course course = CourseModel.GetCourse(id);
             viewModel.Course = course;
             viewModel.SlotRanges = course.GetSlotRangesForCourse();
-            int id_person = 1;
+            int? id_person = SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name);
             viewModel.Reservations = slotRangeModel.getReservations(id, id_person);
             return View(viewModel);
         }
+        //
+        // GET: /SlotRange/Reserve/5
 
+        [DuffAuthorize(PersonType.User)]
+        public JsonResult Reserve(int id, bool reserve)
+        {
+            try
+            {
+                if (reserve)
+                {
+                    SlotRangeModel.ReserveSlot(id, SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name), 0);
+                }
+                else
+                {
+                    SlotRangeModel.UnReserveSlot(id, SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name));
+                }
+                return new JsonResult { Data = new { Success = true, Message = "Bravo" }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            catch (Exception e)
+            {
+                return new JsonResult { Data = new { Success = false, Message = e.Message }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+        }
         //// CD test - DELETEME
         //public void TestSlotReservation(string str)
         //{

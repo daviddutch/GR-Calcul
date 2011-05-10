@@ -474,6 +474,22 @@ namespace GR_Calcul.Models
 
         public static IEnumerable<int> durations = new[] { 1, 2, 3, 4, 6, 8 };
 
+        public int ID { get; set; }
+
+        public List<Reservation> Reservations { get; set; }
+
+        [Required]
+        [Display(Name = "Début du créneau", Description = "dd/mm/yyyy")]
+        [DataType(DataType.DateTime)]
+        [UIHint("lollipop")]
+        public DateTime Start { get; set; }
+
+        [Required]
+        [Display(Name = "Fin du créneau", Description = "dd/mm/yyyy")]
+        [DataType(DataType.DateTime)]
+        [UIHint("lollipop")]
+        public DateTime End { get; set; }
+
         static Slot()
         {
             durationList = new List<SelectListItem>(durations.Count());
@@ -496,6 +512,37 @@ namespace GR_Calcul.Models
             Reservations = new List<Reservation>();
         }
 
+        public string getFormatedStartTime()
+        {
+            string time = "";
+            if (Start.Hour < 10)
+            {
+                time += "0";
+            }
+            time += Start.Hour + ":";
+            if (Start.Minute < 10)
+            {
+                time += "0";
+            }
+            time += Start.Minute;
+            return time;
+        }
+        public string getFormatedEndTime()
+        {
+            string time = "";
+            if (End.Hour < 10)
+            {
+                time += "0";
+            }
+            time += End.Hour + ":";
+            if (End.Minute < 10)
+            {
+                time += "0";
+            }
+            time += End.Minute;
+            return time;
+        }
+
         public Reservation getReservation(int id_person)
         {
             foreach (Reservation reservation in Reservations)
@@ -504,34 +551,18 @@ namespace GR_Calcul.Models
             }
             return null;
         }
-
-        public int ID { get; set; }
-
-        public List<Reservation> Reservations { get; set; }
-
-        [Required]
-        [Display(Name = "Début du créneau", Description = "dd/mm/yyyy")]
-        [DataType(DataType.DateTime)]
-        [UIHint("lollipop")]
-        public DateTime Start { get; set; }
-
-        [Required]
-        [Display(Name = "Fin du créneau", Description = "dd/mm/yyyy")]
-        [DataType(DataType.DateTime)]
-        [UIHint("lollipop")]
-        public DateTime End { get; set; }
     }
 
     public class Reservation
     {
-        public int id_person { get; set; }
+        public int? id_person { get; set; }
         public int id_slot { get; set; }
         public int NumberMachines { get; set; }
 
         public String Name { get; set; } // CD: which name is this - person's username?
         public int id_slotRange { get; set; }
 
-        public Reservation(int id_person, int id_slot, int numberMachines)
+        public Reservation(int? id_person, int id_slot, int numberMachines)
         {
             this.id_person = id_person;
             this.id_slot = id_slot;
@@ -929,7 +960,7 @@ namespace GR_Calcul.Models
             }
         }
 
-        internal List<Reservation> getReservations(int id_course, int id_person)
+        internal List<Reservation> getReservations(int id_course, int? id_person)
         {
             List<Reservation> reservations = new List<Reservation>();
 
@@ -982,6 +1013,126 @@ namespace GR_Calcul.Models
             }
 
             return reservations;
+        }
+
+        public static void ReserveSlot(int id_slot, int? id_person, int numberMachines)
+        {
+            bool inserted = true;
+            try
+            {
+                SqlConnection db = new SqlConnection(connectionString);
+                SqlTransaction transaction;
+
+                db.Open();
+
+                transaction = db.BeginTransaction(IsolationLevel.RepeatableRead);
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("SELECT * " +
+                                                    "FROM Reservation R " +
+                                                    "WHERE R.id_slot=@id_slot;", db, transaction);
+
+                    cmd.Parameters.Add("@id_slot", SqlDbType.Int).Value = id_slot;
+
+                    SqlDataReader rdr = cmd.ExecuteReader();
+
+                    if (!rdr.Read())
+                    {
+                        rdr.Close();
+
+                        cmd = new SqlCommand("DELETE FROM Reservation " +
+                                             "WHERE id_slot IN ( " +
+                                             "SELECT id_slot FROM Slot WHERE id_slotRange=(" +
+                                                "SELECT id_slotRange " +
+                                                "FROM Slot S2 " +
+                                                "WHERE S2.id_slot=@id_slot) " +
+                                             ") AND Reservation.id_person=@id_person;", db, transaction);
+
+                        cmd.Parameters.Add("@id_slot", SqlDbType.Int).Value = id_slot;
+                        cmd.Parameters.Add("@id_person", SqlDbType.Int).Value = id_person;
+                        cmd.ExecuteNonQuery();
+
+
+                        cmd = new SqlCommand("INSERT INTO Reservation " +
+                                                       "(id_person, id_slot, numberMachines) " +
+                                                       "VALUES (@id_person, @id_slot, @numberMachines);", db, transaction);
+
+                        cmd.Parameters.Add("@id_person", SqlDbType.Int).Value = id_person;
+                        cmd.Parameters.Add("@id_slot", SqlDbType.Int).Value = id_slot;
+                        cmd.Parameters.Add("@numberMachines", SqlDbType.Int).Value = numberMachines;
+
+                        cmd.ExecuteNonQuery();
+                    }
+                    else //slot already in use
+                    {
+                        rdr.Close();
+                        inserted = false;
+                    }
+
+                    transaction.Commit();
+                }
+                catch (SqlException sqlError)
+                {
+                    System.Diagnostics.Debug.WriteLine(sqlError.Message);
+                    System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                    transaction.Rollback();
+                    inserted = false;
+                }
+                finally
+                {
+                    db.Close();
+                }
+            }
+            catch (SqlException sqlError)
+            {
+                System.Diagnostics.Debug.WriteLine(sqlError.Message);
+                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                inserted = false;
+            }
+            if (!inserted) throw new Exception("Slot déjà reservé !");
+        }
+        public static void UnReserveSlot(int id_slot, int? id_person)
+        {
+            try
+            {
+                SqlConnection db = new SqlConnection(connectionString);
+                SqlTransaction transaction;
+
+                db.Open();
+
+                transaction = db.BeginTransaction(IsolationLevel.ReadCommitted);
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("DELETE FROM Reservation " +
+                                                    "WHERE id_slot IN ( " +
+                                                        "SELECT id_slot FROM Slot WHERE id_slotRange=(" +
+                                                            "SELECT id_slotRange FROM Reservation R2 " +
+                                                            "INNER JOIN Slot S2 ON S2.id_slot=R2.id_slot " +
+                                                            "WHERE S2.id_slot=@id_slot) " +
+                                                        "AND Reservation.id_person=@id_person);", db, transaction);
+
+                    cmd.Parameters.Add("@id_slot", SqlDbType.Int).Value = id_slot;
+                    cmd.Parameters.Add("@id_person", SqlDbType.Int).Value = id_person;
+                    cmd.ExecuteNonQuery();
+
+                    transaction.Commit();
+                }
+                catch (SqlException sqlError)
+                {
+                    System.Diagnostics.Debug.WriteLine(sqlError.Message);
+                    System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                    transaction.Rollback();
+                }
+                finally
+                {
+                    db.Close();
+                }
+            }
+            catch (SqlException sqlError)
+            {
+                System.Diagnostics.Debug.WriteLine(sqlError.Message);
+                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+            }
         }
     }
 }

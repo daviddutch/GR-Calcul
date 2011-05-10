@@ -24,23 +24,30 @@
             }
 		</tr>
 		<tr class="subTitle">
-			<th class="empty">Nb. machines :</th>
+			<th class="empty withborder">Nb. machines :</th>
             @for (int i = 0; i < slotRange.Slotdate.Count; i++)
             {
                 DateTime date = slotRange.Slotdate[i];
                 string id = "slotRow" + i;
                 string value = String.Format("{0:dd/MM/yyyy}", date);
+                int j=0;
 
                 foreach (var slot in slotRange.GetSlotsForDate(date))
                 {
-                    int startHour = slot.Start.Hour;
-                    int startMinute = slot.Start.Minute;
-                    int endHour = slot.End.Hour;
-                    int endMinute = slot.End.Minute;
-                    string start = startHour + ":" + startMinute;
-                    string end = endHour + ":" + endMinute;
-					
-					<th>@start - @end</th>
+                    string start = slot.getFormatedStartTime();
+                    string end = slot.getFormatedEndTime();
+
+                    j++;
+                    
+                    if (j<slotRange.GetSlotsForDate(date).Count)
+                    {
+					    <th>@start-@end</th>
+                    }
+                    else
+                    {
+                        <th class="withborder">@start-@end</th>
+                    }
+                    
                 }
             }
 		</tr>
@@ -64,7 +71,14 @@
                     }
                     else
                     {
-                        <td><input type="radio" name="@name" value="@slot.ID" /></td>
+                        if (slot.Reservations.Count == 0)
+                        {
+                            <td><input type="radio" name="@name" value="@slot.ID" /></td>
+                        }
+                        else
+                        {
+                            <td class="occupied"></td>
+                        }
                     }
                 }
             }
