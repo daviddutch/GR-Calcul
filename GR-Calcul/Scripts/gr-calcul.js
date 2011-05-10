@@ -32,5 +32,5 @@ $(document).ready(function () {
             $(this).next("label").addClass("RadioSelected");
         }
     });
-    $("a.button").button();
+    $("input:submit, a.button").button();
 });

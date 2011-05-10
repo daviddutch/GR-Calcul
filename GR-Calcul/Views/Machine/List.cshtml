@@ -11,7 +11,7 @@
         var isManager = false;
         if(((GR_Calcul.Models.Person)Membership.GetUser(Context.User.Identity.Name)).pType == GR_Calcul.Models.PersonType.ResourceManager){
             isManager = true;
-            @Html.ActionLink("Create New", "Create")        
+            <a href="@Url.Action("Create")" class="button" title="Créer une machine">Créer une machine</a>
         }
     }
 </p>

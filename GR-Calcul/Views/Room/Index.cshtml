@@ -7,7 +7,7 @@
 <h2>@ViewBag.Title</h2>
 
 <p>
-    @Html.ActionLink("Create New", "Create")
+    <a href="@Url.Action("Create")" class="button" title="Créer une salle">Créer une salle</a>
 </p>
 
 
@@ -17,6 +17,7 @@
         defaultSort: "Name"
     );
 }
+
 @grid.GetHtml(
     tableStyle: "simpleTable",
     headerStyle: "head",

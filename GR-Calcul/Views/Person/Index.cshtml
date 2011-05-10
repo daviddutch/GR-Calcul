@@ -1,4 +1,4 @@
-﻿@model IEnumerable<GR_Calcul.Models.Person>
+﻿@model IEnumerable<GR_Calcul.Models.Person2>
 
 @{
     ViewBag.Title = "Index";
@@ -7,27 +7,34 @@
 <h2>Index</h2>
 
 <p>
-    @Html.ActionLink("Create New", "Create")
+    @Html.ActionLink("Créer une personne", "Create")
 </p>
 
 @{
-    var grid = new WebGrid(Model);
-}
-@grid.GetHtml(
-    tableStyle: "simpleTable",
-    headerStyle: "head",
-    alternatingRowStyle: "alt",
-    
-    columns: grid.Columns(
-        grid.Column("pType", "Type"),
-            grid.Column("FirstName", "Prénom"),
-            grid.Column("LastName", "Nom"),
-            grid.Column("Email", "Email"),
-            grid.Column("Username", "Nom d'utilisateur"),
-            grid.Column(format: (item) =>
-                {
-                    return new HtmlString("<a href=\"" + Url.Action("Edit", new { id = item.ID, pType = item.pType }).ToString() + "\"class=\"modify\" title=\"Modifier\"></a>" +
-                                          "<a href=\"" + Url.Action("Delete", new { id = item.ID, pType = item.pType }).ToString() + "\"class=\"delete\" title=\"Supprimer\"></a>");
-                }, canSort: false))
-        )
+    foreach (var m in Model)
+    {
+        <p>@m.Email</p>
+    }
 
+    
+    var grid = new WebGrid(Model);
+
+    grid.GetHtml(
+        tableStyle: "simpleTable",
+        headerStyle: "head",
+        alternatingRowStyle: "alt",
+
+        columns: grid.Columns(
+            grid.Column("pType", "Type"),
+                grid.Column("FirstName", "Prénom"),
+                grid.Column("LastName", "Nom"),
+                grid.Column("Email", "Email"),
+                grid.Column("Username", "Nom d'utilisateur"),
+                grid.Column(format: (item) =>
+                    {
+                        return new HtmlString("<a href=\"" + Url.Action("Edit", new { id = item.ID, pType = item.pType }).ToString() + "\"class=\"modify\" title=\"Modifier\"></a>" +
+                                                "<a href=\"" + Url.Action("Delete", new { id = item.ID, pType = item.pType }).ToString() + "\"class=\"delete\" title=\"Supprimer\"></a>");
+                    }, canSort: false))
+            );
+    
+}

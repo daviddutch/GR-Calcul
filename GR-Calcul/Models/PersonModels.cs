@@ -40,7 +40,8 @@ namespace GR_Calcul.Models
         {
             get { return new SelectList(pTypes, "Key", "Value"); }
         }
-
+        [Required]
+        [Display(Name = "Type de personne")]
         public PersonType pType { get; set; }
 
         public int ID { get; set; }
@@ -91,6 +92,98 @@ namespace GR_Calcul.Models
         public Person() { }
 
         public Person(PersonType type, int id_person, string firstName, string lastName, string username, string email, string password)
+        {
+            pType = type;
+            ID = id_person;
+            FirstName = firstName;
+            LastName = lastName;
+            Email = email;
+            Password = password;
+            Username = username;
+        }
+        public String toString()
+        {
+            return FirstName + " " + LastName;
+        }
+    }
+    public class Person2
+    {
+        public static readonly IDictionary<PersonType, string> pTypes = new Dictionary<PersonType, string>() 
+        { 
+            {PersonType.ResourceManager, "Gestionnaire des ressources"}, 
+            {PersonType.Responsible, "Responsable"}, 
+            {PersonType.User, "Utilisateur"}, 
+        };
+
+        public static readonly Dictionary<string, PersonType> dbTypes = new Dictionary<string, PersonType>() 
+        { 
+            {"RM", PersonType.ResourceManager}, 
+            {"RE", PersonType.Responsible}, 
+            {"US", PersonType.User}, 
+        };
+
+        public static readonly Dictionary<PersonType, string> dbTypesRev = new Dictionary<PersonType, string>() 
+        { 
+            {PersonType.ResourceManager, "RM"}, 
+            {PersonType.Responsible, "RE"}, 
+            {PersonType.User, "US"}, 
+        };
+
+        public static SelectList pTypeSel
+        {
+            get { return new SelectList(pTypes, "Key", "Value"); }
+        }
+
+        public PersonType pType { get; set; }
+
+        public int ID { get; set; }
+        [Required]
+        [Display(Name = "Nom")]
+        public string FirstName { get; set; }
+
+        [Required]
+        [Display(Name = "Prénom")]
+        public string LastName { get; set; }
+
+        [Required]
+        [Display(Name = "Email")]
+        public string Email { get; set; }
+
+        [Required]
+        [Display(Name = "Nom d'utilisateur")]
+        public string Username { get; set; }
+
+        [Required]
+        [Display(Name = "Mot de passe")]
+        public string Password { get; set; }
+
+        //[Required]
+        [Timestamp]
+        [HiddenInput(DisplayValue = false)]
+        public string Timestamp { get; set; }
+
+        public byte[] getByteTimestamp()
+        {
+            return Convert.FromBase64String(Timestamp);
+        }
+        public void setTimestamp(byte[] timestamp)
+        {
+            Timestamp = Convert.ToBase64String(timestamp);
+        }
+
+        public Boolean IsInRole(PersonType[] roles)
+        {
+            foreach (PersonType r in roles)
+            {
+                if (r.Equals(pType))
+                    return true;
+            }
+            return false;
+        }
+
+        public Person2() { }
+
+        public Person2(PersonType type, int id_person, string firstName, string lastName, string username, string email, string password)
         {
             pType = type;
             ID = id_person;
@@ -204,6 +297,66 @@ namespace GR_Calcul.Models
                         }
 
                         Person person = new Person(personType, id_person, firstname, lastname, username, email, "");
+
+                        list.Add(person);
+
+                    }
+                    rdr.Close();
+                    transaction.Commit();
+                }
+                catch
+                {
+                    transaction.Rollback();
+                }
+                db.Close();
+            }
+            catch
+            {
+
+            }
+
+            return list;
+        }
+        public List<Person2> ListPerson2()
+        {
+            List<Person2> list = new List<Person2>();
+
+            try
+            {
+                SqlConnection db = new SqlConnection(connectionString);
+                SqlTransaction transaction;
+
+                db.Open();
+
+                transaction = db.BeginTransaction(IsolationLevel.ReadCommitted);
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("SELECT * from Person ORDER BY firstname;", db, transaction);
+                    SqlDataReader rdr = cmd.ExecuteReader();
+
+                    while (rdr.Read())
+                    {
+                        string firstname = rdr.GetString(rdr.GetOrdinal("firstname"));
+                        string lastname = rdr.GetString(rdr.GetOrdinal("lastname"));
+                        string email = rdr.GetString(rdr.GetOrdinal("email"));
+                        string username = rdr.GetString(rdr.GetOrdinal("username"));
+                        int id_person = rdr.GetInt32(rdr.GetOrdinal("id_person"));
+
+                        PersonType personType = PersonType.User;
+                        switch (rdr.GetString(rdr.GetOrdinal("pType")))
+                        {
+                            case "RM":
+                                personType = PersonType.ResourceManager;
+                                break;
+                            case "RE":
+                                personType = PersonType.Responsible;
+                                break;
+                            case "US":
+                                personType = PersonType.User;
+                                break;
+                        }
+
+                        Person2 person = new Person2(personType, id_person, firstname, lastname, username, email, "");
 
                         list.Add(person);
 

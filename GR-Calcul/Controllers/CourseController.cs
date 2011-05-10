@@ -232,6 +232,43 @@ namespace GR_Calcul.Controllers
             }
         }
 
+        //
+        // GET: /Course/Subscribe/5
+
+        [DuffAuthorize(PersonType.User)]
+        public ActionResult Subscribe(int id)
+        {
+            Course course = model.GetCourse(id);
+            course.Key = "";
+            return View(course);
+        }
+
+        //
+        // POST: /Course/Subscribe/5
+
+        [HttpPost]
+        [DuffAuthorize(PersonType.User)]
+        public ActionResult Subscribe(int id, Course course)
+        {            
+            try
+            {
+                if (model.GetCourse(id).Key == course.Key)
+                {
+                    course.Subscribe(SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name));
+                    return RedirectToAction("ListMyCourse");
+                }
+                else
+                {
+                    ModelState.AddModelError("", "La clefs n'est pas correct.");
+                    return View(course);
+                }
+            }
+            catch
+            {
+                return View();
+            }
+        }
+
         private bool IsAuthorized(int courseId)
         {
             Course c = model.GetCourse(courseId);
