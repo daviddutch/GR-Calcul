@@ -13,6 +13,7 @@ using System.Security;
 using System.Data.SqlTypes;
 using System.Xml.Xsl;
 using System.IO;
+using GR_Calcul.Misc;
 
 namespace GR_Calcul.Models
 {
@@ -38,7 +39,7 @@ namespace GR_Calcul.Models
     }
     public class SlotRange
     {
-        static private String connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString;
+        static private String connectionString = ConnectionManager.GetConnectionString();//System.Configuration.ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString;
 
         private CourseModel courseModel = new CourseModel();
 
@@ -536,7 +537,7 @@ namespace GR_Calcul.Models
     public class SlotRangeModel
     {
 
-        static private String connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString;
+        static private String connectionString = ConnectionManager.GetConnectionString();//System.Configuration.ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString;
 
         public SlotRange GetSlotRange(int id)
         {

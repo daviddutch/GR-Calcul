@@ -10,24 +10,33 @@
     @Html.ActionLink("Create New", "Create")
 </p>
 
+
 @{
-    var grid = new WebGrid(Model);
+
+    var grid = new WebGrid(
+        source: Model,
+        defaultSort: "Name"
+    );
 }
-@grid.GetHtml(
-    tableStyle: "simpleTable",
-    headerStyle: "head",
-    alternatingRowStyle: "alt",
-    
-    columns: grid.Columns(
-        grid.Column("pType", "Type"),
-            grid.Column("FirstName", "Prénom"),
-            grid.Column("LastName", "Nom"),
-            grid.Column("Email", "Email"),
-            grid.Column("Username", "Nom d'utilisateur"),
-            grid.Column(format: (item) =>
+
+@{
+    grid.GetHtml(
+        tableStyle: "simpleTable",
+        headerStyle: "head",
+        alternatingRowStyle: "alt",
+
+        columns: grid.Columns(
+            grid.Column("pType", "Type"),
+                grid.Column("FirstName", "Prénom"),
+                grid.Column("LastName", "Nom"),
+                grid.Column("Email", "Email"),
+                grid.Column("Username", "Nom d'utilisateur"),
+                grid.Column(format: (item) =>
                 {
                     return new HtmlString("<a href=\"" + Url.Action("Edit", new { id = item.ID, pType = item.pType }).ToString() + "\"class=\"modify\" title=\"Modifier\"></a>" +
-                                          "<a href=\"" + Url.Action("Delete", new { id = item.ID, pType = item.pType }).ToString() + "\"class=\"delete\" title=\"Supprimer\"></a>");
+                                            "<a href=\"" + Url.Action("Delete", new { id = item.ID, pType = item.pType }).ToString() + "\"class=\"delete\" title=\"Supprimer\"></a>");
                 }, canSort: false))
-        )
+            );
 
+
+}

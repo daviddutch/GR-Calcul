@@ -7,12 +7,13 @@ using System.Data.SqlClient;
 using System.Data;
 using System.Web.Mvc;
 using System.Text;
+using GR_Calcul.Misc;
 
 namespace GR_Calcul.Models
 {
     public class Course
     {
-        static private String connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString;
+        static private String connectionString = ConnectionManager.GetConnectionString();//System.Configuration.ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString;
 
         public int ID { get; set; }
 
@@ -200,8 +201,7 @@ namespace GR_Calcul.Models
     }
     public class CourseModel
     {
-        // CD 2011-04-21: more centralized this way for adaptation between computers/developers
-        static private String connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString;
+        static private String connectionString = ConnectionManager.GetConnectionString();//System.Configuration.ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString;
 
         public Boolean IsUserSubscribed(int userId, int courseId)
         {
