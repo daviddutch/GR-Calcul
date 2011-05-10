@@ -30,7 +30,11 @@ namespace GR_Calcul.Controllers
         {
             InitViewbag();
             CourseRangesViewModel viewModel = new CourseRangesViewModel();
-            Course course = CourseModel.GetCourse(id);
+<<<<<<< HEAD
+            Course course = CourseModel.GetCourse(id_course);
+=======
+            Course course = courseModel.GetCourse(id);
+>>>>>>> e53ab9643562a00523c7ce85d59499c96e180f11
             viewModel.Course = course;
             viewModel.SlotRanges = course.GetSlotRangesForCourse();
             viewModel.Course.Students = courseModel.getCourseStudents(id);
@@ -38,9 +42,13 @@ namespace GR_Calcul.Controllers
         }
 
         //
+<<<<<<< HEAD
         // GET: /SlotRange/ReserveSlotRange/5
+
+=======
         // GET: /SlotRange/CourseRanges/5
         [DuffAuthorize(PersonType.User)]
+>>>>>>> e53ab9643562a00523c7ce85d59499c96e180f11
         public ActionResult ReserveSlotRange(int id)
         {
             InitViewbag();
