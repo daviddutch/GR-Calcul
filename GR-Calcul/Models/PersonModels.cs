@@ -318,66 +318,66 @@ namespace GR_Calcul.Models
 
             return list;
         }
-        public List<Person2> ListPerson2()
-        {
-            List<Person2> list = new List<Person2>();
+        //public List<Person2> ListPerson2()
+        //{
+        //    List<Person2> list = new List<Person2>();
 
-            try
-            {
-                SqlConnection db = new SqlConnection(connectionString);
-                SqlTransaction transaction;
+        //    try
+        //    {
+        //        SqlConnection db = new SqlConnection(connectionString);
+        //        SqlTransaction transaction;
 
-                db.Open();
+        //        db.Open();
 
-                transaction = db.BeginTransaction(IsolationLevel.ReadCommitted);
-                try
-                {
-                    SqlCommand cmd = new SqlCommand("SELECT * from Person ORDER BY firstname;", db, transaction);
-                    SqlDataReader rdr = cmd.ExecuteReader();
+        //        transaction = db.BeginTransaction(IsolationLevel.ReadCommitted);
+        //        try
+        //        {
+        //            SqlCommand cmd = new SqlCommand("SELECT * from Person ORDER BY firstname;", db, transaction);
+        //            SqlDataReader rdr = cmd.ExecuteReader();
 
-                    while (rdr.Read())
-                    {
-                        string firstname = rdr.GetString(rdr.GetOrdinal("firstname"));
-                        string lastname = rdr.GetString(rdr.GetOrdinal("lastname"));
-                        string email = rdr.GetString(rdr.GetOrdinal("email"));
-                        string username = rdr.GetString(rdr.GetOrdinal("username"));
-                        int id_person = rdr.GetInt32(rdr.GetOrdinal("id_person"));
+        //            while (rdr.Read())
+        //            {
+        //                string firstname = rdr.GetString(rdr.GetOrdinal("firstname"));
+        //                string lastname = rdr.GetString(rdr.GetOrdinal("lastname"));
+        //                string email = rdr.GetString(rdr.GetOrdinal("email"));
+        //                string username = rdr.GetString(rdr.GetOrdinal("username"));
+        //                int id_person = rdr.GetInt32(rdr.GetOrdinal("id_person"));
 
-                        PersonType personType = PersonType.User;
-                        switch (rdr.GetString(rdr.GetOrdinal("pType")))
-                        {
-                            case "RM":
-                                personType = PersonType.ResourceManager;
-                                break;
-                            case "RE":
-                                personType = PersonType.Responsible;
-                                break;
-                            case "US":
-                                personType = PersonType.User;
-                                break;
-                        }
+        //                PersonType personType = PersonType.User;
+        //                switch (rdr.GetString(rdr.GetOrdinal("pType")))
+        //                {
+        //                    case "RM":
+        //                        personType = PersonType.ResourceManager;
+        //                        break;
+        //                    case "RE":
+        //                        personType = PersonType.Responsible;
+        //                        break;
+        //                    case "US":
+        //                        personType = PersonType.User;
+        //                        break;
+        //                }
 
-                        Person2 person = new Person2(personType, id_person, firstname, lastname, username, email, "");
+        //                Person2 person = new Person2(personType, id_person, firstname, lastname, username, email, "");
 
-                        list.Add(person);
+        //                list.Add(person);
 
-                    }
-                    rdr.Close();
-                    transaction.Commit();
-                }
-                catch
-                {
-                    transaction.Rollback();
-                }
-                db.Close();
-            }
-            catch
-            {
+        //            }
+        //            rdr.Close();
+        //            transaction.Commit();
+        //        }
+        //        catch
+        //        {
+        //            transaction.Rollback();
+        //        }
+        //        db.Close();
+        //    }
+        //    catch
+        //    {
 
-            }
+        //    }
 
-            return list;
-        }
+        //    return list;
+        //}
 
         internal void CreatePerson(Person person)
         {

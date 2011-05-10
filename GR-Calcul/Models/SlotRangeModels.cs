@@ -684,6 +684,9 @@ namespace GR_Calcul.Models
                     cmd.ExecuteNonQuery();
 
                     int rangeId = Int32.Parse(sp.Value.ToString());
+
+                    range.id_slotRange = rangeId; // CD needed by Task Scheduler
+
                     InsertAllSlots(range, rangeId, db, transaction);
 
                     foreach (var machine in range.Machines)

@@ -3,6 +3,10 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GR-Calcul", "GR-Calcul\GR-Calcul.csproj", "{3ECF2191-B258-4E55-8C65-9C45689AD30D}"
 EndProject
+Project("{2CFEAB61-6A3B-4EB8-B523-560B4BEEF521}") = "GR-Calcul.csproj_deploy", "GR-Calcul.csproj_deploy\GR-Calcul.csproj_deploy.wdproj", "{A6151912-956D-48E2-B299-A3657CEFA69A}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "GR-setup", "GR-setup\GR-setup.vdproj", "{8A184EF8-0B81-43BB-AE48-A2BFFFD997F3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,6 +17,11 @@ Global
 		{3ECF2191-B258-4E55-8C65-9C45689AD30D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3ECF2191-B258-4E55-8C65-9C45689AD30D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3ECF2191-B258-4E55-8C65-9C45689AD30D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A6151912-956D-48E2-B299-A3657CEFA69A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6151912-956D-48E2-B299-A3657CEFA69A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6151912-956D-48E2-B299-A3657CEFA69A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A184EF8-0B81-43BB-AE48-A2BFFFD997F3}.Debug|Any CPU.ActiveCfg = Debug
+		{8A184EF8-0B81-43BB-AE48-A2BFFFD997F3}.Release|Any CPU.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

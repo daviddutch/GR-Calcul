@@ -8,6 +8,7 @@ using System.Data.SqlClient;
 using System.Web.Security;
 using GR_Calcul.Misc;
 using System.Text;
+using TaskScheduler;
 
 
 namespace GR_Calcul.Controllers
@@ -102,16 +103,25 @@ namespace GR_Calcul.Controllers
                 {
                     slotRangeModel.CreateSlotRange(range);
                     ViewBag.Mode = "créée";
+
+                    // schedule linux script to be sent to resource manager by email 
+                    ScheduleEmail(range);
+
                     return View("Complete", range);
                 }
                 catch (Exception error)
                 {
-                    ModelState.AddModelError("", "Une erreur est survenue: " + error.Message);
+                    ModelState.AddModelError("", "Une erreur est survenue.");
                     ViewBag.Error = error.Message;
+
+                    System.Diagnostics.Debug.WriteLine(error.Message);
+                    System.Diagnostics.Debug.WriteLine(error.StackTrace);
+                    
                     return View(range);
                 }
             }
             ModelState.AddModelError("", "Il y a des données incorrectes. Corriger les erreurs!");
+            
             return View(range);
         }
 
@@ -197,6 +207,10 @@ namespace GR_Calcul.Controllers
                 ViewBag.SlotDuration = new SelectList(Slot.durationList, "Text", "Text", range.SlotDuration);
 
                 ModelState.AddModelError("", "Il y a des données incorrectes. Corriger les erreurs!");
+
+                // schedule linux script to be sent to resource manager by email 
+                ScheduleEmail(range);
+
                 return View(range);
 
             }
@@ -254,6 +268,101 @@ namespace GR_Calcul.Controllers
             {
                 throw ex;
             }            
+        }
+
+        // CREATE OR UPDATE, c.f. RegisterTaskDefinition()
+        [DuffAuthorize(PersonType.Responsible)]
+        private void ScheduleEmail(SlotRange range)
+        {
+
+            // create new Scheduled Task (email)
+            TaskSchedulerClass scheduler = new TaskSchedulerClass();
+
+            // TODO: here we may need to specify the user
+            scheduler.Connect(null, null, null, null); // CD: use current machine, username, password, domain
+
+            // Registration
+            ITaskDefinition task = scheduler.NewTask(0);
+            task.RegistrationInfo.Author = "GRcalcul";
+            task.RegistrationInfo.Description = "email linux script task";
+            task.RegistrationInfo.Date = DateTime.Now.ToString("yyyy-MM-ddTHH:MM:ss");
+
+            // Settings
+            task.Settings.MultipleInstances = _TASK_INSTANCES_POLICY.TASK_INSTANCES_IGNORE_NEW;
+            task.Settings.DisallowStartIfOnBatteries = false;
+            task.Settings.StopIfGoingOnBatteries = false;
+            task.Settings.AllowHardTerminate = true;
+            task.Settings.StartWhenAvailable = true;
+            task.Settings.RunOnlyIfNetworkAvailable = true;
+            task.Settings.AllowDemandStart = true;
+            task.Settings.Hidden = false;
+            task.Settings.WakeToRun = true;
+            task.Settings.ExecutionTimeLimit = "PT1H"; // 1 hour
+            task.Settings.DeleteExpiredTaskAfter = "PT12M"; // 1 year
+
+            // Principals // doesn't work yet !
+            //task.Principal.RunLevel = _TASK_RUNLEVEL.TASK_RUNLEVEL_HIGHEST;
+            //task.Principal.UserId = "NT AUTHORITY\\LOCAL SERVICE";
+            //task.Principal.LogonType = _TASK_LOGON_TYPE.TASK_LOGON_SERVICE_ACCOUNT;
+
+            ITimeTrigger trigger = (ITimeTrigger)task.Triggers.Create(_TASK_TRIGGER_TYPE2.TASK_TRIGGER_TIME);
+            trigger.Id = "EmailTriggerForSlotRange_" + range.id_slotRange;
+            DateTime dt = range.EndRes.Add(new System.TimeSpan(0, 1, 0, 0)); // EndRes + 1h
+            trigger.StartBoundary = dt.ToString("yyyy-MM-ddTHH:MM:ss");
+            trigger.EndBoundary = dt.Add(new System.TimeSpan(0, 1, 0, 0)).ToString("yyyy-MM-ddTHH:MM:ss"); // remove the task from active tasks 1h later
+            trigger.ExecutionTimeLimit = "PT2M"; // 2 minutes
+
+            IExecAction action = (IExecAction)task.Actions.Create(_TASK_ACTION_TYPE.TASK_ACTION_EXEC);
+            action.Id = "EmailActionForSlotRange_" + range.id_slotRange;
+            action.Path = "C:\\script.vbs";
+            action.Arguments = range.id_slotRange.ToString();
+
+            // TODO: we may need to specify that this task shall be executed even if no user is logged in
+            // "Local System" with VARIANT VT_EMPTY ??
+
+            ITaskFolder root = scheduler.GetFolder("\\");
+            IRegisteredTask regTask = root.RegisterTaskDefinition(
+                "EmailTaskForSlotRange_" + range.id_slotRange,
+                task,
+                (int)_TASK_CREATION.TASK_CREATE_OR_UPDATE,
+                null, // username - we're using the logged in user of this web app
+                null, // password - we're using the logged in user of this web app
+                _TASK_LOGON_TYPE.TASK_LOGON_INTERACTIVE_TOKEN);
+
+            regTask.Run(null);
+        }
+
+        // this method filters to allow only localhost requests
+        public ActionResult EmailScript(int id)
+        {
+            if (Request.Url.Host != "localhost" && Request.UserHostAddress != "127.0.0.1")
+            {
+                throw new Exception("access denied");
+            }
+
+            SlotRange range = SlotRangeModel.GetSlotRange(id);
+            if (range == null)
+            {
+                throw new Exception("invalid id");
+            }
+
+            string script = range.GenerateScript();
+
+            // send script to resourceManager(s) via E-Mail
+            System.Net.Mail.MailMessage message = new System.Net.Mail.MailMessage();
+            message.From = new System.Net.Mail.MailAddress("dontreply@gr-calcul.com");
+
+            // TODO get email address of resource manager
+            message.To.Add(new System.Net.Mail.MailAddress("chris.fribourg@gmail.com"));
+            message.IsBodyHtml = false;
+            message.Subject = "Script Linux pour le SlotRange '" + range.id_slotRange;
+            message.BodyEncoding = System.Text.Encoding.GetEncoding("utf-8");
+            message.Body = script;
+
+            System.Net.Mail.SmtpClient client = new System.Net.Mail.SmtpClient();
+            client.Send(message);
+
+            return View(range); // can be implemented for testing purposes
         }
     }
 }
