@@ -38,7 +38,8 @@ namespace GR_Calcul.Controllers
                 case PersonType.ResourceManager:
                     return View(model.ListCourses());
                 default:
-                    throw new Exception("Access denied");
+                    SessionManager.RedirectAccessDenied(HttpContext.Request.RequestContext);
+                    return null;
             }
         }
         //
@@ -55,7 +56,6 @@ namespace GR_Calcul.Controllers
         [DuffAuthorize(PersonType.Responsible, PersonType.User)]
         public ActionResult Details(int id)
         {
-            Exception ex = new Exception("Access denied");       
             switch (SessionManager.GetCurrentUserRole(HttpContext.User.Identity.Name))
             {
                 case PersonType.Responsible:
@@ -66,12 +66,20 @@ namespace GR_Calcul.Controllers
                     {
                         if (model.IsUserSubscribed((int)k, id))
                             return View(CourseModel.GetCourse(id));
-                        else throw ex;
+                        else
+                        {
+                            SessionManager.RedirectAccessDenied(HttpContext.Request.RequestContext);
+                            return null;
+                        }
                     }
                     else
-                        throw ex;
+                    {
+                        SessionManager.RedirectAccessDenied(HttpContext.Request.RequestContext);
+                        return null;
+                    }
                 default:
-                    throw ex;
+                    SessionManager.RedirectAccessDenied(HttpContext.Request.RequestContext);
+                    return null;
             }
         }
 
@@ -130,7 +138,8 @@ namespace GR_Calcul.Controllers
             }
             else
             {
-                throw new Exception("access denied");
+                SessionManager.RedirectAccessDenied(HttpContext.Request.RequestContext);
+                return null;
             }
         }
 
@@ -158,7 +167,8 @@ namespace GR_Calcul.Controllers
             }
             else
             {
-                throw new Exception("access denied");
+                SessionManager.RedirectAccessDenied(HttpContext.Request.RequestContext);
+                return null;
             }
         }
         //
@@ -173,7 +183,8 @@ namespace GR_Calcul.Controllers
             }
             else
             {
-                throw new Exception("access denied");
+                SessionManager.RedirectAccessDenied(HttpContext.Request.RequestContext);
+                return null;
             }
         }
         //
@@ -197,7 +208,8 @@ namespace GR_Calcul.Controllers
             }
             else
             {
-                throw new Exception("access denied");
+                SessionManager.RedirectAccessDenied(HttpContext.Request.RequestContext);
+                return null;
             }
         }
         //
@@ -212,7 +224,8 @@ namespace GR_Calcul.Controllers
             }
             else
             {
-                throw new Exception("access denied");
+                SessionManager.RedirectAccessDenied(HttpContext.Request.RequestContext);
+                return null;
             }
         }
 
@@ -239,7 +252,8 @@ namespace GR_Calcul.Controllers
             }
             else
             {
-                throw new Exception("access denied");
+                SessionManager.RedirectAccessDenied(HttpContext.Request.RequestContext);
+                return null;
             }
         }
 

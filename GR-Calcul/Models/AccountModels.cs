@@ -9,6 +9,7 @@ using System.Web.Mvc;
 using System.Web.Security;
 using System.Data.SqlClient;
 using System.Data;
+using GR_Calcul.Misc;
 
 namespace GR_Calcul.Models
 {
@@ -51,7 +52,7 @@ namespace GR_Calcul.Models
             string username = null;
             try
             {
-                SqlConnection db = new SqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString);
+                SqlConnection db = new SqlConnection(ConnectionManager.GetConnectionString()/*System.Configuration.ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString*/);
                 SqlTransaction transaction;
                 db.Open();
 
@@ -95,7 +96,7 @@ namespace GR_Calcul.Models
             bool valid = false;
             try
             {
-                SqlConnection db = new SqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString);
+                SqlConnection db = new SqlConnection(ConnectionManager.GetConnectionString() /*System.Configuration.ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString*/);
                 SqlTransaction transaction;
                 db.Open();
 
@@ -168,7 +169,7 @@ namespace GR_Calcul.Models
                 throw new NoNullAllowedException();
             }
 
-			SqlConnection db = new SqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString);
+			SqlConnection db = new SqlConnection(ConnectionManager.GetConnectionString() /*System.Configuration.ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString*/);
             SqlTransaction transaction;
             db.Open();
 
