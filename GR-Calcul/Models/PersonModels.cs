@@ -324,7 +324,7 @@ namespace GR_Calcul.Models
 
             try
             {
-                SqlConnection db = new SqlConnection(connectionString);
+                SqlConnection db = new SqlConnection("");
                 SqlTransaction transaction;
 
                 db.Open();

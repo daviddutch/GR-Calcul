@@ -24,25 +24,31 @@
 		    }
 		</tr>
 		<tr class="subTitle">
-			<th class="empty">&nbsp;</th>
+			<th class="empty withborder">&nbsp;</th>
             @for (int i = 0; i < slotRange.Slotdate.Count; i++)
 		    {
                 DateTime date = slotRange.Slotdate[i];
 			    string id = "slotRow" + i;
 			    string value = String.Format("{0:dd/MM/yyyy}", date);
+                int j = 0;
 
                 foreach (var slot in slotRange.GetSlotsForDate(date))
 				{
-					int startHour = slot.Start.Hour;
-					int startMinute = slot.Start.Minute;
-					int endHour = slot.End.Hour;
-					int endMinute = slot.End.Minute;
-					string start = startHour + ":" + startMinute;
-					string end = endHour + ":" + endMinute;
-					
-					<th>@start - @end</th>
-				}
-		    }
+					string start = slot.getFormatedStartTime();
+                    string end = slot.getFormatedEndTime();
+
+                    j++;
+                    
+                    if (j<slotRange.GetSlotsForDate(date).Count)
+                    {
+					    <th>@start-@end</th>
+                    }
+                    else
+                    {
+                        <th class="withborder">@start-@end</th>
+                    }
+                }
+            }
 		</tr>
 	</thead>
 	<tbody>
@@ -52,9 +58,9 @@
 			<th>@person.FirstName @person.LastName</th>
 
             @for (int i = 0; i < slotRange.Slotdate.Count; i++)
-		    {
+            {
                 foreach (var slot in slotRange.GetSlotsForDate(slotRange.Slotdate[i]))
-				{
+                {
                     GR_Calcul.Models.Reservation reservation = slot.getReservation(person.ID);
                     if (reservation != null)
                     {

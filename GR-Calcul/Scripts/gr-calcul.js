@@ -21,17 +21,32 @@ function loadTooltips(selector) {
             opacity: 0.7
 
         });
-    });	
+    });
+}
+
+function reserve(radio, reserve) {
+
+    $.getJSON("/SlotRange/Reserve/" + $(radio).val() + "?reserve=" + reserve, null, function (data) {
+        if (data.Success) {
+            if (reserve) {
+                $(radio).parent().parent().find("td").removeClass("reserved");
+                $(radio).parent().addClass("reserved");
+            } else {
+                $(radio).parent().parent().find("td").removeClass("reserved");
+            }
+        } else {
+            alert(data.Message + "\nVeuillez recharger la page pour ressayer de faire votre réservation.");
+        }
+    });
 }
 
 $(document).ready(function () {
 
     $(".slotRangeRow input:radio").change(function () {
         if ($(this).is(":checked")) {
-            $(this).parent().parent().find("td").removeClass("reserved");
-            $(this).parent().addClass("reserved");
+            reserve(this, true);
         } else {
-            $(this).parent().parent().find("td").removeClass("reserved");
+            reserve(this, false);
         }
     });
 
@@ -40,7 +55,7 @@ $(document).ready(function () {
         if ($(this).parent().hasClass("reserved")) {
             $(this).attr("checked", false).trigger("change");
         } else {
-            $(this).attr("checked", true).trigger("change");
+            $(this).attr("checked", true);
         }
     });
 

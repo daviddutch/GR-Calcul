@@ -277,12 +277,20 @@ form label{
     }
 	.slotRange thead {
 		background:#555;
+		text-align:center;
+	}
+	.slotRange thead th {
+	    border-right:1px solid #fff;
 	}
 
 	.slotRange thead .subTitle th{
 		font-size:11px;
 		white-space: nowrap;
 		border-bottom: 3px solid #fff;
+		border-right:none;
+	}
+	.slotRange thead .subTitle th.withborder {
+	    border-right:1px solid #fff;
 	}
 	.slotRange th, .slotRange th a {
 		font-size: 14px;
@@ -316,6 +324,11 @@ form label{
 	.slotRange .reserved {
 	    text-align:center;
 	    background:#D1F3D1;
+	    font-weight:bold;
+	}
+	.slotRange .occupied {
+	    text-align:center;
+	    background:#888;
 	    font-weight:bold;
 	}
 	
