@@ -249,7 +249,7 @@ namespace GR_Calcul.Controllers
         [DuffAuthorize(PersonType.User)]
         public ActionResult Subscribe(int id)
         {
-            Course course = model.GetCourse(id);
+            Course course = CourseModel.GetCourse(id);
             course.Key = "";
             return View(course);
         }
@@ -263,7 +263,7 @@ namespace GR_Calcul.Controllers
         {            
             try
             {
-                if (model.GetCourse(id).Key == course.Key)
+                if (CourseModel.GetCourse(id).Key == course.Key)
                 {
                     course.Subscribe(SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name));
                     return RedirectToAction("ListMyCourse");
