@@ -13,8 +13,6 @@ namespace GR_Calcul.Models
 
     public class Room
     {
-
-
         [HiddenInput(DisplayValue = false)]
         public int ID { get; set; }
 
@@ -40,7 +38,7 @@ namespace GR_Calcul.Models
     public class RoomModel
     {
 
-        static private String connectionString = ConnectionManager.GetConnectionString();//System.Configuration.ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString;
+        static private String connectionString = ConnectionManager.GetConnectionString();
 
         public List<Room> ListRooms()
         {

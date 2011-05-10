@@ -235,7 +235,7 @@ namespace GR_Calcul.Models
     }
     public class CourseModel
     {
-        static private String connectionString = ConnectionManager.GetConnectionString();//System.Configuration.ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString;
+        static private String connectionString = ConnectionManager.GetConnectionString();
 
         public Boolean IsUserSubscribed(int userId, int courseId)
         {
@@ -251,7 +251,7 @@ namespace GR_Calcul.Models
                 try
                 {
                     SqlCommand cmd = new SqlCommand("SELECT * FROM Subscription " +
-                        "WHERE id_person=@id AND id_course=@course;", db, transaction);
+                                                    "WHERE id_person=@id AND id_course=@course;", db, transaction);
 
                     cmd.Parameters.Add("@id", SqlDbType.Int).Value = userId;
                     cmd.Parameters.Add("@course", SqlDbType.Int).Value = courseId;
@@ -491,8 +491,9 @@ namespace GR_Calcul.Models
                 try
                 {
                     SqlCommand cmd = new SqlCommand("SELECT S.id_person " +
-                                                    "FROM Subscription S;", db, transaction);
-
+                                                    "FROM Subscription S " +
+                                                    "WHERE id_course=@id_course;", db, transaction);
+                    cmd.Parameters.Add("@id_course", SqlDbType.Int).Value = id_course;
                     SqlDataReader rdr = cmd.ExecuteReader();
 
                     PersonModel personModel = new PersonModel();
