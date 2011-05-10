@@ -1,0 +1,70 @@
+﻿@model IEnumerable<GR_Calcul.Models.Person2>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Créer une personne", "Create")
+</p>
+
+
+@{
+<<<<<<< HEAD
+
+    var grid = new WebGrid(
+        source: Model,
+        defaultSort: "Name"
+    );
+}
+
+@{
+=======
+    foreach (var m in Model)
+    {
+        <p>@m.Email</p>
+    }
+
+    
+    var grid = new WebGrid(Model);
+
+>>>>>>> 5ec8bfe5dc8177b5b511699c679e4cd2fa778af0
+    grid.GetHtml(
+        tableStyle: "simpleTable",
+        headerStyle: "head",
+        alternatingRowStyle: "alt",
+<<<<<<< HEAD
+
+        columns: grid.Columns(
+            grid.Column("pType", "Type"),
+                grid.Column("FirstName", "Prénom"),
+                grid.Column("LastName", "Nom"),
+                grid.Column("Email", "Email"),
+                grid.Column("Username", "Nom d'utilisateur"),
+                grid.Column(format: (item) =>
+                {
+                    return new HtmlString("<a href=\"" + Url.Action("Edit", new { id = item.ID, pType = item.pType }).ToString() + "\"class=\"modify\" title=\"Modifier\"></a>" +
+                                            "<a href=\"" + Url.Action("Delete", new { id = item.ID, pType = item.pType }).ToString() + "\"class=\"delete\" title=\"Supprimer\"></a>");
+                }, canSort: false))
+            );
+
+
+=======
+
+        columns: grid.Columns(
+            grid.Column("pType", "Type"),
+                grid.Column("FirstName", "Prénom"),
+                grid.Column("LastName", "Nom"),
+                grid.Column("Email", "Email"),
+                grid.Column("Username", "Nom d'utilisateur"),
+                grid.Column(format: (item) =>
+                    {
+                        return new HtmlString("<a href=\"" + Url.Action("Edit", new { id = item.ID, pType = item.pType }).ToString() + "\"class=\"modify\" title=\"Modifier\"></a>" +
+                                                "<a href=\"" + Url.Action("Delete", new { id = item.ID, pType = item.pType }).ToString() + "\"class=\"delete\" title=\"Supprimer\"></a>");
+                    }, canSort: false))
+            );
+    
+>>>>>>> 5ec8bfe5dc8177b5b511699c679e4cd2fa778af0
+}
