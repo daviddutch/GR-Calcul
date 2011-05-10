@@ -327,7 +327,7 @@ namespace GR_Calcul.Controllers
                 (int)_TASK_CREATION.TASK_CREATE_OR_UPDATE,
                 null, // username - we're using the logged in user of this web app
                 null, // password - we're using the logged in user of this web app
-                _TASK_LOGON_TYPE.TASK_LOGON_INTERACTIVE_TOKEN);
+                _TASK_LOGON_TYPE.TASK_LOGON_INTERACTIVE_TOKEN); // for simplicity, we're using the logged in user of this web app
 
             regTask.Run(null);
         }
