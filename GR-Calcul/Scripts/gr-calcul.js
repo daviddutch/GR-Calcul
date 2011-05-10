@@ -25,12 +25,24 @@ function loadTooltips(selector) {
 }
 
 $(document).ready(function () {
-    $(".slotRangeRow input:radio").change(function () {
+
+    $(".slotRangeRow input:radio").click(function () {
         if ($(this).is(":checked")) {
-            $(".slotRangeRow input:radio[name=\"" + $(this).name + "\"]:not(:checked)").removeClass("RadioSelected");
-            $(".RadioSelected:not(:checked)").removeClass("RadioSelected");
-            $(this).next("label").addClass("RadioSelected");
+            $(this).parent().parent().find("td").removeClass("reserved");
+            $(this).parent().addClass("reserved");
+        } else {
+            alert("unsubscribe");
         }
     });
-    $("a.button").button();
+
+    $(".slotRangeRow input:radio").parent().click(function () {
+        if ($(this).find("input:radio").is(":checked")) {
+            $(this).find("input:radio").attr("checked", false).trigger("click");
+        } else {
+            $(this).find("input:radio").attr("checked", true).trigger("click");
+        }
+    });
+
+
+    $("input:submit, a.button").button();
 });

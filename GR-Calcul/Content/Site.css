@@ -188,9 +188,8 @@ form label{
 		border:1px solid #3333ff;
 		background: #fff;
 	}
-	button {
-		margin-left:25px;
-		padding:3px 7px 3px 7px;
+	.button {
+		margin-bottom:5px;
 	}
 	fieldset {
         border:1px solid #ddd;
@@ -252,6 +251,9 @@ form label{
 		border-bottom: 1px dotted #555;
 		color: #333;
 		padding: 6px 8px;
+	}
+	.simpleTable .alt td {
+	    background:#bbb;
 	}
 	.simpleTable tbody tr:hover td {
 		color: #3333ff;
