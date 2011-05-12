@@ -4,41 +4,32 @@
     ViewBag.Title = "Index";
 }
 
-<h2>Index</h2>
+<h2>Liste des personnes</h2>
 
 <p>
-    @Html.ActionLink("Créer une personne", "Create")
+    <a href="@Url.Action("Create")" class="button" title="Créer cours">Créer une personne</a>
 </p>
 
-
 @{
-    foreach (var m in Model)
-    {
-        <p>@m.Email</p>
-        defaultSort: "Name"
+    var grid = new WebGrid(
+        source: Model,
+        defaultSort: "FirstName"
     );
-    }
-
-    
-    var grid = new WebGrid(Model);
-
-    grid.GetHtml(
-        tableStyle: "simpleTable",
-        headerStyle: "head",
-        alternatingRowStyle: "alt",
-
-        columns: grid.Columns(
-            grid.Column("pType", "Type"),
-                grid.Column("FirstName", "Prénom"),
-                grid.Column("LastName", "Nom"),
-                grid.Column("Email", "Email"),
-                grid.Column("Username", "Nom d'utilisateur"),
-                grid.Column(format: (item) =>
-                    {
-                        return new HtmlString("<a href=\"" + Url.Action("Edit", new { id = item.ID, pType = item.pType }).ToString() + "\"class=\"modify\" title=\"Modifier\"></a>" +
-                                                "<a href=\"" + Url.Action("Delete", new { id = item.ID, pType = item.pType }).ToString() + "\"class=\"delete\" title=\"Supprimer\"></a>");
-                    }, canSort: false))
-            );
-
-    
 }
+
+@grid.GetHtml(
+tableStyle: "simpleTable",
+headerStyle: "head",
+alternatingRowStyle: "alt",
+columns: grid.Columns(
+        grid.Column("FirstName", "Prénom"),
+        grid.Column("LastName", "Nom"),
+        grid.Column("Email", "Email"),
+        grid.Column("Username", "Nom d'utilisateur"),
+                        grid.Column(format: (item) =>
+                        {
+                            return new HtmlString("<a href=\"" + Url.Action("Edit", new { id = item.ID, pType = item.pType }).ToString() + "\"class=\"modify\" title=\"Modifier\"></a>" +
+                                                    "<a href=\"" + Url.Action("Delete", new { id = item.ID, pType = item.pType }).ToString() + "\"class=\"delete\" title=\"Supprimer\"></a>");
+                        }, canSort: false)
+
+        ))

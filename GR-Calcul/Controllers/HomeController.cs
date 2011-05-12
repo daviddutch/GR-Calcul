@@ -10,7 +10,7 @@ namespace GR_Calcul.Controllers
     {
         public ActionResult Index()
         {
-            ViewBag.Message = "Bienvenue sur le site de GRID";
+            ViewBag.Message = "Bienvenue sur le site de GR-Calcul";
 
             return View();
         }

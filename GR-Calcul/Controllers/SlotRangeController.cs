@@ -20,7 +20,7 @@ namespace GR_Calcul.Controllers
 
         private void InitViewbag()
         {
-            ViewBag.IdCourse = new SelectList(courseModel.ListCourses(SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name)), "ID", "Name");
+            ViewBag.IdCourse = new SelectList(CourseModel.ListCourses(SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name)), "ID", "Name");
             ViewBag.SlotDuration = new SelectList(Slot.durationList, "Text", "Text");
         }
 
@@ -34,7 +34,7 @@ namespace GR_Calcul.Controllers
             Course course = CourseModel.GetCourse(id);
             viewModel.Course = course;
             viewModel.SlotRanges = course.GetSlotRangesForCourse();
-            viewModel.Course.Students = courseModel.getCourseStudents(id);
+            viewModel.Course.Students = CourseModel.getCourseStudents(id);
             return View(viewModel);
         }
 
@@ -175,7 +175,7 @@ namespace GR_Calcul.Controllers
             int? rId = range.GetResponsible();
             if (IsAuthorized(range))
             {
-                ViewBag.IdCourse = new SelectList(courseModel.ListCourses(SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name)), "ID", "Name", range.IdCourse);
+                ViewBag.IdCourse = new SelectList(CourseModel.ListCourses(SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name)), "ID", "Name", range.IdCourse);
                 ViewBag.SlotDuration = new SelectList(Slot.durationList, "Text", "Text", range.SlotDuration);
                 return View(range);
             }
@@ -208,7 +208,7 @@ namespace GR_Calcul.Controllers
                         return View("Error", exx);
                     }
                 }
-                ViewBag.IdCourse = new SelectList(courseModel.ListCourses(SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name)), "ID", "Name", range.IdCourse);
+                ViewBag.IdCourse = new SelectList(CourseModel.ListCourses(SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name)), "ID", "Name", range.IdCourse);
                 ViewBag.SlotDuration = new SelectList(Slot.durationList, "Text", "Text", range.SlotDuration);
 
                 ModelState.AddModelError("", "Il y a des données incorrectes. Corriger les erreurs!");

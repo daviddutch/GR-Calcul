@@ -11,6 +11,9 @@ using GR_Calcul.Misc;
 
 namespace GR_Calcul.Models
 {
+    /// <summary>
+    /// The Course class contains all fields necessary to describe a course
+    /// </summary>
     public class Course
     {
         static private String connectionString = ConnectionManager.GetConnectionString();//System.Configuration.ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString;
@@ -34,6 +37,8 @@ namespace GR_Calcul.Models
         public int Responsible { get; set; }
 
         public string ResponsibleString { get; set; }
+
+        public bool MyCourse { get; set; }
 
         //[Required]
         [Timestamp]
@@ -66,7 +71,10 @@ namespace GR_Calcul.Models
             Responsible = id_person;
             Students = new List<Person>();
         }
-
+        /// <summary>
+        /// Gets all the slot ranges for the current course
+        /// </summary>
+        /// <returns>Return the slot ranges associated with the course</returns>
         public List<SlotRange> GetSlotRangesForCourse()
         {
             List<SlotRange> ranges = new List<SlotRange>();
@@ -135,7 +143,7 @@ namespace GR_Calcul.Models
 
                         foreach (var slot in range.Slots)
                         {
-                            //get subscriptions
+                            //get reservations
                             cmd = new SqlCommand("SELECT [id_person], [id_slot], [numberMachines] FROM Reservation WHERE id_slot=@id;", db, transaction);
                             cmd.Parameters.Add("@id", SqlDbType.Int).Value = slot.ID;
                             rdr = cmd.ExecuteReader();
@@ -184,7 +192,10 @@ namespace GR_Calcul.Models
 
             return allScripts.ToString();
         }
-
+        /// <summary>
+        /// Subscribes a user to the current course
+        /// </summary>
+        /// <param name="id_person">The id of the user</param>
         public void Subscribe(int? id_person)
         {
             try
@@ -219,25 +230,21 @@ namespace GR_Calcul.Models
             }
         }
     }
-    public class Subscription
-    {
-        public int id_person { get; set; }
-        public int id_course { get; set; }
 
-        public String Name { get; set; }
-
-        public Subscription(int id_person, int id_course, String name)
-        {
-            this.id_person = id_person;
-            this.id_course = id_course;
-            this.Name = name;
-        }
-    }
+    /// <summary>
+    /// Class containing all functions needed to interact with the course informations
+    /// </summary>
     public class CourseModel
     {
         static private String connectionString = ConnectionManager.GetConnectionString();
 
-        public Boolean IsUserSubscribed(int userId, int courseId)
+        /// <summary>
+        /// Checks if the user is subscribed to the given course
+        /// </summary>
+        /// <param name="userId">The id of the user to be tested</param>
+        /// <param name="courseId">The id of the course to be tested</param>
+        /// <returns>Returns true if the user is subscribed to the course</returns>
+        public static Boolean IsUserSubscribed(int userId, int courseId)
         {
             Boolean ret = false;
             try
@@ -277,7 +284,35 @@ namespace GR_Calcul.Models
             }
             return ret;
         }
-        public List<Course> ListMyCourses(int? id_user)
+        /// <summary>
+        /// Gets the whole list of the courses with information to know if the user is subscribed or not to the course
+        /// </summary>
+        /// <param name="id_user">The id of the user</param>
+        /// <returns>Returns the course list</returns>
+        public static List<Course> ListCoursesUser(int? id_user)
+        {
+            List<Course> list = new List<Course>();
+
+            if (id_user == null) return list;
+
+            list = ListActiveCourses();
+
+            foreach (Course course in list)
+            {
+                if (IsUserSubscribed((int)id_user, course.ID))
+                {
+                    course.MyCourse = true;
+                }
+            }
+
+            return list;
+        }
+        /// <summary>
+        /// Gets the list of the courses for the given user
+        /// </summary>
+        /// <param name="id_user">The id of the user</param>
+        /// <returns>Returns the course list of the user</returns>
+        public static List<Course> ListMyCourses(int? id_user)
         {
             List<Course> list = new List<Course>();
 
@@ -297,7 +332,7 @@ namespace GR_Calcul.Models
                                                     "FROM Course C " +
                                                     "INNER JOIN Responsible R ON R.id_person = C.id_person " +
                                                     "INNER JOIN Subscription S ON S.id_course = C.id_course " +
-                                                    "WHERE S.id_person=@id_person; ",
+                                                    "WHERE S.id_person=@id_person AND C.active=1; ",
                                                     db, transaction);
 
                     cmd.Parameters.Add("@id_person", SqlDbType.Int).Value = id_user;
@@ -319,7 +354,12 @@ namespace GR_Calcul.Models
 
             return list;
         }
-        public List<Course> ListCourses(int? responsibleId)
+        /// <summary>
+        /// Gets the list of the courses for the given responsible
+        /// </summary>
+        /// <param name="responsibleId">The id of the responsible</param>
+        /// <returns>Returns the course list of the responsible</returns>
+        public static List<Course> ListCourses(int? responsibleId)
         {
             List<Course> list = new List<Course>();
 
@@ -359,7 +399,51 @@ namespace GR_Calcul.Models
 
             return list;
         }
-        public List<Course> ListCourses()
+        /// <summary>
+        /// Gets the list of all courses that are active
+        /// </summary>
+        /// <returns>Returns the active course list</returns>
+        public static List<Course> ListActiveCourses()
+        {
+            List<Course> list = new List<Course>();
+
+            try
+            {
+                SqlConnection db = new SqlConnection(connectionString);
+                SqlTransaction transaction;
+
+                db.Open();
+
+                transaction = db.BeginTransaction(IsolationLevel.ReadUncommitted);
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("SELECT C.id_course, C.name, C.[key], C.active, R.id_person, R.firstname, R.lastname " +
+                                                    "FROM Course C " +
+                                                    "INNER JOIN Responsible R ON R.id_person = C.id_person " +
+                                                    "WHERE C.active=1;", db, transaction);
+
+                    list = ListCourses(cmd);
+
+                    transaction.Commit();
+                }
+                catch
+                {
+                    transaction.Rollback();
+                }
+                db.Close();
+            }
+            catch
+            {
+
+            }
+
+            return list;
+        }
+        /// <summary>
+        /// Gets the list of all courses
+        /// </summary>
+        /// <returns>Returns the whole course list</returns>
+        public static List<Course> ListCourses()
         {
             List<Course> list = new List<Course>();
 
@@ -394,7 +478,12 @@ namespace GR_Calcul.Models
 
             return list;
         }
-        private List<Course> ListCourses(SqlCommand cmd)
+        /// <summary>
+        /// Gets the course liste by executing the given Sql command
+        /// </summary>
+        /// <param name="cmd">The sql command to be executed</param>
+        /// <returns>Returns the course list</returns>
+        private static List<Course> ListCourses(SqlCommand cmd)
         {
             List<Course> list = new List<Course>();
 
@@ -421,8 +510,11 @@ namespace GR_Calcul.Models
 
             return list;
         }
-
-
+        /// <summary>
+        /// Gets the course object for a given course id
+        /// </summary>
+        /// <param name="id">The id of the course</param>
+        /// <returns>Returns the course</returns>
         public static Course GetCourse(int id)
         {
             Course course = null;
@@ -476,7 +568,12 @@ namespace GR_Calcul.Models
 
             return course;
         }
-        public List<Person> getCourseStudents(int id_course)
+        /// <summary>
+        /// Gets the list of user subscribed to the given course
+        /// </summary>
+        /// <param name="id_course">The id of the course</param>
+        /// <returns>Returns the person list subscribed to the course</returns>
+        public static List<Person> getCourseStudents(int id_course)
         {
             List<Person> list = new List<Person>();
 
@@ -520,7 +617,11 @@ namespace GR_Calcul.Models
 
             return list;
         }
-        public void CreateCourse(Course course)
+        /// <summary>
+        /// Insert's the course in the database
+        /// </summary>
+        /// <param name="course">The course to be inserted</param>
+        public static void CreateCourse(Course course)
         {
             try
             {
@@ -571,8 +672,11 @@ namespace GR_Calcul.Models
 
             }
         }
-
-        public void UpdateCourse(Course course)
+        /// <summary>
+        /// Update the course in the database
+        /// </summary>
+        /// <param name="course">The course to be updated</param>
+        public static void UpdateCourse(Course course)
         {
             bool updated = true;
 
@@ -633,8 +737,11 @@ namespace GR_Calcul.Models
             }
             if (!updated) throw new Exception("timestamp");
         }
-
-        public void DeleteCourse(int id)
+        /// <summary>
+        /// Delete's the course in the database
+        /// </summary>
+        /// <param name="id">The id of the course</param>
+        public static void DeleteCourse(int id)
         {
             try
             {
