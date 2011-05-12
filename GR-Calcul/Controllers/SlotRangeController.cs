@@ -360,7 +360,7 @@ namespace GR_Calcul.Controllers
 
             // send script to resourceManager(s) via E-Mail
             System.Net.Mail.MailMessage message = new System.Net.Mail.MailMessage();
-            message.From = new System.Net.Mail.MailAddress("dontreply@gr-calcul.com");
+            //message.From = new System.Net.Mail.MailAddress("dontreply@gr-calcul.com");
             message.To.Add(resMgrs);
             message.IsBodyHtml = false;
             message.Subject = "Script Linux pour le SlotRange '" + range.id_slotRange + "'";
