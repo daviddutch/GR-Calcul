@@ -99,7 +99,7 @@ namespace GR_Calcul.Models
 
         public List<string> Endz { get; set; }
 
-        public List<Int32> Machines { get; set; }
+        public List<Machine> Machines { get; set; }
 
         public List<DateTime> Slotdate { get; set; }
 
@@ -134,7 +134,7 @@ namespace GR_Calcul.Models
             Beginning = DateTime.Now;
 
             Slots = new List<Slot>();
-            Machines = new List<Int32>();
+            Machines = new List<Machine>();
             Startz = new List<string>();
             Endz = new List<string>();
             Slotdate = new List<DateTime>();
@@ -253,6 +253,10 @@ namespace GR_Calcul.Models
         public void InsertCommandXML(Person person, Slot slot, List<Machine> machines)
         {
             bool updated = false;
+            if (machines == null)
+            {
+                machines = new List<Machine>();
+            }
 
             try
             {
@@ -476,6 +480,8 @@ namespace GR_Calcul.Models
 
         public int ID { get; set; }
 
+        public int id_slotRange { get; set;}
+
         public List<Reservation> Reservations { get; set; }
 
         [Required]
@@ -510,6 +516,14 @@ namespace GR_Calcul.Models
             End = end;
             ID = id_slot;
             Reservations = new List<Reservation>();
+        }
+
+        public Slot(int id_slot, DateTime start, DateTime end, int id_slotRange)
+        {
+            Start = start;
+            End = end;
+            ID = id_slot;
+            this.id_slotRange = id_slotRange;
         }
 
         public string getFormatedStartTime()
@@ -622,8 +636,9 @@ namespace GR_Calcul.Models
                     }
 
                     //get machines
-                    SqlCommand cmd2 = new SqlCommand("SELECT [id_machine] " +
-                                                     "FROM MachineSlotRange " +
+                    SqlCommand cmd2 = new SqlCommand("SELECT M.[id_machine], [name], [IP], [id_room] " +
+                                                     "FROM MachineSlotRange MSR " +
+                                                     "JOIN Machine M ON M.id_machine=MSR.id_machine " +
                                                      "WHERE id_slotRange=@id;", db, transaction);
 
                     cmd2.Parameters.Add("@id", SqlDbType.Int).Value = id;
@@ -633,7 +648,11 @@ namespace GR_Calcul.Models
                     while (rdr2.Read())
                     {
                         int id_machine = rdr2.GetInt32(rdr2.GetOrdinal("id_machine"));
-                        range.Machines.Add(id_machine);
+                        string name = rdr2.GetString(rdr2.GetOrdinal("name"));
+                        string IP = rdr2.GetString(rdr2.GetOrdinal("IP"));
+                        int id_room = rdr2.GetInt32(rdr2.GetOrdinal("id_room"));
+                        Machine machine = new Machine(id_machine, name, IP, id_room);
+                        range.Machines.Add(machine);
                     }
                     rdr2.Close();
 
@@ -668,8 +687,10 @@ namespace GR_Calcul.Models
 
                     transaction.Commit();
                 }
-                catch
+                catch (Exception ex)
                 {
+                    System.Diagnostics.Debug.WriteLine(ex.Message);
+                    System.Diagnostics.Debug.WriteLine(ex.StackTrace);
                     transaction.Rollback();
                 }
                 finally
@@ -683,6 +704,69 @@ namespace GR_Calcul.Models
             }
 
             return range;
+        }
+
+        public static Slot GetSlot(int id)
+        {
+            Slot slot = null;
+
+            try
+            {
+                SqlConnection db = new SqlConnection(connectionString);
+                SqlTransaction transaction;
+
+                db.Open();
+
+                transaction = db.BeginTransaction(IsolationLevel.ReadCommitted);
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("SELECT [start], [end], [id_slotRange] " +
+                        "FROM Slot WHERE id_slot=@id;", db, transaction);
+
+
+                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
+
+                    SqlDataReader rdr = cmd.ExecuteReader();
+                    bool hasFound = false;
+                    if (rdr.Read())
+                    {
+                        DateTime start = rdr.GetDateTime(rdr.GetOrdinal("start"));
+                        DateTime end = rdr.GetDateTime(rdr.GetOrdinal("end"));
+                        int id_slotRange = rdr.GetInt32(rdr.GetOrdinal("id_slotRange"));
+
+                        slot = new Slot(id, start, end, id_slotRange);
+                        //range.Timestamp = rdr.GetInt32(rdr.GetOrdinal("timestamp"));
+                        //byte[] buffer = new byte[100];
+                        //rdr.GetBytes(rdr.GetOrdinal("timestamp"), 0, buffer, 0, 100);
+                        //slot.setTimestamp(buffer);
+                        hasFound = true;
+                    }
+                    rdr.Close();
+                    if (!hasFound)
+                    {
+                        return null;
+                    }
+
+                    transaction.Commit();
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(ex.Message);
+                    System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+
+                    transaction.Rollback();
+                }
+                finally
+                {
+                    db.Close();
+                }
+            }
+            catch
+            {
+
+            }
+
+            return slot;
         }
 
         public void CreateSlotRange(SlotRange range)
@@ -741,7 +825,7 @@ namespace GR_Calcul.Models
             }
         }
 
-        private void InsertMachines(int machine, int rangeId, SqlConnection db, SqlTransaction transaction)
+        private void InsertMachines(Machine machine, int rangeId, SqlConnection db, SqlTransaction transaction)
         {
             SqlCommand cmd3 = new SqlCommand("INSERT INTO MachineSlotRange(id_machine, id_slotRange) " +
                         "VALUES(@id_machine, @id_slotRange);", db, transaction);
@@ -749,7 +833,7 @@ namespace GR_Calcul.Models
             cmd3.Parameters.Add("@id_machine", SqlDbType.Int);
             cmd3.Parameters.Add("@id_slotRange", SqlDbType.Int);
 
-            cmd3.Parameters["@id_machine"].Value = machine;
+            cmd3.Parameters["@id_machine"].Value = machine.id_machine;
             cmd3.Parameters["@id_slotRange"].Value = rangeId;
 
             cmd3.ExecuteNonQuery();
@@ -1059,14 +1143,25 @@ namespace GR_Calcul.Models
 
 
                         cmd = new SqlCommand("INSERT INTO Reservation " +
-                                                       "(id_person, id_slot, numberMachines) " +
-                                                       "VALUES (@id_person, @id_slot, @numberMachines);", db, transaction);
+                                            "(id_person, id_slot, numberMachines) " +
+                                            "VALUES (@id_person, @id_slot, @numberMachines);", db, transaction);
 
                         cmd.Parameters.Add("@id_person", SqlDbType.Int).Value = id_person;
                         cmd.Parameters.Add("@id_slot", SqlDbType.Int).Value = id_slot;
                         cmd.Parameters.Add("@numberMachines", SqlDbType.Int).Value = numberMachines;
 
                         cmd.ExecuteNonQuery();
+
+                        // XML treatment follows here ..
+
+                        // get slot
+                        Slot slot = SlotRangeModel.GetSlot(id_slot);
+                        // get person
+                        Person user = (new PersonModel()).getPerson((int)id_person, PersonType.User);
+                        // get slotrange
+                        SlotRange range = SlotRangeModel.GetSlotRange(slot.id_slotRange);
+
+                        range.InsertCommandXML(user, slot, range.Machines);
                     }
                     else //slot already in use
                     {
@@ -1082,6 +1177,11 @@ namespace GR_Calcul.Models
                     System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
                     transaction.Rollback();
                     inserted = false;
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(ex.Message);
+                    System.Diagnostics.Debug.WriteLine(ex.StackTrace);
                 }
                 finally
                 {
@@ -1119,6 +1219,17 @@ namespace GR_Calcul.Models
                     cmd.Parameters.Add("@id_slot", SqlDbType.Int).Value = id_slot;
                     cmd.Parameters.Add("@id_person", SqlDbType.Int).Value = id_person;
                     cmd.ExecuteNonQuery();
+
+                    // XML treatment follows here ..
+
+                    // get slot
+                    Slot slot = SlotRangeModel.GetSlot(id_slot);
+                    // get person
+                    Person user = (new PersonModel()).getPerson((int)id_person, PersonType.User);
+                    // get slotrange
+                    SlotRange range = SlotRangeModel.GetSlotRange(slot.id_slotRange);
+
+                    range.DeleteCommandXML(user.Username);
 
                     transaction.Commit();
                 }

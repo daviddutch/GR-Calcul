@@ -117,7 +117,7 @@ namespace GR_Calcul.Controllers
 
         // GET: /Course/Script/5
         [DuffAuthorize(PersonType.ResourceManager)]
-        public ActionResult GenerateScript(int id)
+        public ActionResult Script(int id)
         {
             Course course = CourseModel.GetCourse(id);
             string allScripts = course.GenerateAllScripts();
