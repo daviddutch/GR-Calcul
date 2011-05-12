@@ -15,6 +15,9 @@ using System.Xml.Xsl;
 using System.IO;
 using GR_Calcul.Misc;
 
+/// <summary>
+/// Namespace containing all the classes related to the database
+/// </summary>
 namespace GR_Calcul.Models
 {
     public class CourseRangesViewModel

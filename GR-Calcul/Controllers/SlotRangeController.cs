@@ -10,9 +10,14 @@ using GR_Calcul.Misc;
 using System.Text;
 using TaskScheduler;
 
-
+/// <summary>
+/// Namespace containing all controllers
+/// </summary>
 namespace GR_Calcul.Controllers
-{ 
+{
+    /// <summary>
+    /// Class containing all actions related to the slotRange module
+    /// </summary>
     public class SlotRangeController : BaseController
     {
         private CourseModel courseModel = new CourseModel();

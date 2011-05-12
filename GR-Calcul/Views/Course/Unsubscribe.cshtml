@@ -1,0 +1,22 @@
+﻿@model GR_Calcul.Models.Course
+
+@{
+    ViewBag.Title = "Unsubscribe";
+}
+
+<h2>Se désinscrire</h2>
+
+<h3>Etes-vous sur de vouloir vous désinscrire de ce cours ? Ceci va supprimer toute vos réservations.</h3>
+<fieldset>
+    <legend>Le cours :</legend>
+        <p><b>Nom : </b>@Model.Name</p>
+        <p><b>Responsable : </b>@Model.ResponsibleString</p>
+</fieldset>
+@using (Html.BeginForm()) {
+    <p>
+        <input type="submit" value="Se désinscrire" /> |
+        @Html.ActionLink("Retour à la liste", "ListMyCourse")
+    </p>
+}
+
+
