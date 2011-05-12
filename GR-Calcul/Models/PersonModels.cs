@@ -108,9 +108,97 @@ namespace GR_Calcul.Models
         }
     }
 
+    public class Person2
+    {
+        [Required]
+        [Display(Name = "Type de personne")]
+        public PersonType pType { get; set; }
+
+        public int ID { get; set; }
+        [Required]
+        [Display(Name = "Nom")]
+        public string FirstName { get; set; }
+
+        [Required]
+        [Display(Name = "Prénom")]
+        public string LastName { get; set; }
+
+        [Required]
+        [Display(Name = "Email")]
+        public string Email { get; set; }
+
+        [Required]
+        [Display(Name = "Nom d'utilisateur")]
+        public string Username { get; set; }
+
+        [Required]
+        [Display(Name = "Mot de passe")]
+        public string Password { get; set; }
+
+        //[Required]
+        [Timestamp]
+        [HiddenInput(DisplayValue = false)]
+        public string Timestamp { get; set; }
+
+        public byte[] getByteTimestamp()
+        {
+            return Convert.FromBase64String(Timestamp);
+        }
+        public void setTimestamp(byte[] timestamp)
+        {
+            Timestamp = Convert.ToBase64String(timestamp);
+        }
+
+        public Boolean IsInRole(PersonType[] roles)
+        {
+            foreach (PersonType r in roles)
+            {
+                if (r.Equals(pType))
+                    return true;
+            }
+            return false;
+        }
+
+        public Person2(Person person) {
+            pType = person.pType;
+            ID = person.ID;
+            FirstName = person.FirstName;
+            LastName = person.LastName;
+            Email = person.Email;
+            Password = person.Password;
+            Username = person.Username;
+            Timestamp = person.Timestamp;
+        }
+
+        public Person2(PersonType type, int id_person, string firstName, string lastName, string username, string email, string password)
+        {
+            pType = type;
+            ID = id_person;
+            FirstName = firstName;
+            LastName = lastName;
+            Email = email;
+            Password = password;
+            Username = username;
+        }
+        public String toString()
+        {
+            return FirstName + " " + LastName;
+        }
+    }
+
     public class PersonModel
     {
         //static private String connectionString = ConnectionManager.GetConnectionString();//System.Configuration.ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString;
+
+        public static List<Person2> ConvertPersons(List<Person> list)
+        {
+            List<Person2> result = new List<Person2>(list.Count);
+            foreach (var p in list)
+            {
+                result.Add(new Person2(p));
+            }
+            return result;
+        }
 
         public List<Person> GetResponsibles()
         {
