@@ -10,7 +10,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.30319</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{00000000-0000-0000-0000-000000000000}</ProjectGuid>
+    <ProjectGuid>{CCABC619-F812-4C5A-9B69-49CC6299172B}</ProjectGuid>
     <SourceWebPhysicalPath>..\GR-Calcul</SourceWebPhysicalPath>
     <SourceWebProject>{3ECF2191-B258-4E55-8C65-9C45689AD30D}|GR-Calcul\GR-Calcul.csproj</SourceWebProject>
     <SourceWebVirtualPath>/GR-Calcul.csproj</SourceWebVirtualPath>

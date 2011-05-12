@@ -324,7 +324,11 @@ namespace GR_Calcul.Models
 
             try
             {
+<<<<<<< HEAD
                 SqlConnection db = new SqlConnection(ConnectionManager.GetUnauthentifiedConnectionString());
+=======
+                SqlConnection db = new SqlConnection("");
+>>>>>>> 35cb5015314a549b5cf528dca8353b7fa306d35f
                 SqlTransaction transaction;
 
                 db.Open();
@@ -522,7 +526,6 @@ namespace GR_Calcul.Models
                     System.Diagnostics.Debug.WriteLine(sqlError.Message);
                     System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
                     transaction.Rollback();
-                    throw sqlError;
                 }
                 db.Close();
             }
@@ -530,7 +533,6 @@ namespace GR_Calcul.Models
             {
                 System.Diagnostics.Debug.WriteLine(sqlError.Message);
                 System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
-                throw sqlError;
             }
 
             return person;

@@ -762,7 +762,12 @@ namespace GR_Calcul.Models
         {
             if (start.Count == end.Count && dt.Count > 0)
             {
-                int factor = (int)Math.Ceiling((float)start.Count / dt.Count);
+                int factor;
+                if(slotDuration == 0)
+                    factor = (int)Math.Ceiling((float)start.Count / dt.Count);
+                else 
+                    factor = (int)(24.0 / slotDuration);
+
                 for (int i = 0; i < start.Count; i++)
                 {
                     string st = start[i];
