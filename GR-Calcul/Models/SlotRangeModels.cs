@@ -715,6 +715,9 @@ namespace GR_Calcul.Models
                     cmd.ExecuteNonQuery();
 
                     int rangeId = Int32.Parse(sp.Value.ToString());
+
+                    range.id_slotRange = rangeId; // CD needed by Task Scheduler
+
                     InsertAllSlots(range, rangeId, db, transaction);
 
                     foreach (var machine in range.Machines)
@@ -762,7 +765,12 @@ namespace GR_Calcul.Models
         {
             if (start.Count == end.Count && dt.Count > 0)
             {
-                int factor = (int)Math.Ceiling((float)start.Count / dt.Count);
+                int factor;
+                if(slotDuration == 0)
+                    factor = (int)Math.Ceiling((float)start.Count / dt.Count);
+                else 
+                    factor = (int)(24.0 / slotDuration);
+
                 for (int i = 0; i < start.Count; i++)
                 {
                     string st = start[i];

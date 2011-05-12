@@ -121,7 +121,7 @@
                         string value = String.Format("{0:dd.MM.yyyy}", date);
                         
                         <tr id="@id" class="slotRow">
-                            <td><input novalidation="true" type="text" class="lollipop Slotdate" name="Slotdate" id="Slotdate" value="@value" size="8" /><a href="javascript:deleteRow('@id');" class="delete delRow"></a></td>
+                            <td colspan="2"><input novalidation="true" type="text" class="lollipop Slotdate" name="Slotdate" id="Slotdate" value="@value" size="8" /><a href="javascript:deleteRow('@id');" class="delete delRow"></a></td>
                             @foreach (var slot in Model.GetSlotsForDate(date))
                             {
                                 int startHour = slot.Start.Hour;
