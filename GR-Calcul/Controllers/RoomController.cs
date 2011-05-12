@@ -7,8 +7,14 @@ using GR_Calcul.Models;
 using System.Data.SqlClient;
 using GR_Calcul.Misc;
 
+/// <summary>
+/// Namespace containing all controllers
+/// </summary>
 namespace GR_Calcul.Controllers
 {
+    /// <summary>
+    /// Class containing all actions related to the room module
+    /// </summary>
     public class RoomController : BaseController
     {
 

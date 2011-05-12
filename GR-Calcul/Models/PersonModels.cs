@@ -9,6 +9,9 @@ using System.Data;
 using System.Web.Security;
 using GR_Calcul.Misc;
 
+/// <summary>
+/// Namespace containing all the classes related to the database
+/// </summary>
 namespace GR_Calcul.Models
 {
     // CD 2011-05-02: IMPORTANT: enum names must be perfectly identical to DB Table names!

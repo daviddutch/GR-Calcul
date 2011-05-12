@@ -9,6 +9,9 @@ using System.Data;
 using System.Web.Mvc;
 using GR_Calcul.Misc;
 
+/// <summary>
+/// Namespace containing all the classes related to the database
+/// </summary>
 namespace GR_Calcul.Models
 {   
     public class Machine
