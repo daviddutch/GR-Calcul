@@ -182,7 +182,6 @@ namespace GR_Calcul.Controllers
         [DuffAuthorize(PersonType.Responsible)]
         public ActionResult Edit(int id)
         {
-            Exception ex = new Exception("Access denied");
             SlotRange range = SlotRangeModel.GetSlotRange(id);
             if (range == null)
             {
@@ -197,7 +196,8 @@ namespace GR_Calcul.Controllers
             }
             else
             {
-                throw ex;
+                SessionManager.RedirectAccessDenied(HttpContext.Request.RequestContext);
+                return null;
             }
         }
 
@@ -208,7 +208,6 @@ namespace GR_Calcul.Controllers
         [DuffAuthorize(PersonType.Responsible)]
         public ActionResult Edit(int id, SlotRange range)
         {
-            Exception ex = new Exception("Access denied");
             if (IsAuthorized(range))
             {
                 if (ModelState.IsValid)
@@ -238,7 +237,8 @@ namespace GR_Calcul.Controllers
             }
             else
             {
-                throw ex;
+                SessionManager.RedirectAccessDenied(HttpContext.Request.RequestContext);
+                return null;
             }
         }
 
@@ -248,7 +248,6 @@ namespace GR_Calcul.Controllers
         [DuffAuthorize(PersonType.Responsible)]
         public ActionResult Delete(int id)
         {
-            Exception ex = new Exception("Access denied");
             SlotRange range = SlotRangeModel.GetSlotRange(id);
             if (range == null)
             {
@@ -261,7 +260,8 @@ namespace GR_Calcul.Controllers
             }
             else
             {
-                throw ex;
+                SessionManager.RedirectAccessDenied(HttpContext.Request.RequestContext);
+                return null;
             }
         }
 
@@ -272,7 +272,6 @@ namespace GR_Calcul.Controllers
         [DuffAuthorize(PersonType.Responsible)]
         public ActionResult Delete(int id, FormCollection collection)
         {
-            Exception ex = new Exception("Access denied");
             if (IsAuthorized(SlotRangeModel.GetSlotRange(id)))
             {
                 try
@@ -288,7 +287,8 @@ namespace GR_Calcul.Controllers
             }
             else
             {
-                throw ex;
+                SessionManager.RedirectAccessDenied(HttpContext.Request.RequestContext);
+                return null;
             }            
         }
 
@@ -296,7 +296,6 @@ namespace GR_Calcul.Controllers
         [DuffAuthorize(PersonType.Responsible)]
         private void ScheduleEmail(SlotRange range)
         {
-
             // create new Scheduled Task (email)
             TaskSchedulerClass scheduler = new TaskSchedulerClass();
 
