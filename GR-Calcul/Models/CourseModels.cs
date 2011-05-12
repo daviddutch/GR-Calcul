@@ -187,7 +187,7 @@ namespace GR_Calcul.Models
             // concat scripts
             slotRanges.ForEach(delegate(SlotRange range)
             {
-                allScripts.Append(range.GenerateScript());
+                allScripts.Append(range.GenerateScript() + "###\n");
             });
 
             return allScripts.ToString();
