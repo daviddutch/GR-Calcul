@@ -107,98 +107,7 @@ namespace GR_Calcul.Models
             return FirstName + " " + LastName;
         }
     }
-    public class Person2
-    {
-        public static readonly IDictionary<PersonType, string> pTypes = new Dictionary<PersonType, string>() 
-        { 
-            {PersonType.ResourceManager, "Gestionnaire des ressources"}, 
-            {PersonType.Responsible, "Responsable"}, 
-            {PersonType.User, "Utilisateur"}, 
-        };
 
-        public static readonly Dictionary<string, PersonType> dbTypes = new Dictionary<string, PersonType>() 
-        { 
-            {"RM", PersonType.ResourceManager}, 
-            {"RE", PersonType.Responsible}, 
-            {"US", PersonType.User}, 
-        };
-
-        public static readonly Dictionary<PersonType, string> dbTypesRev = new Dictionary<PersonType, string>() 
-        { 
-            {PersonType.ResourceManager, "RM"}, 
-            {PersonType.Responsible, "RE"}, 
-            {PersonType.User, "US"}, 
-        };
-
-        public static SelectList pTypeSel
-        {
-            get { return new SelectList(pTypes, "Key", "Value"); }
-        }
-
-        public PersonType pType { get; set; }
-
-        public int ID { get; set; }
-        [Required]
-        [Display(Name = "Nom")]
-        public string FirstName { get; set; }
-
-        [Required]
-        [Display(Name = "Prénom")]
-        public string LastName { get; set; }
-
-        [Required]
-        [Display(Name = "Email")]
-        public string Email { get; set; }
-
-        [Required]
-        [Display(Name = "Nom d'utilisateur")]
-        public string Username { get; set; }
-
-        [Required]
-        [Display(Name = "Mot de passe")]
-        public string Password { get; set; }
-
-        //[Required]
-        [Timestamp]
-        [HiddenInput(DisplayValue = false)]
-        public string Timestamp { get; set; }
-
-        public byte[] getByteTimestamp()
-        {
-            return Convert.FromBase64String(Timestamp);
-        }
-        public void setTimestamp(byte[] timestamp)
-        {
-            Timestamp = Convert.ToBase64String(timestamp);
-        }
-
-        public Boolean IsInRole(PersonType[] roles)
-        {
-            foreach (PersonType r in roles)
-            {
-                if (r.Equals(pType))
-                    return true;
-            }
-            return false;
-        }
-
-        public Person2() { }
-
-        public Person2(PersonType type, int id_person, string firstName, string lastName, string username, string email, string password)
-        {
-            pType = type;
-            ID = id_person;
-            FirstName = firstName;
-            LastName = lastName;
-            Email = email;
-            Password = password;
-            Username = username;
-        }
-        public String toString()
-        {
-            return FirstName + " " + LastName;
-        }
-    }
     public class PersonModel
     {
         //static private String connectionString = ConnectionManager.GetConnectionString();//System.Configuration.ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString;
@@ -219,7 +128,7 @@ namespace GR_Calcul.Models
                 {
                     SqlCommand cmd = new SqlCommand("SELECT RE.id_person as id_person, RE.firstname, RE.lastname, RE.email, RE.username, RE.password, RE.timestamp " +
                                                     "FROM Responsible RE " +
-                                                    "ORDER BY RE.firstname;", db, transaction);
+                                                    "ORDER BY RE.lastname;", db, transaction);
 
 
                     SqlDataReader rdr = cmd.ExecuteReader();
@@ -253,6 +162,61 @@ namespace GR_Calcul.Models
             catch
             {
 
+            }
+
+            return list;
+        }
+
+        public List<Person> GetResourceManagers()
+        {
+            List<Person> list = new List<Person>();
+
+            try
+            {
+                SqlConnection db = new SqlConnection(ConnectionManager.GetConnectionString());
+                SqlTransaction transaction;
+
+                db.Open();
+
+                transaction = db.BeginTransaction(IsolationLevel.ReadCommitted);
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("SELECT RM.id_person as id_person, RM.firstname, RM.lastname, RM.email, RM.username, RM.password, RM.timestamp " +
+                                                    "FROM ResourceManager RM " +
+                                                    "ORDER BY RM.lastname;", db, transaction);
+
+
+                    SqlDataReader rdr = cmd.ExecuteReader();
+
+                    while (rdr.Read())
+                    {
+                        string firstname = rdr.GetString(rdr.GetOrdinal("firstname"));
+                        string lastname = rdr.GetString(rdr.GetOrdinal("lastname"));
+                        string email = rdr.GetString(rdr.GetOrdinal("email"));
+                        string username = rdr.GetString(rdr.GetOrdinal("username"));
+                        string password = rdr.GetString(rdr.GetOrdinal("password"));
+                        int id_person = rdr.GetInt32(rdr.GetOrdinal("id_person"));
+
+                        Person person = new Person(PersonType.Responsible, id_person, firstname, lastname, username, email, password);
+
+                        list.Add(person);
+
+                    }
+                    rdr.Close();
+                    transaction.Commit();
+                }
+                catch (SqlException sqlError)
+                {
+                    System.Diagnostics.Debug.WriteLine(sqlError.Message);
+                    System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                    transaction.Rollback();
+                }
+                db.Close();
+            }
+            catch (SqlException sqlError)
+            {
+                System.Diagnostics.Debug.WriteLine(sqlError.Message);
+                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
             }
 
             return list;
@@ -803,6 +767,17 @@ namespace GR_Calcul.Models
                 System.Diagnostics.Debug.WriteLine(sqlError.Message);
                 System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
             }
+        }
+
+        internal string GetEmailCSV(List<Person> persons)
+        {
+            List<string> emails = new List<string>();
+            persons.ForEach(delegate(Person person)
+            {
+                emails.Add(person.Email);
+            });
+
+            return string.Join(", ", emails);
         }
     }
 }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    

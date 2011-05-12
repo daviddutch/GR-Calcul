@@ -329,7 +329,7 @@ namespace GR_Calcul.Controllers
 
             ITimeTrigger trigger = (ITimeTrigger)task.Triggers.Create(_TASK_TRIGGER_TYPE2.TASK_TRIGGER_TIME);
             trigger.Id = "EmailTriggerForSlotRange_" + range.id_slotRange;
-            DateTime dt = range.EndRes.Add(new System.TimeSpan(0, 1, 0, 0)); // EndRes + 1h
+            DateTime dt = range.EndRes.Add(new System.TimeSpan(1, 1, 0, 0)); // EndRes + 1d + 1h
             trigger.StartBoundary = dt.ToString("yyyy-MM-ddTHH:MM:ss");
             trigger.EndBoundary = dt.Add(new System.TimeSpan(0, 1, 0, 0)).ToString("yyyy-MM-ddTHH:MM:ss"); // remove the task from active tasks 1h later
             trigger.ExecutionTimeLimit = "PT2M"; // 2 minutes
@@ -354,7 +354,7 @@ namespace GR_Calcul.Controllers
             regTask.Run(null);
         }
 
-        // this method filters to allow only localhost requests
+        // this method uses host-based authentication
         public ActionResult EmailScript(int id)
         {
             if (Request.Url.Host != "localhost" && Request.UserHostAddress != "127.0.0.1")
@@ -370,14 +370,17 @@ namespace GR_Calcul.Controllers
 
             string script = range.GenerateScript();
 
+            // get email address of resource manager
+            PersonModel pm = new PersonModel();
+            List<Person> persons = pm.GetResourceManagers();
+            string resMgrs = pm.GetEmailCSV(persons);
+
             // send script to resourceManager(s) via E-Mail
             System.Net.Mail.MailMessage message = new System.Net.Mail.MailMessage();
             message.From = new System.Net.Mail.MailAddress("dontreply@gr-calcul.com");
-
-            // TODO get email address of resource manager
-            message.To.Add(new System.Net.Mail.MailAddress("chris.fribourg@gmail.com"));
+            message.To.Add(resMgrs);
             message.IsBodyHtml = false;
-            message.Subject = "Script Linux pour le SlotRange '" + range.id_slotRange;
+            message.Subject = "Script Linux pour le SlotRange '" + range.id_slotRange + "'";
             message.BodyEncoding = System.Text.Encoding.GetEncoding("utf-8");
             message.Body = script;
 

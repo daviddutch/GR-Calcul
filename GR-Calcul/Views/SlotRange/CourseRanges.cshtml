@@ -1,79 +1,110 @@
 ﻿@model GR_Calcul.Models.CourseRangesViewModel
            
 @{
-    ViewBag.Title = "CourseRanges";
+    ViewBag.Title = "Reservation des ranges pour " + Model.Course.Name;
 }
 
-<h2>Reservation des ranges pour @Model.Course.Name<span style="float:right; margin-right:20px;"><a href="@Url.Action("Create").ToString()" class="button">Ajouter range</a></span></h2>
+<h2>@ViewBag.Title
+@{
+    var isResponsible = false;
+    if (((GR_Calcul.Models.Person)Membership.GetUser(Context.User.Identity.Name)).pType == GR_Calcul.Models.PersonType.Responsible)
+    {
+        isResponsible = true;
+        <span style="float:right; margin-right:20px;"><a href="@Url.Action("Create").ToString()" class="button">Ajouter range</a></span>
+    }
+    var isResourceManager = false;
+    if (((GR_Calcul.Models.Person)Membership.GetUser(Context.User.Identity.Name)).pType == GR_Calcul.Models.PersonType.ResourceManager)
+    {
+        isResourceManager = true;
+    }
+}
+</h2>
 
 
 @foreach (var slotRange in Model.SlotRanges)
 {
     
-<h3>@slotRange.Name - @String.Format(@"{0:dd.MM.yyyy}", slotRange.StartRes) - @String.Format(@"{0:dd.MM.yyyy}", slotRange.EndRes)<span style="float:right; margin-right:20px;"><a href="@Url.Action("Edit", new { id = slotRange.id_slotRange }).ToString()" class="modify"></a><a href="@Url.Action("Duplicate", new { id = slotRange.id_slotRange }).ToString()" class="dupl"></a><a href="@Url.Action("Script", new { id = slotRange.id_slotRange }).ToString()" class="script"></a><a href="@Url.Action("Delete", new { id = slotRange.id_slotRange }).ToString()" class="delete"></a></span></h3>
-<table class="slotRange">
-	<thead>
-		<tr>
-			<th class="empty">&nbsp;</th>
-            @for (int i = 0; i < slotRange.Slotdate.Count; i++)
-		    {
-			    DateTime date = slotRange.Slotdate[i];
-			    string id = "slotRow" + i;
-			    string value = String.Format(@"{0:dd.MM.yyyy}", date);
-			    <th colspan="@slotRange.GetSlotsForDate(date).Count">@value</th>
-		    }
-		</tr>
-		<tr class="subTitle">
-			<th class="empty withborder">&nbsp;</th>
-            @for (int i = 0; i < slotRange.Slotdate.Count; i++)
-		    {
-                DateTime date = slotRange.Slotdate[i];
-			    string id = "slotRow" + i;
-			    string value = String.Format("{0:dd/MM/yyyy}", date);
-                int j = 0;
+    <h3>@slotRange.Name - @String.Format(@"{0:dd.MM.yyyy}", slotRange.StartRes) - @String.Format(@"{0:dd.MM.yyyy}", slotRange.EndRes)
+        <span style="float:right; margin-right:20px;">
+        @if (isResponsible)
+        {
+            <a href="@Url.Action("Edit", new { id = slotRange.id_slotRange }).ToString()" class="modify"></a>
+            <a href="@Url.Action("Duplicate", new { id = slotRange.id_slotRange }).ToString()" class="dupl"></a>
+            <a href="@Url.Action("Delete", new { id = slotRange.id_slotRange }).ToString()" class="delete"></a>
+        }
+        else if (isResourceManager)
+        {
+            <a href="@Url.Action("Script", new { id = slotRange.id_slotRange }).ToString()" class="script"></a>
+        }
+        </span>
+    </h3>
 
-                foreach (var slot in slotRange.GetSlotsForDate(date))
-				{
-					string start = slot.getFormatedStartTime();
-                    string end = slot.getFormatedEndTime();
-
-                    j++;
-                    
-                    if (j<slotRange.GetSlotsForDate(date).Count)
-                    {
-					    <th>@start-@end</th>
-                    }
-                    else
-                    {
-                        <th class="withborder">@start-@end</th>
-                    }
-                }
-            }
-		</tr>
-	</thead>
-	<tbody>
-    @foreach (GR_Calcul.Models.Person person in Model.Course.Students)
+    if(isResponsible)
     {
-		<tr>
-			<th>@person.FirstName @person.LastName</th>
+        <table class="slotRange">
+	        <thead>
+		        <tr>
+			        <th class="empty">&nbsp;</th>
+                    @for (int i = 0; i < slotRange.Slotdate.Count; i++)
+                    {
+                        DateTime date = slotRange.Slotdate[i];
+                        string id = "slotRow" + i;
+                        string value = String.Format(@"{0:dd.MM.yyyy}", date);
+			            <th colspan="@slotRange.GetSlotsForDate(date).Count">@value</th>
+                    }
+		        </tr>
+		        <tr class="subTitle">
+			        <th class="empty withborder">&nbsp;</th>
+                    @for (int i = 0; i < slotRange.Slotdate.Count; i++)
+                    {
+                        DateTime date = slotRange.Slotdate[i];
+                        string id = "slotRow" + i;
+                        string value = String.Format("{0:dd/MM/yyyy}", date);
+                        int j = 0;
 
-            @for (int i = 0; i < slotRange.Slotdate.Count; i++)
+                        foreach (var slot in slotRange.GetSlotsForDate(date))
+                        {
+                            string start = slot.getFormatedStartTime();
+                            string end = slot.getFormatedEndTime();
+
+                            j++;
+
+                            if (j < slotRange.GetSlotsForDate(date).Count)
+                            {
+					            <th>@start-@end</th>
+                            }
+                            else
+                            {
+                                <th class="withborder">@start-@end</th>
+                            }
+                        }
+                    }
+		        </tr>
+	        </thead>
+	        <tbody>
+            @foreach (GR_Calcul.Models.Person person in Model.Course.Students)
             {
-                foreach (var slot in slotRange.GetSlotsForDate(slotRange.Slotdate[i]))
-                {
-                    GR_Calcul.Models.Reservation reservation = slot.getReservation(person.ID);
-                    if (reservation != null)
+		        <tr>
+			        <th>@person.FirstName @person.LastName</th>
+
+                    @for (int i = 0; i < slotRange.Slotdate.Count; i++)
                     {
-                        <td class="reserved">@reservation.NumberMachines</td>
+                        foreach (var slot in slotRange.GetSlotsForDate(slotRange.Slotdate[i]))
+                        {
+                            GR_Calcul.Models.Reservation reservation = slot.getReservation(person.ID);
+                            if (reservation != null)
+                            {
+                                <td class="reserved">@reservation.NumberMachines</td>
+                            }
+                            else
+                            {
+                                <td></td>
+                            }
+                        }
                     }
-                    else
-                    {
-                        <td></td>
-                    }
-                }
+                </tr>
             }
-        </tr>
+	        </tbody>
+        </table>
     }
-	</tbody>
-</table>
 }
