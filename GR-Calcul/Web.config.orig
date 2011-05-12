@@ -6,21 +6,40 @@
 
 <configuration>
   <connectionStrings>
+<<<<<<< HEAD
+=======
     <add name="ApplicationServices"
          connectionString="data source=.\SQLEXPRESS;Integrated Security=SSPI;AttachDBFilename=|DataDirectory|aspnetdb.mdf;User Instance=true"
          providerName="System.Data.SqlClient" />
-<<<<<<< HEAD
-     <add name="LocalDB" connectionString="Data Source=POMICHET08-IN;User Id=test; Password=test; Initial Catalog=GR-Calcul;integrated security=true;" /> 
-    <!--<add name="LocalDB" connectionString="Data Source=.\SQLEXPRESS;Initial Catalog=GR-Calcul;integrated security=true;" />-->
-=======
-    <add name="LocalDB" connectionString="Data Source=.\SQLEXPRESS;Initial Catalog=GR-Calcul;integrated security=true;" />
-    <!-- <add name="LocalDB" connectionString="Data Source=POMICHET08-IN;User Id=test; Password=test; Initial Catalog=GR-Calcul;integrated security=true;" /> -->
+     <!--<add name="LocalDB" connectionString="Data Source=.\SQLEXPRESS;Initial Catalog=GR-Calcul;integrated security=true;" />-->
+     <!--<add name="LocalDB" connectionString="Data Source=POMICHET08-IN;User Id=test; Password=test; Initial Catalog=GR-Calcul;integrated security=true;" />-->
 
->>>>>>> e230dd8c99e1cbaaef6d129564dbc225d6379f40
+>>>>>>> 35cb5015314a549b5cf528dca8353b7fa306d35f
+    
+    <add name="DB_Unauthentified" connectionString="Data Source=.\SQLEXPRESS;User Id=Unauthentified; Password=340$Uuxwp7Mcxo7Khy; Initial Catalog=GR-Calcul;integrated security=true;" />
+    <add name="DB_User" connectionString="Data Source=.\SQLEXPRESS;User Id=Person_User; Password=JKHSAD$SA78f7sdfh9); Initial Catalog=GR-Calcul;integrated security=true;" />
+    <add name="DB_Responsible" connectionString="Data Source=.\SQLEXPRESS;User Id=Person_Responsible; Password=ashsuaH82#; Initial Catalog=GR-Calcul;integrated security=true;" />
+    <add name="DB_RM" connectionString="Data Source=.\SQLEXPRESS;User Id=Person_ResourceManager; Password=aJ(DS)h7g3fa; Initial Catalog=GR-Calcul;integrated security=true;" />
+<<<<<<< HEAD
+      
+<!--
+=======
+    
+    <!--
+>>>>>>> 35cb5015314a549b5cf528dca8353b7fa306d35f
+    <add name="DB_Unauthentified" connectionString="Data Source=POMICHET08-IN;User Id=Unauthentified; Password=340$Uuxwp7Mcxo7Khy; Initial Catalog=GR-Calcul;integrated security=true;" />
+    <add name="DB_User" connectionString="Data Source=POMICHET08-IN;User Id=Person_User; Password=JKHSAD$SA78f7sdfh9); Initial Catalog=GR-Calcul;integrated security=true;" />
+    <add name="DB_Responsible" connectionString="Data Source=POMICHET08-IN;User Id=Person_Responsible; Password=ashsuaH82#; Initial Catalog=GR-Calcul;integrated security=true;" />
+    <add name="DB_RM" connectionString="Data Source=POMICHET08-IN;User Id=Person_ResourceManager; Password=aJ(DS)h7g3fa; Initial Catalog=GR-Calcul;integrated security=true;" />
+<<<<<<< HEAD
+-->
+=======
+    -->
+>>>>>>> 35cb5015314a549b5cf528dca8353b7fa306d35f
   </connectionStrings>
 
   <appSettings>
-    <add key="ClientValidationEnabled" value="true"/> 
+    <add key="ClientValidationEnabled" value="true"/>
     <add key="UnobtrusiveJavaScriptEnabled" value="true"/>
     <add key="domain" value="http://localhost:49893/"/>
   </appSettings>
@@ -53,7 +72,7 @@
       <providers>
         <clear/>
         <add name="CustomMembershipProvider" type="MyMembershipProvider"
-             connectionStringName="LocalDB" />
+             connectionStringName="DB_Unauthentified" />
       </providers>
     </membership>
 
