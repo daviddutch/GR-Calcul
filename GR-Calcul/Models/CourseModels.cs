@@ -229,6 +229,52 @@ namespace GR_Calcul.Models
 
             }
         }
+        /// <summary>
+        /// Unsubscribes a user from the current course
+        /// </summary>
+        /// <param name="id_person">The id of the user</param>
+        public void Unsubscribe(int? id_person)
+        {
+            try
+            {
+                SqlConnection db = new SqlConnection(connectionString);
+                SqlTransaction transaction;
+
+                db.Open();
+
+                transaction = db.BeginTransaction(IsolationLevel.Serializable);
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("DELETE FROM Reservation " +
+                                                    "WHERE id_person=@id_person AND id_slot IN (SELECT id_slot " +
+                                                                                            "FROM slot INNER JOIN slotRange ON slot.id_slotRange=slotRange.id_slotRange WHERE id_course=@id_course);", db, transaction);
+
+                    cmd.Parameters.Add("@id_course", SqlDbType.Int).Value = ID;
+                    cmd.Parameters.Add("@id_person", SqlDbType.Int).Value = id_person;
+
+                    cmd.ExecuteNonQuery();
+
+                    cmd = new SqlCommand("DELETE FROM Subscription " +
+                                         "WHERE id_person=@id_person AND id_course=@id_course;", db, transaction);
+
+                    cmd.Parameters.Add("@id_course", SqlDbType.Int).Value = ID;
+                    cmd.Parameters.Add("@id_person", SqlDbType.Int).Value = id_person;
+
+                    cmd.ExecuteNonQuery();
+
+                    transaction.Commit();
+                }
+                catch
+                {
+                    transaction.Rollback();
+                }
+                db.Close();
+            }
+            catch
+            {
+
+            }
+        }
     }
 
     /// <summary>
@@ -548,6 +594,7 @@ namespace GR_Calcul.Models
 
                         course = new Course(id_course, name, key,
                                                    active, id_person);
+                        course.ResponsibleString = rdr.GetString(rdr.GetOrdinal("firstname")) + " " + rdr.GetString(rdr.GetOrdinal("lastname"));
                         byte[] buffer = new byte[100];
                         rdr.GetBytes(rdr.GetOrdinal("timestamp"), 0, buffer, 0, 100);
                         course.setTimestamp(buffer);

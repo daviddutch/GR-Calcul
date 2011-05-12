@@ -1,7 +1,9 @@
 ﻿@model IEnumerable<GR_Calcul.Models.Course>
 
 @{
-    ViewBag.Title = "Liste des cours";
+    if (ViewBag.Title==null){
+        ViewBag.Title = "Liste des cours";
+    }
 }
 
 <h2>@ViewBag.Title</h2>
@@ -55,7 +57,8 @@
                         }
                         else
                         {
-                            return new HtmlString("<a href=\"" + Url.Action("ReserveSlotRange", "SlotRange", new { id = item.ID }).ToString() + "\" class=\"look\" title=\"Voir les plages de slot\"></a>");
+                            return new HtmlString("<a href=\"" + Url.Action("ReserveSlotRange", "SlotRange", new { id = item.ID }).ToString() + "\" class=\"look\" title=\"Voir les plages de slot\"></a>" +
+                                                  "<a href=\"" + Url.Action("Unsubscribe", new { id = item.ID }).ToString() + "\"class=\"delete\" title=\"Se désinscrire de ce cours\"></a>");
                         }
                     }
                     

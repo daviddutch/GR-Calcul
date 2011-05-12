@@ -49,7 +49,8 @@ namespace GR_Calcul.Controllers
         [DuffAuthorize(PersonType.User)]
         public ActionResult ListMyCourse()
         {
-            return View(CourseModel.ListMyCourses(SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name)));
+            ViewBag.Title = "Liste de mes cours";
+            return View("List", CourseModel.ListMyCourses(SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name)));
         }
 
         //
@@ -257,6 +258,27 @@ namespace GR_Calcul.Controllers
             }
         }
 
+        [DuffAuthorize(PersonType.User)]
+        public ActionResult Unsubscribe(int id)
+        {
+            return View(CourseModel.GetCourse(id));
+        }
+
+        [HttpPost]
+        [DuffAuthorize(PersonType.User)]
+        public ActionResult Unsubscribe(int id, Course course)
+        {
+            try
+            {
+                course.Unsubscribe(SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name));
+
+                return RedirectToAction("Index");
+            }
+            catch
+            {
+                return View();
+            }
+        }
         //
         // GET: /Course/Subscribe/5
 
