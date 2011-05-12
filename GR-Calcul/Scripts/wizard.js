@@ -136,7 +136,7 @@ function createRow(rowId, i, suffix) {
     }
     var html = "";
     html += "<tr id=\"" + rowId + "\" class=\"" + slotRowIdPrefix + "\">";
-    html += "<td>&nbsp;<input novalidation=\"true\" type=\"text\" class=\"lollipop Slotdate\" name=\"Slotdate" + suffix + "\" id=\"Slotdate" + suffix + "\" value=\"" + currentDate.asString() + "\" size=\"8\" /><a href=\"javascript:deleteRow('" + rowId + "');\" class=\"delete delRow\"></a></td>";
+    html += "<td colspan=\"2\">&nbsp;<input novalidation=\"true\" type=\"text\" class=\"lollipop Slotdate\" name=\"Slotdate" + suffix + "\" id=\"Slotdate" + suffix + "\" value=\"" + currentDate.asString() + "\" size=\"8\" /><a href=\"javascript:deleteRow('" + rowId + "');\" class=\"delete delRow\"></a></td>";
     var max = (i == rows - 1 ? nOnLastRow : cols);
 
     for (var j = 0; j < max; j++) {
