@@ -48,7 +48,16 @@
                                               "<a href=\"" + Url.Action("CourseRanges", "SlotRange", new { id = item.ID }).ToString() + "\" class=\"look\" title=\"Voir les plages de slot\"></a>");
                     }
                     else
-                        return new HtmlString("<a href=\"" + Url.Action("Subscribe", new { id = item.ID }).ToString() + "\"class=\"modify\" title=\"S'inscrire à ce cours\"></a>");
+                    {
+                        if (!item.MyCourse)
+                        {
+                            return new HtmlString("<a href=\"" + Url.Action("Subscribe", new { id = item.ID }).ToString() + "\"class=\"unlock\" title=\"S'inscrire à ce cours\"></a>");
+                        }
+                        else
+                        {
+                            return new HtmlString("<a href=\"" + Url.Action("ReserveSlotRange", "SlotRange", new { id = item.ID }).ToString() + "\" class=\"look\" title=\"Voir les plages de slot\"></a>");
+                        }
+                    }
                     
                 }, canSort: false))
         )

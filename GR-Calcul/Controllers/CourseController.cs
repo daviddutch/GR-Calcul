@@ -65,7 +65,7 @@ namespace GR_Calcul.Controllers
                     int? k = SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name);
                     if (k != null)
                     {
-                        if (model.IsUserSubscribed((int)k, id))
+                        if (CourseModel.IsUserSubscribed((int)k, id))
                             return View(CourseModel.GetCourse(id));
                         else
                         {

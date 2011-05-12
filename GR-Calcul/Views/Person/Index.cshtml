@@ -1,23 +1,23 @@
-﻿@model IEnumerable<GR_Calcul.Models.Person>
+﻿@model IEnumerable<GR_Calcul.Models.Person2>
 
 @{
     ViewBag.Title = "Index";
 }
 
-<h2>Index</h2>
+<h2>Liste des personnes</h2>
 
 <p>
-    @Html.ActionLink("Créer une personne", "Create")
+    <a href="@Url.Action("Create")" class="button" title="Créer cours">Créer une personne</a>
 </p>
 
 @{
     var grid = new WebGrid(
         source: Model,
         defaultSort: "FirstName"
+    );
 }
 
 @grid.GetHtml(
-    
 tableStyle: "simpleTable",
 headerStyle: "head",
 alternatingRowStyle: "alt",
@@ -27,58 +27,9 @@ columns: grid.Columns(
         grid.Column("Email", "Email"),
         grid.Column("Username", "Nom d'utilisateur"),
                         grid.Column(format: (item) =>
-                {
-                    return new HtmlString("<a href=\"" + Url.Action("Edit", new { id = item.ID, pType = item.pType }).ToString() + "\"class=\"modify\" title=\"Modifier\"></a>" +
-                                            "<a href=\"" + Url.Action("Delete", new { id = item.ID, pType = item.pType }).ToString() + "\"class=\"delete\" title=\"Supprimer\"></a>");
-                }, canSort: false)
-    */
-}
+                        {
+                            return new HtmlString("<a href=\"" + Url.Action("Edit", new { id = item.ID, pType = item.pType }).ToString() + "\"class=\"modify\" title=\"Modifier\"></a>" +
+                                                    "<a href=\"" + Url.Action("Delete", new { id = item.ID, pType = item.pType }).ToString() + "\"class=\"delete\" title=\"Supprimer\"></a>");
+                        }, canSort: false)
 
         ))
-
-    <tr>
-        <th></th>
-        <th>
-            FirstName
-        </th>
-        <th>
-            LastName
-        </th>
-        <th>
-            Email
-        </th>
-        <th>
-            Username
-        </th>
-        <th>
-            Password
-        </th>
-    </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.ID }) |
-            @Html.ActionLink("Details", "Details", new { id=item.ID }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.ID })
-        </td>
-        <td>
-            @item.FirstName
-        </td>
-        <td>
-            @item.LastName
-        </td>
-        <td>
-            @item.Email
-        </td>
-        <td>
-            @item.Username
-        </td>
-        <td>
-            @item.Password
-        </td>
-    </tr>
-</tbody>
-
-</table>

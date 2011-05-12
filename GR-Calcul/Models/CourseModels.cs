@@ -38,6 +38,8 @@ namespace GR_Calcul.Models
 
         public string ResponsibleString { get; set; }
 
+        public bool MyCourse { get; set; }
+
         //[Required]
         [Timestamp]
         [HiddenInput(DisplayValue = false)]
@@ -242,7 +244,7 @@ namespace GR_Calcul.Models
         /// <param name="userId">The id of the user to be tested</param>
         /// <param name="courseId">The id of the course to be tested</param>
         /// <returns>Returns true if the user is subscribed to the course</returns>
-        public Boolean IsUserSubscribed(int userId, int courseId)
+        public static Boolean IsUserSubscribed(int userId, int courseId)
         {
             Boolean ret = false;
             try
@@ -293,57 +295,14 @@ namespace GR_Calcul.Models
 
             if (id_user == null) return list;
 
-            try
+            list = ListActiveCourses();
+
+            foreach (Course course in list)
             {
-                SqlConnection db = new SqlConnection(connectionString);
-                SqlTransaction transaction;
-
-                db.Open();
-
-                transaction = db.BeginTransaction(IsolationLevel.ReadUncommitted);
-                try
+                if (IsUserSubscribed((int)id_user, course.ID))
                 {
-                    SqlCommand cmd = new SqlCommand("SELECT C.id_course, C.name, C.[key], C.active, R.id_person, R.firstname, R.lastname " +
-                                                    "FROM Course C " +
-                                                    "INNER JOIN Responsible R ON R.id_person = C.id_person " +
-                                                    "INNER JOIN Subscription S ON S.id_course = C.id_course " +
-                                                    "WHERE S.id_person=@id_person; ",
-                                                    db, transaction);
-
-                    cmd.Parameters.Add("@id_person", SqlDbType.Int).Value = id_user;
-
-                    SqlDataReader rdr = cmd.ExecuteReader();
-
-                    while (rdr.Read())
-                    {
-                        //string coltype = rdr.GetFieldType(rdr.GetOrdinal("active")).Name;
-                        string name = rdr.GetString(rdr.GetOrdinal("name"));
-                        string key = rdr.GetString(rdr.GetOrdinal("Key"));
-                        bool active = rdr.GetBoolean(rdr.GetOrdinal("active"));
-                        int id_person = rdr.GetInt32(rdr.GetOrdinal("id_person"));
-                        int id_course = rdr.GetInt32(rdr.GetOrdinal("id_course"));
-
-                        Course course = new Course(id_course, name, key,
-                                                    active, id_person);
-
-                        course.ResponsibleString = rdr.GetString(rdr.GetOrdinal("firstname")) + " " + rdr.GetString(rdr.GetOrdinal("lastname"));
-
-                        list.Add(course);
-
-                    }
-                    rdr.Close();
-
-                    transaction.Commit();
+                    course.MyCourse = true;
                 }
-                catch
-                {
-                    transaction.Rollback();
-                }
-                db.Close();
-            }
-            catch
-            {
-
             }
 
             return list;
@@ -373,7 +332,7 @@ namespace GR_Calcul.Models
                                                     "FROM Course C " +
                                                     "INNER JOIN Responsible R ON R.id_person = C.id_person " +
                                                     "INNER JOIN Subscription S ON S.id_course = C.id_course " +
-                                                    "WHERE S.id_person=@id_person; ",
+                                                    "WHERE S.id_person=@id_person AND C.active=1; ",
                                                     db, transaction);
 
                     cmd.Parameters.Add("@id_person", SqlDbType.Int).Value = id_user;
@@ -422,6 +381,46 @@ namespace GR_Calcul.Models
                                                     "WHERE R.id_person=@id;", db, transaction);
 
                     cmd.Parameters.Add("@id", SqlDbType.Int).Value = responsibleId;
+
+                    list = ListCourses(cmd);
+
+                    transaction.Commit();
+                }
+                catch
+                {
+                    transaction.Rollback();
+                }
+                db.Close();
+            }
+            catch
+            {
+
+            }
+
+            return list;
+        }
+        /// <summary>
+        /// Gets the list of all courses that are active
+        /// </summary>
+        /// <returns>Returns the active course list</returns>
+        public static List<Course> ListActiveCourses()
+        {
+            List<Course> list = new List<Course>();
+
+            try
+            {
+                SqlConnection db = new SqlConnection(connectionString);
+                SqlTransaction transaction;
+
+                db.Open();
+
+                transaction = db.BeginTransaction(IsolationLevel.ReadUncommitted);
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("SELECT C.id_course, C.name, C.[key], C.active, R.id_person, R.firstname, R.lastname " +
+                                                    "FROM Course C " +
+                                                    "INNER JOIN Responsible R ON R.id_person = C.id_person " +
+                                                    "WHERE C.active=1;", db, transaction);
 
                     list = ListCourses(cmd);
 
