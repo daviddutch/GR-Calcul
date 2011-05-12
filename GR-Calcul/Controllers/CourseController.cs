@@ -33,10 +33,11 @@ namespace GR_Calcul.Controllers
             switch (SessionManager.GetCurrentUserRole(HttpContext.User.Identity.Name))
             {
                 case PersonType.Responsible:
-                    return View(model.ListCourses(SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name)));
+                    return View(CourseModel.ListCourses(SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name)));
                 case PersonType.User:
+                    return View(CourseModel.ListCoursesUser(SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name)));
                 case PersonType.ResourceManager:
-                    return View(model.ListCourses());
+                    return View(CourseModel.ListCourses());
                 default:
                     SessionManager.RedirectAccessDenied(HttpContext.Request.RequestContext);
                     return null;
@@ -48,7 +49,7 @@ namespace GR_Calcul.Controllers
         [DuffAuthorize(PersonType.User)]
         public ActionResult ListMyCourse()
         {
-            return View(model.ListMyCourses(SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name)));
+            return View(CourseModel.ListMyCourses(SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name)));
         }
 
         //
@@ -59,7 +60,7 @@ namespace GR_Calcul.Controllers
             switch (SessionManager.GetCurrentUserRole(HttpContext.User.Identity.Name))
             {
                 case PersonType.Responsible:
-                    return View(model.ListCourses(SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name)));
+                    return View(CourseModel.ListCourses(SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name)));
                 case PersonType.User:
                     int? k = SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name);
                     if (k != null)
@@ -103,7 +104,7 @@ namespace GR_Calcul.Controllers
         {
             try
             {
-                model.CreateCourse(course);
+                CourseModel.CreateCourse(course);
                 return RedirectToAction("Index");
             }
             catch (SqlException sqlError)
@@ -153,7 +154,7 @@ namespace GR_Calcul.Controllers
             {
                 try
                 {
-                    model.UpdateCourse(course);
+                    CourseModel.UpdateCourse(course);
                     return RedirectToAction("Index");
                 }
                 catch (Exception e)
@@ -197,7 +198,7 @@ namespace GR_Calcul.Controllers
             {
                 try
                 {
-                    model.CreateCourse(course);
+                    CourseModel.CreateCourse(course);
                     return RedirectToAction("Index");
                 }
                 catch
@@ -240,7 +241,7 @@ namespace GR_Calcul.Controllers
             {
                 try
                 {
-                    model.DeleteCourse(id);
+                    CourseModel.DeleteCourse(id);
 
                     return RedirectToAction("Index");
                 }

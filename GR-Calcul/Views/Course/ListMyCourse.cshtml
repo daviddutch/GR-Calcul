@@ -21,7 +21,7 @@
             grid.Column("ResponsibleString", "Responsible"),                
             grid.Column(format: (item) =>
                 {
-                    return new HtmlString("<a href=\"" + Url.Action("ReserveSlotRange", "SlotRange", new { id = item.ID }).ToString() + "\" class=\"add\" title=\"Voir les plages de slot\"></a>");
+                    return new HtmlString("<a href=\"" + Url.Action("ReserveSlotRange", "SlotRange", new { id = item.ID }).ToString() + "\" class=\"look\" title=\"Voir les plages de slot\"></a>");
                     
                 }, canSort: false))
         )

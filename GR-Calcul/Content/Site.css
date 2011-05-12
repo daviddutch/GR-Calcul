@@ -332,7 +332,7 @@ form label{
 	    font-weight:bold;
 	}
 	
-.delete, .modify, .dupl, .add, .refuse, .script{
+.delete, .modify, .dupl, .add, .refuse, .script, .look, .unlock{
 	margin-left:5px;
 	margin-top:2px;
 	margin-bottom:2px;
@@ -342,7 +342,13 @@ form label{
 	float:left;
 }
 	.add {
-		background:transparent url('img/add.png') no-repeat;
+		background:transparent url('img/add2.png') no-repeat;
+	}
+	.look {
+		background:transparent url('img/look.png') no-repeat;
+	}
+	.unlock {
+		background:transparent url('img/unlock.png') no-repeat;
 	}
 	.refuse {
 		background:transparent url('img/refuse.png') no-repeat;
