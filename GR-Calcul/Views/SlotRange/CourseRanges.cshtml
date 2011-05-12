@@ -7,13 +7,13 @@
 <h2>@ViewBag.Title
 @{
     var isResponsible = false;
-    if (((GR_Calcul.Models.Person)Membership.GetUser(Context.User.Identity.Name)).pType == GR_Calcul.Models.PersonType.Responsible)
+    if (Request.IsAuthenticated && ((GR_Calcul.Models.Person)Membership.GetUser(Context.User.Identity.Name)).pType == GR_Calcul.Models.PersonType.Responsible)
     {
         isResponsible = true;
         <span style="float:right; margin-right:20px;"><a href="@Url.Action("Create").ToString()" class="button">Ajouter range</a></span>
     }
     var isResourceManager = false;
-    if (((GR_Calcul.Models.Person)Membership.GetUser(Context.User.Identity.Name)).pType == GR_Calcul.Models.PersonType.ResourceManager)
+    if (Request.IsAuthenticated && ((GR_Calcul.Models.Person)Membership.GetUser(Context.User.Identity.Name)).pType == GR_Calcul.Models.PersonType.ResourceManager)
     {
         isResourceManager = true;
     }

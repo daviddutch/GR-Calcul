@@ -44,7 +44,7 @@
                                           "<a href=\"" + Url.Action("Delete", new { id = item.ID }).ToString() + "\" class=\"delete\" title=\"Supprimer\"></a>");
                     else if (isResourceManager)
                     {
-                        return new HtmlString("<a href=\"" + Url.Action("GenerateScript", new { id = item.ID }).ToString() + "\"class=\"script\" title=\"Générer le script pour le cours\"></a>" +
+                        return new HtmlString("<a href=\"" + Url.Action("Script", new { id = item.ID }).ToString() + "\"class=\"script\" title=\"Générer le script pour le cours\"></a>" +
                                               "<a href=\"" + Url.Action("CourseRanges", "SlotRange", new { id = item.ID }).ToString() + "\" class=\"add\" title=\"Voir les plages de slot\"></a>");
                     }
                     else
