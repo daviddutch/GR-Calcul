@@ -47,11 +47,11 @@ namespace GR_Calcul.Models
 
         public int ID { get; set; }
         [Required]
-        [Display(Name = "Nom")]
+        [Display(Name = "Prénom")]
         public string FirstName { get; set; }
 
         [Required]
-        [Display(Name = "Prénom")]
+        [Display(Name = "Nom")]
         public string LastName { get; set; }
 
         [Required]
@@ -106,21 +106,27 @@ namespace GR_Calcul.Models
         {
             return FirstName + " " + LastName;
         }
+
+        public Person2 toPerson2()
+        {
+            return new Person2(this);
+        }
     }
 
     public class Person2
     {
+
         [Required]
         [Display(Name = "Type de personne")]
         public PersonType pType { get; set; }
 
         public int ID { get; set; }
         [Required]
-        [Display(Name = "Nom")]
+        [Display(Name = "Prénom")]
         public string FirstName { get; set; }
 
         [Required]
-        [Display(Name = "Prénom")]
+        [Display(Name = "Nom")]
         public string LastName { get; set; }
 
         [Required]
@@ -158,6 +164,8 @@ namespace GR_Calcul.Models
             }
             return false;
         }
+
+        public Person2() { }
 
         public Person2(Person person) {
             pType = person.pType;
@@ -370,68 +378,8 @@ namespace GR_Calcul.Models
 
             return list;
         }
-        //public List<Person2> ListPerson2()
-        //{
-        //    List<Person2> list = new List<Person2>();
 
-        //    try
-        //    {
-        //        SqlConnection db = new SqlConnection(connectionString);
-        //        SqlTransaction transaction;
-
-        //        db.Open();
-
-        //        transaction = db.BeginTransaction(IsolationLevel.ReadCommitted);
-        //        try
-        //        {
-        //            SqlCommand cmd = new SqlCommand("SELECT * from Person ORDER BY firstname;", db, transaction);
-        //            SqlDataReader rdr = cmd.ExecuteReader();
-
-        //            while (rdr.Read())
-        //            {
-        //                string firstname = rdr.GetString(rdr.GetOrdinal("firstname"));
-        //                string lastname = rdr.GetString(rdr.GetOrdinal("lastname"));
-        //                string email = rdr.GetString(rdr.GetOrdinal("email"));
-        //                string username = rdr.GetString(rdr.GetOrdinal("username"));
-        //                int id_person = rdr.GetInt32(rdr.GetOrdinal("id_person"));
-
-        //                PersonType personType = PersonType.User;
-        //                switch (rdr.GetString(rdr.GetOrdinal("pType")))
-        //                {
-        //                    case "RM":
-        //                        personType = PersonType.ResourceManager;
-        //                        break;
-        //                    case "RE":
-        //                        personType = PersonType.Responsible;
-        //                        break;
-        //                    case "US":
-        //                        personType = PersonType.User;
-        //                        break;
-        //                }
-
-        //                Person2 person = new Person2(personType, id_person, firstname, lastname, username, email, "");
-
-        //                list.Add(person);
-
-        //            }
-        //            rdr.Close();
-        //            transaction.Commit();
-        //        }
-        //        catch
-        //        {
-        //            transaction.Rollback();
-        //        }
-        //        db.Close();
-        //    }
-        //    catch
-        //    {
-
-        //    }
-
-        //    return list;
-        //}
-
-        internal void CreatePerson(Person person)
+        internal void CreatePerson(Person2 person)
         {
             try
             {
@@ -453,7 +401,7 @@ namespace GR_Calcul.Models
                     cmd.Parameters.Add("@firstname", SqlDbType.Char).Value = person.FirstName;
                     cmd.Parameters.Add("@lastname", SqlDbType.Char).Value = person.LastName;
                     cmd.Parameters.Add("@username", SqlDbType.Char).Value = person.Username;
-               
+
                     cmd.ExecuteNonQuery();
 
                     transaction.Commit();
@@ -687,7 +635,7 @@ namespace GR_Calcul.Models
             return username;
         }
 
-        internal void UpdatePerson(Person person)
+        internal void UpdatePerson(Person2 person)
         {
             bool updated = true;
 
@@ -823,7 +771,7 @@ namespace GR_Calcul.Models
             return rows;
         }
 
-        internal void DeletePerson(Person person)
+        internal void DeletePerson(Person2 person)
         {
             try
             {
