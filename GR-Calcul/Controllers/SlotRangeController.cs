@@ -10,9 +10,14 @@ using GR_Calcul.Misc;
 using System.Text;
 using TaskScheduler;
 
-
+/// <summary>
+/// Namespace containing all controllers
+/// </summary>
 namespace GR_Calcul.Controllers
-{ 
+{
+    /// <summary>
+    /// Class containing all actions related to the slotRange module
+    /// </summary>
     public class SlotRangeController : BaseController
     {
         private CourseModel courseModel = new CourseModel();
@@ -20,7 +25,7 @@ namespace GR_Calcul.Controllers
 
         private void InitViewbag()
         {
-            ViewBag.IdCourse = new SelectList(courseModel.ListCourses(SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name)), "ID", "Name");
+            ViewBag.IdCourse = new SelectList(CourseModel.ListCourses(SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name)), "ID", "Name");
             ViewBag.SlotDuration = new SelectList(Slot.durationList, "Text", "Text");
         }
 
@@ -34,13 +39,12 @@ namespace GR_Calcul.Controllers
             Course course = CourseModel.GetCourse(id);
             viewModel.Course = course;
             viewModel.SlotRanges = course.GetSlotRangesForCourse();
-            viewModel.Course.Students = courseModel.getCourseStudents(id);
+            viewModel.Course.Students = CourseModel.getCourseStudents(id);
             return View(viewModel);
         }
 
         //
-        // GET: /SlotRange/ReserveSlotRange/5
-
+        // GET: /SlotRange/ReserveSlotRange/
         [DuffAuthorize(PersonType.User)]
         public ActionResult ReserveSlotRange(int id)
         {
@@ -53,9 +57,9 @@ namespace GR_Calcul.Controllers
             viewModel.Reservations = slotRangeModel.getReservations(id, id_person);
             return View(viewModel);
         }
+
         //
         // GET: /SlotRange/Reserve/5
-
         [DuffAuthorize(PersonType.User)]
         public JsonResult Reserve(int id, bool reserve)
         {
@@ -76,21 +80,6 @@ namespace GR_Calcul.Controllers
                 return new JsonResult { Data = new { Success = false, Message = e.Message }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
         }
-        //// CD test - DELETEME
-        //public void TestSlotReservation(string str)
-        //{
-        //    SlotRange range = new SlotRange(3, DateTime.Parse("2008-11-01T19:35:00.0000000Z"), DateTime.Parse("2008-11-01T19:35:00.0000000Z"), "test", 3, "0x00000000000008AA");
-        //    List<Machine> machines = new List<Machine>();
-        //    machines.Add(new Machine(1, "test333", "1.1.1.1", 1));
-        //    range.InsertCommandXML(new Person(PersonType.User, 1, "Christopher", "Dickinson", str, "as@base.c", "asdf"), new Slot(3, DateTime.Parse("2008-11-01T19:35:00.0000000Z"), DateTime.Parse("2008-11-01T19:35:00.0000000Z")), machines);
-        //}
-
-        //// CD test - DELETEME
-        //public void TestSlotUnReservation(string str)
-        //{
-        //    SlotRange range = new SlotRange(3, DateTime.Parse("2008-11-01T19:35:00.0000000Z"), DateTime.Parse("2008-11-01T19:35:00.0000000Z"), "test", 3, "0x00000000000008AA");
-        //    range.DeleteCommandXML(str);
-        //}
 
         //
         // GET: /SlotRange/Script/5
@@ -190,7 +179,7 @@ namespace GR_Calcul.Controllers
             int? rId = range.GetResponsible();
             if (IsAuthorized(range))
             {
-                ViewBag.IdCourse = new SelectList(courseModel.ListCourses(SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name)), "ID", "Name", range.IdCourse);
+                ViewBag.IdCourse = new SelectList(CourseModel.ListCourses(SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name)), "ID", "Name", range.IdCourse);
                 ViewBag.SlotDuration = new SelectList(Slot.durationList, "Text", "Text", range.SlotDuration);
                 return View(range);
             }
@@ -203,7 +192,6 @@ namespace GR_Calcul.Controllers
 
         //
         // POST: /SlotRange/Edit/5
-
         [HttpPost]
         [DuffAuthorize(PersonType.Responsible)]
         public ActionResult Edit(int id, SlotRange range)
@@ -224,7 +212,7 @@ namespace GR_Calcul.Controllers
                         return View("Error", exx);
                     }
                 }
-                ViewBag.IdCourse = new SelectList(courseModel.ListCourses(SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name)), "ID", "Name", range.IdCourse);
+                ViewBag.IdCourse = new SelectList(CourseModel.ListCourses(SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name)), "ID", "Name", range.IdCourse);
                 ViewBag.SlotDuration = new SelectList(Slot.durationList, "Text", "Text", range.SlotDuration);
 
                 ModelState.AddModelError("", "Il y a des données incorrectes. Corriger les erreurs!");
@@ -376,7 +364,7 @@ namespace GR_Calcul.Controllers
 
             // send script to resourceManager(s) via E-Mail
             System.Net.Mail.MailMessage message = new System.Net.Mail.MailMessage();
-            message.From = new System.Net.Mail.MailAddress("dontreply@gr-calcul.com");
+            //message.From = new System.Net.Mail.MailAddress("dontreply@gr-calcul.com");
             message.To.Add(resMgrs);
             message.IsBodyHtml = false;
             message.Subject = "Script Linux pour le SlotRange '" + range.id_slotRange + "'";

@@ -10,8 +10,14 @@ using System.Web.Security;
 using GR_Calcul.Models;
 using GR_Calcul.Misc;
 
+/// <summary>
+/// Namespace containing all controllers
+/// </summary>
 namespace GR_Calcul.Controllers
 {
+    /// <summary>
+    /// Class containing all actions related to the account module
+    /// </summary>
     public class AccountController : BaseController
     {
 

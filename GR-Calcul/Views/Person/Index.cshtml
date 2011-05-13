@@ -4,10 +4,10 @@
     ViewBag.Title = "Index";
 }
 
-<h2>Index</h2>
+<h2>Liste des personnes</h2>
 
 <p>
-    @Html.ActionLink("Créer une personne", "Create")
+    <a href="@Url.Action("Create")" class="button" title="Créer cours">Créer une personne</a>
 </p>
 
 @{
@@ -27,9 +27,9 @@ columns: grid.Columns(
         grid.Column("Email", "Email"),
         grid.Column("Username", "Nom d'utilisateur"),
                         grid.Column(format: (item) =>
-                {
-                    return new HtmlString("<a href=\"" + Url.Action("Edit", new { id = item.ID, pType = item.pType }).ToString() + "\"class=\"modify\" title=\"Modifier\"></a>" +
-                                            "<a href=\"" + Url.Action("Delete", new { id = item.ID, pType = item.pType }).ToString() + "\"class=\"delete\" title=\"Supprimer\"></a>");
-                }, canSort: false)
+                        {
+                            return new HtmlString("<a href=\"" + Url.Action("Edit", new { id = item.ID, pType = item.pType }).ToString() + "\"class=\"modify\" title=\"Modifier\"></a>" +
+                                                    "<a href=\"" + Url.Action("Delete", new { id = item.ID, pType = item.pType }).ToString() + "\"class=\"delete\" title=\"Supprimer\"></a>");
+                        }, canSort: false)
 
         ))

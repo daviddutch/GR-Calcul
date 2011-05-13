@@ -1,8 +1,13 @@
 ﻿@{
-    ViewBag.Title = "Home Page";
+    ViewBag.Title = "Bienvenu";
 }
 
 <h2>@ViewBag.Message</h2>
-<p>
-    To learn more about ASP.NET MVC visit <a href="http://asp.net/mvc" title="ASP.NET MVC Website">http://asp.net/mvc</a>.
-</p>
+@if (Request.IsAuthenticated)
+{
+    <p>Utilisez le menu du haut pour naviguer dans le site.</p>
+}
+else
+{
+    <p>Pour vous connecter clicker sur le lien en haut à droite de la page.</p>
+}

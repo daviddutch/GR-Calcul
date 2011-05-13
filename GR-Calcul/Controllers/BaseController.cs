@@ -7,8 +7,14 @@ using System.Web.UI.WebControls;
 using System.Web.Security;
 using GR_Calcul.Models;
 
+/// <summary>
+/// Namespace containing all controllers
+/// </summary>
 namespace GR_Calcul.Controllers
 {
+    /// <summary>
+    /// Main controller class to generate the menu depending on the user rights
+    /// </summary>
     public class BaseController : Controller
     {
 

@@ -1,7 +1,9 @@
 ﻿@model IEnumerable<GR_Calcul.Models.Course>
 
 @{
-    ViewBag.Title = "Liste des cours";
+    if (ViewBag.Title==null){
+        ViewBag.Title = "Liste des cours";
+    }
 }
 
 <h2>@ViewBag.Title</h2>
@@ -40,15 +42,25 @@
                     if (isResponsible)
                         return new HtmlString("<a href=\"" + Url.Action("Edit", new { id = item.ID }).ToString() + "\" class=\"modify\" title=\"Modifier\"></a>" +
                                           "<a href=\"" + Url.Action("Duplicate", new { id = item.ID }).ToString() + "\" class=\"dupl\" title=\"Dupliquer\"></a>" +
-                                          "<a href=\"" + Url.Action("CourseRanges", "SlotRange", new { id = item.ID }).ToString() + "\" class=\"add\" title=\"Voir les plages de slot\"></a>" +
+                                          "<a href=\"" + Url.Action("CourseRanges", "SlotRange", new { id = item.ID }).ToString() + "\" class=\"look\" title=\"Voir les plages de slot\"></a>" +
                                           "<a href=\"" + Url.Action("Delete", new { id = item.ID }).ToString() + "\" class=\"delete\" title=\"Supprimer\"></a>");
                     else if (isResourceManager)
                     {
-                        return new HtmlString("<a href=\"" + Url.Action("GenerateScript", new { id = item.ID }).ToString() + "\"class=\"script\" title=\"Générer le script pour le cours\"></a>" +
-                                              "<a href=\"" + Url.Action("CourseRanges", "SlotRange", new { id = item.ID }).ToString() + "\" class=\"add\" title=\"Voir les plages de slot\"></a>");
+                        return new HtmlString("<a href=\"" + Url.Action("Script", new { id = item.ID }).ToString() + "\"class=\"script\" title=\"Générer le script pour le cours\"></a>" +
+                                              "<a href=\"" + Url.Action("CourseRanges", "SlotRange", new { id = item.ID }).ToString() + "\" class=\"look\" title=\"Voir les plages de slot\"></a>");
                     }
                     else
-                        return new HtmlString("<a href=\"" + Url.Action("Subscribe", new { id = item.ID }).ToString() + "\"class=\"modify\" title=\"S'inscrire à ce cours\"></a>");
+                    {
+                        if (!item.MyCourse)
+                        {
+                            return new HtmlString("<a href=\"" + Url.Action("Subscribe", new { id = item.ID }).ToString() + "\"class=\"unlock\" title=\"S'inscrire à ce cours\"></a>");
+                        }
+                        else
+                        {
+                            return new HtmlString("<a href=\"" + Url.Action("ReserveSlotRange", "SlotRange", new { id = item.ID }).ToString() + "\" class=\"look\" title=\"Voir les plages de slot\"></a>" +
+                                                  "<a href=\"" + Url.Action("Unsubscribe", new { id = item.ID }).ToString() + "\"class=\"delete\" title=\"Se désinscrire de ce cours\"></a>");
+                        }
+                    }
                     
                 }, canSort: false))
         )
