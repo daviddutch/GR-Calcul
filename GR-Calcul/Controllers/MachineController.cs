@@ -7,9 +7,7 @@ using GR_Calcul.Models;
 using System.Data.SqlClient;
 using GR_Calcul.Misc;
 
-/// <summary>
-/// Namespace containing all controllers
-/// </summary>
+
 namespace GR_Calcul.Controllers
 {
     /// <summary>

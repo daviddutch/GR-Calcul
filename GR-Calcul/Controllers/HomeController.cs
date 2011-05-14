@@ -4,9 +4,6 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 
-/// <summary>
-/// Namespace containing all controllers
-/// </summary>
 namespace GR_Calcul.Controllers
 {
     /// <summary>

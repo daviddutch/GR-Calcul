@@ -10,9 +10,7 @@ using GR_Calcul.Misc;
 using System.Text;
 using TaskScheduler;
 
-/// <summary>
-/// Namespace containing all controllers
-/// </summary>
+
 namespace GR_Calcul.Controllers
 {
     /// <summary>

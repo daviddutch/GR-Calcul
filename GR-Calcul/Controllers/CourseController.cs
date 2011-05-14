@@ -9,9 +9,7 @@ using System.Data;
 using GR_Calcul.Misc;
 using System.Text;
 
-/// <summary>
-/// Namespace containing all controllers
-/// </summary>
+
 namespace GR_Calcul.Controllers
 {
     /// <summary>
@@ -19,7 +17,9 @@ namespace GR_Calcul.Controllers
     /// </summary>
     public class CourseController : BaseController
     {
-        private CourseModel model = new CourseModel();
+        /// <summary>
+        /// Instance of the person model. Used to fetch data from the person module
+        /// </summary>
         private PersonModel personModel = new PersonModel();
 
         /// <summary>
@@ -216,6 +216,7 @@ namespace GR_Calcul.Controllers
         /// Page to confirm the delete of a course
         /// </summary>
         /// <param name="id">Id of the course to delete</param>
+        /// <returns>The html page to be displayed</returns>
         [DuffAuthorize(PersonType.Responsible)]
         public ActionResult Delete(int id)
         {

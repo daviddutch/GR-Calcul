@@ -11,9 +11,7 @@ using System.Data.SqlClient;
 using System.Data;
 using GR_Calcul.Misc;
 
-/// <summary>
-/// Namespace containing all the classes related to the database
-/// </summary>
+
 namespace GR_Calcul.Models
 {
     #region Models
