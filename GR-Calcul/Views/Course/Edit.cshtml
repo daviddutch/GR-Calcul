@@ -12,11 +12,6 @@
 @using (Html.BeginForm()) {
     @Html.ValidationSummary(true)
 
-    if (ViewData["error"] != null)
-    {
-        <p style="color:Red">@ViewData["error"]</p>
-    }
-
     @Html.HiddenFor(model => model.ID)
     @Html.HiddenFor(model => Model.Timestamp)
 

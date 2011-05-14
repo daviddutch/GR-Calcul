@@ -7,7 +7,13 @@
 <h2>@ViewBag.Title</h2>
 
 <h3>Êtes vous sûr de vouloir supprimer cette machine?</h3>
-@using (Html.BeginForm()) {
+@using (Html.BeginForm())
+{
+    @Html.ValidationSummary(true)
+
+     @Html.HiddenFor(model => model.id_machine)
+     <input type="hidden" id="Timestamp" name="Timestamp" value="@Model.Timestamp" />
+
     <p><b>Id machine : </b>@Html.DisplayFor(model => model.id_machine)</p>
 
     <p><b>Nom : </b>@Html.DisplayFor(model => model.Name)</p>

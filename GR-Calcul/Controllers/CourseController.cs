@@ -156,7 +156,8 @@ namespace GR_Calcul.Controllers
                 {
                     var items = personModel.GetResponsibles().Select(x => new SelectListItem() { Value = x.ID.ToString(), Text = x.toString() }).ToList();
                     ViewData["Responsibles"] = new SelectList(items, "Value", "Text", course.Responsible);
-                    ViewData["error"] = e.Message;
+
+                    ModelState.AddModelError(e.Message, e.Message);
                     return View(course);
                 }
             }
@@ -246,13 +247,17 @@ namespace GR_Calcul.Controllers
             {
                 try
                 {
-                    CourseModel.DeleteCourse(id);
+                    CourseModel.DeleteCourse(course);
 
                     return RedirectToAction("Index");
                 }
-                catch
+                catch(Exception e)
                 {
-                    return View();
+                    if (e.Message.Equals("timestamp"))
+                        ModelState.AddModelError("", "L'élément à été modifier. Veuillez revérifier les infos avant de confirmer la suppresion.");
+                    else
+                        ModelState.AddModelError("", e.Message);
+                    return View(CourseModel.GetCourse(id));
                 }
             }
             else
