@@ -6,6 +6,7 @@ using System.Web.Mvc;
 using GR_Calcul.Models;
 using System.Data.SqlClient;
 using GR_Calcul.Misc;
+using System.Globalization;
 
 
 namespace GR_Calcul.Controllers
@@ -51,15 +52,25 @@ namespace GR_Calcul.Controllers
         [HttpPost]
         public ActionResult Create(Machine machine)
         {
-            try
+            if (ModelState.IsValid)
             {
-                MachineModel.CreateMachine(machine);
-                return RedirectToAction("Index");
+                string errMsg = MachineModel.CreateMachine(machine);
+                
+                if (errMsg == "")
+                {
+                    return RedirectToAction("Index");
+                }
+
+                else
+                {
+                    ModelState.AddModelError("", errMsg);
+                    return View();
+                }
             }
-            catch (SqlException sqlError)
+            else
             {
-                System.Diagnostics.Debug.WriteLine(sqlError.Message);
-                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                // addinge extra error message here in case JS is deactivated on client.
+                ModelState.AddModelError("", "vous avez envoyé des données invalides");
                 return View();
             }
         }
@@ -81,15 +92,24 @@ namespace GR_Calcul.Controllers
         [HttpPost]
         public ActionResult Edit(int id, Machine machine)
         {
-            try
+            if (ModelState.IsValid)
             {
-                MachineModel.UpdateMachine(machine);
-                return RedirectToAction("Index");
+                string errMsg = MachineModel.UpdateMachine(machine);
+
+                if (errMsg == "")
+                {
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    ModelState.AddModelError("", errMsg);
+                    return View();
+                }
             }
-            catch (SqlException sqlError)
+            else
             {
-                System.Diagnostics.Debug.WriteLine(sqlError.Message);
-                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                // addinge extra error message here in case JS is deactivated on client.
+                ModelState.AddModelError("", "vous avez envoyé des données invalides");
                 return View();
             }
         }
@@ -108,19 +128,22 @@ namespace GR_Calcul.Controllers
         [HttpPost]
         public ActionResult Delete(int id, Machine machine)
         {
-            try
-            {
-                MachineModel.DeleteMachine(machine);
+            String errMsg = MachineModel.DeleteMachine(machine);
 
+            if(errMsg == ""){
                 return RedirectToAction("Index");
             }
-            catch (Exception e)
-            {
-                if (e.Message.Equals("timestamp"))
-                    ModelState.AddModelError("", "L'élément à été modifier. Veuillez revérifier les infos avant de confirmer la suppresion.");
-                else
-                    ModelState.AddModelError("", e.Message);
-                return View(MachineModel.getMachine(id));
+            else{
+                ModelState.AddModelError("", errMsg);
+
+                // get updated data
+                Machine machine_ = MachineModel.getMachine(id);
+
+                // update timestamp in case user really wants to delete this
+                ModelState.SetModelValue("Timestamp", new ValueProviderResult(machine_.Timestamp, "", CultureInfo.InvariantCulture));
+
+                // show new values before user decided to really delete them
+                return View(machine_);
             }
         }
     }

@@ -251,8 +251,9 @@ namespace GR_Calcul.Models
             return machine;
         }
 
-        public static void CreateMachine(Machine machine)
+        public static string CreateMachine(Machine machine)
         {
+            string errMsg = "";
             try
             {
                 SqlConnection db = new SqlConnection(connectionString);
@@ -268,7 +269,7 @@ namespace GR_Calcul.Models
                                                    "VALUES (@name, @IP, @id_room);", db, transaction);
 
                     cmd.Parameters.Add("@name", SqlDbType.Char).Value = machine.Name;
-                    cmd.Parameters.Add("@IP", SqlDbType.Char).Value = machine.IP;
+                    cmd.Parameters.Add("@IP", SqlDbType.Char).Value = machine.IP ?? "";
                     cmd.Parameters.Add("@id_room", SqlDbType.Int).Value = machine.id_room;
 
                     cmd.ExecuteNonQuery();
@@ -280,6 +281,7 @@ namespace GR_Calcul.Models
                     System.Diagnostics.Debug.WriteLine(sqlError.Message);
                     System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
                     transaction.Rollback();
+                    errMsg += " "+Messages.errProd;
                 }
                 db.Close();
             }
@@ -287,13 +289,16 @@ namespace GR_Calcul.Models
             {
                 System.Diagnostics.Debug.WriteLine(sqlError.Message);
                 System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                errMsg += " " + Messages.errProd;
             }
+
+            return errMsg;
         }
 
 
-        public static void UpdateMachine(Machine machine)
+        public static string UpdateMachine(Machine machine)
         {
-            bool updated = true;
+            string errMsg = "";
 
             try
             {
@@ -336,7 +341,7 @@ namespace GR_Calcul.Models
                     {
                         rdr.Close();
                         System.Diagnostics.Debug.WriteLine("Cross modify");
-                        updated = false;
+                        errMsg += " Veuillez reessayer. Il se peut que cette machine ait été modifié entre temps.";
                     }
 
                     transaction.Commit();
@@ -346,6 +351,7 @@ namespace GR_Calcul.Models
                     System.Diagnostics.Debug.WriteLine(sqlError.Message);
                     System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
                     transaction.Rollback();
+                    errMsg += " " + Messages.errProd;
                 }
                 db.Close();
             }
@@ -353,13 +359,15 @@ namespace GR_Calcul.Models
             {
                 System.Diagnostics.Debug.WriteLine(sqlError.Message);
                 System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                errMsg += " " + Messages.errProd;
             }
-            if (!updated) throw new Exception("timestamp");
+
+            return errMsg;
         }
 
-        public static void DeleteMachine(Machine machine)
+        public static String DeleteMachine(Machine machine)
         {
-            bool deleted = true;
+            String errMsg = "";
 
             try
             {
@@ -396,8 +404,8 @@ namespace GR_Calcul.Models
                     else
                     {
                         rdr.Close();
+                        errMsg += " "+Messages.recommencerDelete;
                         Console.WriteLine("Cross modify");
-                        deleted = false;
                     }
 
                     transaction.Commit();
@@ -407,6 +415,7 @@ namespace GR_Calcul.Models
                     System.Diagnostics.Debug.WriteLine(e.Message);
                     System.Diagnostics.Debug.WriteLine(e.StackTrace);
                     transaction.Rollback();
+                    errMsg += " "+Messages.errProd;
                 }
                 db.Close();
             }
@@ -414,8 +423,10 @@ namespace GR_Calcul.Models
             {
                 System.Diagnostics.Debug.WriteLine(e.Message);
                 System.Diagnostics.Debug.WriteLine(e.StackTrace);
+                errMsg += " " + Messages.errProd;
             }
-            if (!deleted) throw new Exception("timestamp");
+
+            return errMsg;
         }
     }
 }

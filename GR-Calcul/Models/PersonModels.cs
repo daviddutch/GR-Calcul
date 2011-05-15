@@ -824,8 +824,10 @@ namespace GR_Calcul.Models
             return rows;
         }
 
-        internal void DeletePerson(Person2 person)
+        internal String DeletePerson(Person2 person)
         {
+            String errMsg = "";
+
             try
             {
                 SqlConnection conn = new SqlConnection(ConnectionManager.GetConnectionString());
@@ -836,12 +838,34 @@ namespace GR_Calcul.Models
                 transaction = conn.BeginTransaction(IsolationLevel.RepeatableRead);
                 try
                 {
-                    SqlCommand cmd = new SqlCommand("DELETE FROM [" + person.pType.ToString() + "] " +
-                                                    "WHERE id_person=@id;", conn, transaction);
+                    byte[] timestamp = person.getByteTimestamp();
+
+                    SqlCommand cmd = new SqlCommand("SELECT * " +
+                                                    "FROM [" + person.pType.ToString() + "] " +
+                                                    "WHERE id_person=@id AND timestamp=@timestamp;", conn, transaction);
 
                     cmd.Parameters.Add("@id", SqlDbType.Int).Value = person.ID;
+                    cmd.Parameters.Add("@timestamp", SqlDbType.Binary).Value = timestamp;
 
-                    cmd.ExecuteNonQuery();
+                    SqlDataReader rdr = cmd.ExecuteReader();
+
+                    if (rdr.Read())
+                    {
+                        rdr.Close();
+
+                        cmd = new SqlCommand("DELETE FROM [" + person.pType.ToString() + "] " +
+                                             "WHERE id_person=@id;", conn, transaction);
+
+                        cmd.Parameters.Add("@id", SqlDbType.Int).Value = person.ID;
+
+                        cmd.ExecuteNonQuery();
+                    }
+                    else
+                    {
+                        rdr.Close();
+                        errMsg += " "+ Messages.recommencerDelete;
+                        Console.WriteLine("Cross modify");
+                    }
 
                     transaction.Commit();
                 }
@@ -850,6 +874,7 @@ namespace GR_Calcul.Models
                     System.Diagnostics.Debug.WriteLine(sqlError.Message);
                     System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
                     transaction.Rollback();
+                    errMsg += " " + Messages.errProd;
                 }
                 conn.Close();
             }
@@ -857,10 +882,13 @@ namespace GR_Calcul.Models
             {
                 System.Diagnostics.Debug.WriteLine(sqlError.Message);
                 System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                errMsg += " " + Messages.errProd;
             }
+
+            return errMsg;
         }
 
-        internal string GetEmailCSV(List<Person> persons)
+        internal String GetEmailCSV(List<Person> persons)
         {
             List<string> emails = new List<string>();
             persons.ForEach(delegate(Person person)

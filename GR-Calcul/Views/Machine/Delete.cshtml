@@ -12,7 +12,7 @@
     @Html.ValidationSummary(true)
 
      @Html.HiddenFor(model => model.id_machine)
-     <input type="hidden" id="Timestamp" name="Timestamp" value="@Model.Timestamp" />
+     @Html.HiddenFor(model => model.Timestamp)
 
     <p><b>Id machine : </b>@Html.DisplayFor(model => model.id_machine)</p>
 
@@ -31,6 +31,6 @@
     </div>*@
     <p>
         <input type="submit" value="Supprimer" /> |
-        @Html.ActionLink("Retour à la liste", "Index")
+        @Html.ActionLink(GR_Calcul.Misc.Messages.retList, "Index")
     </p>
 }
