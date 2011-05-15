@@ -118,38 +118,7 @@ namespace GR_Calcul.Models
         }
     }
 
-    public class Person2 : Person2Edit
-    {
-        [Required]
-        [Display(Name = "Mot de passe")]
-        public string Password { get; set; }
-
-        public Person2() { }
-
-        public Person2(Person person) {
-            pType = person.pType;
-            ID = person.ID;
-            FirstName = person.FirstName;
-            LastName = person.LastName;
-            Email = person.Email;
-            Password = person.Password;
-            Username = person.Username;
-            Timestamp = person.Timestamp;
-        }
-
-        public Person2(PersonType type, int id_person, string firstName, string lastName, string username, string email, string password)
-        {
-            pType = type;
-            ID = id_person;
-            FirstName = firstName;
-            LastName = lastName;
-            Email = email;
-            Password = password;
-            Username = username;
-        }
-    }
-
-    public class Person2Edit
+    public class Person2
     {
         [Required]
         [Display(Name = "Type de personne")]
@@ -172,6 +141,10 @@ namespace GR_Calcul.Models
         [Required]
         [Display(Name = "Nom d'utilisateur")]
         public string Username { get; set; }
+
+        [Required]
+        [Display(Name = "Mot de passe")]
+        public string Password { get; set; }
 
         //[Required]
         [Timestamp]
@@ -197,25 +170,27 @@ namespace GR_Calcul.Models
             return false;
         }
 
-        public Person2Edit() { }
+        public Person2() { }
 
-        public Person2Edit(Person person) {
+        public Person2(Person person) {
             pType = person.pType;
             ID = person.ID;
             FirstName = person.FirstName;
             LastName = person.LastName;
             Email = person.Email;
+            Password = person.Password;
             Username = person.Username;
             Timestamp = person.Timestamp;
         }
 
-        public Person2Edit(PersonType type, int id_person, string firstName, string lastName, string username, string email)
+        public Person2(PersonType type, int id_person, string firstName, string lastName, string username, string email, string password)
         {
             pType = type;
             ID = id_person;
             FirstName = firstName;
             LastName = lastName;
             Email = email;
+            Password = password;
             Username = username;
         }
 
@@ -679,7 +654,7 @@ namespace GR_Calcul.Models
             return username;
         }
 
-        internal string UpdatePerson(Person2Edit person)
+        internal string UpdatePerson(Person2 person)
         {
             bool updated = true;
             string errMsg = "";

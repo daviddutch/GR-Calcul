@@ -44,6 +44,8 @@ namespace GR_Calcul.Models
 
         private CourseModel courseModel = new CourseModel();
 
+        public Boolean locked { get; set; }
+
         [Timestamp]
         [HiddenInput(DisplayValue = false)]
         public string Timestamp { get; set; }
@@ -152,6 +154,18 @@ namespace GR_Calcul.Models
             this.EndRes = endRes;
             this.Name = name;
             this.IdCourse = id_course;
+        }
+
+        // for getSlotRange
+        public SlotRange(int id_slotRange, DateTime startRes, DateTime endRes, string name, int id_course, bool locked)
+            : this()
+        {
+            this.id_slotRange = id_slotRange;
+            this.StartRes = startRes;
+            this.EndRes = endRes;
+            this.Name = name;
+            this.IdCourse = id_course;
+            this.locked = locked;
         }
 
         // CD: should perhaps replace the simpler constructor
@@ -609,7 +623,9 @@ namespace GR_Calcul.Models
                     //    "[name] ,[id_course] , convert(int, [timestamp]) as timestamp FROM SlotRange WHERE id_slotRange=@id;", db, transaction);
 
                     SqlCommand cmd = new SqlCommand("SELECT [startRes] ,[endRes] ," +
-                        "[name] ,[id_course] , [timestamp] FROM SlotRange WHERE id_slotRange=@id;", db, transaction);
+                        "[name] ,[id_course] , [timestamp], " +
+                        "CASE  WHEN DATEDIFF(d, startRes, GETDATE ())  >= 0 AND DATEDIFF(d, GETDATE(), endRes) >= 0 THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END locked " +
+                        "FROM SlotRange WHERE id_slotRange=@id;", db, transaction);
 
 
                     cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
@@ -622,8 +638,9 @@ namespace GR_Calcul.Models
                         DateTime endRes = rdr.GetDateTime(rdr.GetOrdinal("endRes"));
                         string name = rdr.GetString(rdr.GetOrdinal("name"));
                         int id_course = rdr.GetInt32(rdr.GetOrdinal("id_course"));
+                        Boolean locked = rdr.GetBoolean(rdr.GetOrdinal("locked"));
 
-                        range = new SlotRange(id, startRes, endRes, name, id_course);
+                        range = new SlotRange(id, startRes, endRes, name, id_course, locked);
                         //range.Timestamp = rdr.GetInt32(rdr.GetOrdinal("timestamp"));
                         byte[] buffer = new byte[100];
                         rdr.GetBytes(rdr.GetOrdinal("timestamp"), 0, buffer, 0, 100);

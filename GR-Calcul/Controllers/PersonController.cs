@@ -86,9 +86,17 @@ namespace GR_Calcul.Controllers
         // POST: /Person/Edit/5
         [DuffAuthorize(PersonType.ResourceManager)]
         [HttpPost]
-        public ActionResult Edit(int id, Person2Edit person)
+        public ActionResult Edit(int id, Person2 person)
         {
-            if (ModelState.IsValid)
+            // all but password !
+            if (ModelState.IsValidField("ID") && 
+                ModelState.IsValidField("pType") &&
+                ModelState.IsValidField("Timestamp") &&
+                ModelState.IsValidField("FirstName") &&
+                ModelState.IsValidField("LastName") &&
+                ModelState.IsValidField("Email") &&
+                ModelState.IsValidField("Username")
+            )
             {
                 string errMsg = model.UpdatePerson(person);
 

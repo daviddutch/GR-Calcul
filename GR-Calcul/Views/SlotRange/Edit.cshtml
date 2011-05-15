@@ -7,11 +7,9 @@
 
 <h2>@ViewBag.Title</h2>
 
-
 <script type="text/javascript">
     enableWizard(false);
     enableRoomBoxes();
-    //loadTooltips("fieldset :input.lollipop");
 </script>
 
 @using (Html.BeginForm())
@@ -19,10 +17,10 @@
     @Html.ValidationSummary(true)
     <fieldset>
        @{
-            if (ViewData["Error"] != null)
-            {
+if (ViewData["Error"] != null)
+{
                 <p style="color:Red">@ViewData["Error"]</p>
-            }
+}
         }
 
         <div class="wizard-step">
@@ -33,8 +31,15 @@
                 @Html.LabelFor(model => model.Name)
             </div>
             <div class="editor-field">
+            @if (Model.locked)
+            {                
+                @Html.DisplayFor(model => model.Name)
+            }
+            else
+            {
                 @Html.EditorFor(model => model.Name)
                 @Html.ValidationMessageFor(model => model.Name)
+            }
             </div>
 
             <div class="editor-label">
@@ -57,8 +62,17 @@
                 @Html.LabelFor(model => model.IdCourse)
             </div>
             <div class="editor-field">
+             @if (Model.locked)
+            {                 
+                @Html.HiddenFor(model => Model.IdCourse)
+@*                @Html.DropDownList("IdCourse")
+*@            }
+            else
+            {
                 @Html.DropDownList("IdCourse")
                 @Html.ValidationMessageFor(model => model.IdCourse)
+            }
+
             </div>
 
             <div class="editor-label">
@@ -69,19 +83,29 @@
                 <ul class="machines">
                     @foreach (var room in new GR_Calcul.Models.RoomModel().ListRooms())
                     {
-						<li><input novalidation="true" type="checkbox" id="room-@room.ID" class="roomBox" title="select all machines in room @room.Name" /><label for="@room.ID">@room.Name</label>
+                        var isDisabled = "";
+                        if (Model.locked)
+                        {
+                            isDisabled += "disabled='disabled'";
+                        }              
+						<li><input novalidation="true" type="checkbox" id="room-@room.ID" class="roomBox" title="select all machines in room @room.Name" @isDisabled /><label for="@room.ID">@room.Name</label>
                             <ul>
-                                @foreach (var machine in new GR_Calcul.Models.MachineModel().ListMachines(@room.ID))
+                                @foreach (var machine in GR_Calcul.Models.MachineModel.ListMachines(@room.ID))
                                 {
                                     var isChecked = "";
+                                    isDisabled = "";
                                     if (Model != null)
                                     {
                                         if (Model.Machines.Contains(machine))
                                         {
                                             isChecked = "checked='checked'";
                                         }
+                                        if (Model.locked)
+                                        {
+                                            isDisabled = "disabled='disabled'";
+                                        }
                                     }
-                                    <li><input novalidation="true" type="checkbox" id="machine-@machine.id_machine" value="@machine.id_machine" name="Machines" room="inroom-room-@room.ID" @isChecked /><label for="@machine.id_machine">@machine.Name</label></li>
+                                    <li><input novalidation="true" type="checkbox" id="machine-@machine.id_machine" value="@machine.id_machine" name="Machines" room="inroom-room-@room.ID" @isChecked @isDisabled /><label for="@machine.id_machine">@machine.Name</label></li>
                                 }
 							</ul>
 						</li>
@@ -94,7 +118,7 @@
             <h3>Étape 2: choix des créneaux</h3>
             <table class="simpleTable" id="slotTable">
                 @{
-           int cols = Model.getNumberOfSlotCols();               
+                    int cols = Model.getNumberOfSlotCols();               
                 }
                     <thead>
 				    <tr style="text-align:center;">
