@@ -456,7 +456,7 @@ namespace GR_Calcul.Models
                     cmd.Parameters.Add("@firstname", SqlDbType.Char).Value = person.FirstName;
                     cmd.Parameters.Add("@lastname", SqlDbType.Char).Value = person.LastName;
                     cmd.Parameters.Add("@username", SqlDbType.Char).Value = person.Username;
-               
+
                     cmd.ExecuteNonQuery();
 
                     transaction.Commit();
@@ -466,8 +466,16 @@ namespace GR_Calcul.Models
                     System.Diagnostics.Debug.WriteLine(sqlError.Message);
                     System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
                     transaction.Rollback();
+                    if (sqlError.Number > 50000)// 50001 == duplicate user, 50002 == duplicate email
+                    {
+                        throw sqlError;
+                    }
+
                 }
-                db.Close();
+                finally
+                {
+                    db.Close();
+                }
             }
             catch (SqlException sqlError)
             {
@@ -743,13 +751,16 @@ namespace GR_Calcul.Models
                 {
                     System.Diagnostics.Debug.WriteLine(sqlError.Message);
                     System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
-                    if (sqlError.Number == 50001)// 50001 == duplicate user. C.f. Error Message Numbers List in separate file
-                    {
-                        System.Diagnostics.Debug.WriteLine("here we need to inform the user of the Error (duplicate user)!!!");
-                    }
                     transaction.Rollback();
+                    if (sqlError.Number > 50000)// 50001 == duplicate user, 50002 == duplicate email
+                    {
+                        throw sqlError;
+                    }
                 }
-                db.Close();
+                finally
+                {
+                    db.Close();
+                }
             }
             catch (SqlException sqlError)
             {
