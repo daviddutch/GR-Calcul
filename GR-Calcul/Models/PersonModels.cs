@@ -8,6 +8,7 @@ using System.Data.SqlClient;
 using System.Data;
 using System.Web.Security;
 using GR_Calcul.Misc;
+using DataAnnotationsExtensions;
 
 
 namespace GR_Calcul.Models
@@ -42,34 +43,37 @@ namespace GR_Calcul.Models
         {
             get { return new SelectList(pTypes, "Key", "Value"); }
         }
-        [Required]
-        [Display(Name = "Type de personne")]
+
+        //[Required]
+        //[Display(Name = "Type de personne")]
         public PersonType pType { get; set; }
 
         public int ID { get; set; }
-        [Required]
-        [Display(Name = "Prénom")]
+
+        //[Required]
+        //[Display(Name = "Prénom")]
         public string FirstName { get; set; }
 
-        [Required]
-        [Display(Name = "Nom")]
+        //[Required]
+        //[Display(Name = "Nom")]
         public string LastName { get; set; }
 
-        [Required]
-        [Display(Name = "Email")]
+        //[Required]
+        //[Email]
+        //[Display(Name = "Email")]
         public override string Email { get; set; }
 
-        [Required]
-        [Display(Name = "Nom d'utilisateur")]
+        //[Required]
+        //[Display(Name = "Nom d'utilisateur")]
         public string Username { get; set; }
 
-        [Required]
-        [Display(Name = "Mot de passe")]
+        //[Required]
+        //[Display(Name = "Mot de passe")]
         public string Password { get; set; }
 
         //[Required]
-        [Timestamp]
-        [HiddenInput(DisplayValue = false)]
+        //[Timestamp]
+        //[HiddenInput(DisplayValue = false)]
         public string Timestamp { get; set; }
 
         public byte[] getByteTimestamp()
@@ -114,9 +118,39 @@ namespace GR_Calcul.Models
         }
     }
 
-    public class Person2
+    public class Person2 : Person2Edit
     {
+        [Required]
+        [Display(Name = "Mot de passe")]
+        public string Password { get; set; }
 
+        public Person2() { }
+
+        public Person2(Person person) {
+            pType = person.pType;
+            ID = person.ID;
+            FirstName = person.FirstName;
+            LastName = person.LastName;
+            Email = person.Email;
+            Password = person.Password;
+            Username = person.Username;
+            Timestamp = person.Timestamp;
+        }
+
+        public Person2(PersonType type, int id_person, string firstName, string lastName, string username, string email, string password)
+        {
+            pType = type;
+            ID = id_person;
+            FirstName = firstName;
+            LastName = lastName;
+            Email = email;
+            Password = password;
+            Username = username;
+        }
+    }
+
+    public class Person2Edit
+    {
         [Required]
         [Display(Name = "Type de personne")]
         public PersonType pType { get; set; }
@@ -131,16 +165,13 @@ namespace GR_Calcul.Models
         public string LastName { get; set; }
 
         [Required]
+        [Email]
         [Display(Name = "Email")]
         public string Email { get; set; }
 
         [Required]
         [Display(Name = "Nom d'utilisateur")]
         public string Username { get; set; }
-
-        [Required]
-        [Display(Name = "Mot de passe")]
-        public string Password { get; set; }
 
         //[Required]
         [Timestamp]
@@ -166,34 +197,34 @@ namespace GR_Calcul.Models
             return false;
         }
 
-        public Person2() { }
+        public Person2Edit() { }
 
-        public Person2(Person person) {
+        public Person2Edit(Person person) {
             pType = person.pType;
             ID = person.ID;
             FirstName = person.FirstName;
             LastName = person.LastName;
             Email = person.Email;
-            Password = person.Password;
             Username = person.Username;
             Timestamp = person.Timestamp;
         }
 
-        public Person2(PersonType type, int id_person, string firstName, string lastName, string username, string email, string password)
+        public Person2Edit(PersonType type, int id_person, string firstName, string lastName, string username, string email)
         {
             pType = type;
             ID = id_person;
             FirstName = firstName;
             LastName = lastName;
             Email = email;
-            Password = password;
             Username = username;
         }
+
         public String toString()
         {
             return FirstName + " " + LastName;
         }
     }
+
 
     public class PersonModel
     {
@@ -380,8 +411,9 @@ namespace GR_Calcul.Models
             return list;
         }
 
-        internal void CreatePerson(Person2 person)
+        internal string CreatePerson(Person2 person)
         {
+            string errMsg = "";
             try
             {
                 SqlConnection db = new SqlConnection(ConnectionManager.GetConnectionString());
@@ -412,11 +444,11 @@ namespace GR_Calcul.Models
                     System.Diagnostics.Debug.WriteLine(sqlError.Message);
                     System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
                     transaction.Rollback();
-                    if (sqlError.Number > 50000)// 50001 == duplicate user, 50002 == duplicate email
+                    errMsg += "il y a eu un problème à l'insertion. Vérifiez qu'aucun autre utilisateur existe avec le même nom ou le même adresse email!";
+                    if (sqlError.Number > 50000)
                     {
-                        throw sqlError;
+                        errMsg += " ERROR: " + sqlError.Message;
                     }
-
                 }
                 finally
                 {
@@ -427,7 +459,10 @@ namespace GR_Calcul.Models
             {
                 System.Diagnostics.Debug.WriteLine(sqlError.Message);
                 System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                errMsg += "il y a eu un problème";
             }
+
+            return errMsg;
         }
 
         internal Person getPerson(int id, PersonType pType)
@@ -644,9 +679,10 @@ namespace GR_Calcul.Models
             return username;
         }
 
-        internal void UpdatePerson(Person2 person)
+        internal string UpdatePerson(Person2Edit person)
         {
             bool updated = true;
+            string errMsg = "";
 
             try
             {
@@ -698,22 +734,27 @@ namespace GR_Calcul.Models
                     System.Diagnostics.Debug.WriteLine(sqlError.Message);
                     System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
                     transaction.Rollback();
-                    if (sqlError.Number > 50000)// 50001 == duplicate user, 50002 == duplicate email
+                    errMsg += "il y a eu un problème avec la mise-à-jour. Vérifiez qu'aucun autre utilisateur existe avec le même nom ou le même adresse email!";
+                    if (sqlError.Number > 50000)
                     {
-                        throw sqlError;
+                        errMsg += " ERROR: " + sqlError.Message;
                     }
                 }
                 finally
                 {
                     db.Close();
                 }
+
             }
             catch (SqlException sqlError)
             {
                 System.Diagnostics.Debug.WriteLine(sqlError.Message);
                 System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
             }
+
             if (!updated) throw new Exception("timestamp");
+
+            return errMsg;
         }
 
         internal int ChangePassword(string username, string newpassword)

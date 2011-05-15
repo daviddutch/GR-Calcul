@@ -63,8 +63,8 @@
     <div class="editor-label">
         @Html.LabelFor(model => model.pType)
     </div>
-    <div class="editor-field">
-        @Html.DropDownList("Type", GR_Calcul.Models.Person.pTypeSel)
+    <div class="editor-field">@* CD 2011-05-15: this has to be called "pType", not "Type"! *@
+        @Html.DropDownList("pType", GR_Calcul.Models.Person.pTypeSel)
     </div>
 
     <p>
