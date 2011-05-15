@@ -9,9 +9,7 @@ using System.Data;
 using System.Web.Mvc;
 using GR_Calcul.Misc;
 
-/// <summary>
-/// Namespace containing all the classes related to the database
-/// </summary>
+
 namespace GR_Calcul.Models
 {   
     public class Machine
@@ -70,7 +68,7 @@ namespace GR_Calcul.Models
     {
         static private String connectionString = ConnectionManager.GetConnectionString();//System.Configuration.ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString;
 
-        public List<Machine> ListMachines(int id_room)
+        public static List<Machine> ListMachines(int id_room)
         {
             List<Machine> list = new List<Machine>();
 
@@ -133,7 +131,7 @@ namespace GR_Calcul.Models
             return list;
         }
 
-        public List<Machine> ListMachines()
+        public static List<Machine> ListMachines()
         {
             List<Machine> list = new List<Machine>();
 
@@ -193,7 +191,7 @@ namespace GR_Calcul.Models
             return list;
         }
 
-        public Machine getMachine(int id)
+        public static Machine getMachine(int id)
         {
             Machine machine = null;
 
@@ -253,7 +251,7 @@ namespace GR_Calcul.Models
             return machine;
         }
 
-        public void CreateMachine(Machine machine)
+        public static void CreateMachine(Machine machine)
         {
             try
             {
@@ -293,7 +291,7 @@ namespace GR_Calcul.Models
         }
 
 
-        public void UpdateMachine(Machine machine)
+        public static void UpdateMachine(Machine machine)
         {
             bool updated = true;
 
@@ -359,8 +357,10 @@ namespace GR_Calcul.Models
             if (!updated) throw new Exception("timestamp");
         }
 
-        public void DeleteMachine(int id)
+        public static void DeleteMachine(Machine machine)
         {
+            bool deleted = true;
+
             try
             {
                 SqlConnection db = new SqlConnection(connectionString);
@@ -371,28 +371,51 @@ namespace GR_Calcul.Models
                 transaction = db.BeginTransaction(IsolationLevel.RepeatableRead);
                 try
                 {
-                    SqlCommand cmd = new SqlCommand("DELETE FROM Machine " +
-                                                    "WHERE id_machine=@id;", db, transaction);
+                    byte[] timestamp = machine.getByteTimestamp();
 
-                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
+                    SqlCommand cmd = new SqlCommand("SELECT * " +
+                                                    "FROM Machine M " +
+                                                    "WHERE M.id_machine=@id_machine AND M.timestamp=@timestamp;", db, transaction);
 
-                    cmd.ExecuteNonQuery();
+                    cmd.Parameters.Add("@id_machine", SqlDbType.Int).Value = machine.id_machine;
+                    cmd.Parameters.Add("@timestamp", SqlDbType.Binary).Value = timestamp;
+
+                    SqlDataReader rdr = cmd.ExecuteReader();
+
+                    if (rdr.Read())
+                    {
+                        rdr.Close();
+
+                        cmd = new SqlCommand("DELETE FROM Machine " +
+                                             "WHERE id_machine=@id;", db, transaction);
+
+                        cmd.Parameters.Add("@id", SqlDbType.Int).Value = machine.id_machine;
+
+                        cmd.ExecuteNonQuery();
+                    }
+                    else
+                    {
+                        rdr.Close();
+                        Console.WriteLine("Cross modify");
+                        deleted = false;
+                    }
 
                     transaction.Commit();
                 }
-                catch (SqlException sqlError)
+                catch(Exception e)
                 {
-                    System.Diagnostics.Debug.WriteLine(sqlError.Message);
-                    System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                    System.Diagnostics.Debug.WriteLine(e.Message);
+                    System.Diagnostics.Debug.WriteLine(e.StackTrace);
                     transaction.Rollback();
                 }
                 db.Close();
             }
-            catch (SqlException sqlError)
+            catch(Exception e)
             {
-                System.Diagnostics.Debug.WriteLine(sqlError.Message);
-                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                System.Diagnostics.Debug.WriteLine(e.Message);
+                System.Diagnostics.Debug.WriteLine(e.StackTrace);
             }
+            if (!deleted) throw new Exception("timestamp");
         }
     }
 }

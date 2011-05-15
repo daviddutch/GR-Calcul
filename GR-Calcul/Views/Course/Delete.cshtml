@@ -1,31 +1,26 @@
 ﻿@model GR_Calcul.Models.Course
 
 @{
-    ViewBag.Title = "Delete";
+    ViewBag.Title = "Supprimer";
 }
 
-<h2>Delete</h2>
+<h2>Supprimer un cours</h2>
 
-<h3>Are you sure you want to delete this?</h3>
-<fieldset>
-    <legend>Course</legend>
-
-    <div class="display-label">Name</div>
-    <div class="display-field">@Model.Name</div>
-
-    <div class="display-label">Key</div>
-    <div class="display-field">@Model.Key</div>
-
-    <div class="display-label">Active</div>
-    <div class="display-field">@Model.Active</div>
-
-    <div class="display-label">Responsible</div>
-    <div class="display-field">@Model.Responsible</div>
-</fieldset>
+<h3>Etes vous sur de voir suprimer ce cours ?</h3>
 @using (Html.BeginForm()) {
+    @Html.ValidationSummary(true)
+
+     @Html.HiddenFor(model => model.ID)
+     <input type="hidden" id="Timestamp" name="Timestamp" value="@Model.Timestamp" />
+
+<p><b>Nom : </b>@Model.Name</p>
+<p><b>Responsable : </b>@Model.Responsible</p>
+<p><b>Clefs : </b>@Model.Key</p>
+
+
     <p>
-        <input type="submit" value="Delete" /> |
-        @Html.ActionLink("Back to List", "Index")
+        <input type="submit" value="Supprimer" /> |
+        @Html.ActionLink("Retour à la liste", "Index")
     </p>
 }
 

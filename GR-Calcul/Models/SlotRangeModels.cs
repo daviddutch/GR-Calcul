@@ -15,9 +15,7 @@ using System.Xml.Xsl;
 using System.IO;
 using GR_Calcul.Misc;
 
-/// <summary>
-/// Namespace containing all the classes related to the database
-/// </summary>
+
 namespace GR_Calcul.Models
 {
     public class CourseRangesViewModel
@@ -927,18 +925,12 @@ namespace GR_Calcul.Models
                 transaction = db.BeginTransaction(IsolationLevel.RepeatableRead);
                 try
                 {
-                    //int timestamp = range.Timestamp;
                     byte[] timestamp = range.getByteTimestamp();
-
-
-                    //SqlCommand cmd = new SqlCommand("SELECT * FROM SlotRange R " +
-                    //        "WHERE R.[id_slotRange]=@id AND convert(int, R.timestamp)=@timestamp;", db, transaction);
 
                     SqlCommand cmd = new SqlCommand("SELECT * FROM SlotRange R " +
                         "WHERE R.[id_slotRange]=@id AND R.timestamp=@timestamp;", db, transaction);
 
                     cmd.Parameters.Add("@id", SqlDbType.Int).Value = range.id_slotRange;
-                    //cmd.Parameters.Add("@timestamp", SqlDbType.Int).Value = timestamp;
                     cmd.Parameters.Add("@timestamp", SqlDbType.Binary).Value = timestamp;
 
                     SqlDataReader rdr = cmd.ExecuteReader();

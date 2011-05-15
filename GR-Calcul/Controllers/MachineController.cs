@@ -7,9 +7,7 @@ using GR_Calcul.Models;
 using System.Data.SqlClient;
 using GR_Calcul.Misc;
 
-/// <summary>
-/// Namespace containing all controllers
-/// </summary>
+
 namespace GR_Calcul.Controllers
 {
     /// <summary>
@@ -33,16 +31,9 @@ namespace GR_Calcul.Controllers
         [DuffAuthorize(PersonType.ResourceManager, PersonType.Responsible)]
         public ActionResult List()
         {
-            return View(model.ListMachines());
+            return View(MachineModel.ListMachines());
         }
 
-        //
-        // GET: /Machine/Details/5
-
-        //public ActionResult Details(int id)
-        //{
-        //    return View(model.getMachine(id));
-        //}
 
         //
         // GET: /Machine/Create
@@ -62,8 +53,7 @@ namespace GR_Calcul.Controllers
         {
             try
             {
-                // TODO: Add insert logic here
-                model.CreateMachine(machine);
+                MachineModel.CreateMachine(machine);
                 return RedirectToAction("Index");
             }
             catch (SqlException sqlError)
@@ -79,7 +69,7 @@ namespace GR_Calcul.Controllers
         [DuffAuthorize(PersonType.ResourceManager)] 
         public ActionResult Edit(int id)
         {
-            Machine machine = model.getMachine(id);
+            Machine machine = MachineModel.getMachine(id);
             var items = roomModel.ListRooms().Select(x => new SelectListItem() { Value = x.ID.ToString(), Text = x.Name.ToString() }).ToList();
             ViewData["Rooms"] = new SelectList(items, "Value", "Text", machine.id_room);
             return View(machine);
@@ -93,7 +83,7 @@ namespace GR_Calcul.Controllers
         {
             try
             {
-                model.UpdateMachine(machine);
+                MachineModel.UpdateMachine(machine);
                 return RedirectToAction("Index");
             }
             catch (SqlException sqlError)
@@ -109,23 +99,28 @@ namespace GR_Calcul.Controllers
         [DuffAuthorize(PersonType.ResourceManager)]
         public ActionResult Delete(int id)
         {
-            return View(model.getMachine(id));
+            return View(MachineModel.getMachine(id));
         }
 
         //
         // POST: /Machine/Delete/5
         [DuffAuthorize(PersonType.ResourceManager)]
         [HttpPost]
-        public ActionResult Delete(int id, FormCollection collection)
+        public ActionResult Delete(int id, Machine machine)
         {
             try
             {
-                model.DeleteMachine(id);
+                MachineModel.DeleteMachine(machine);
+
                 return RedirectToAction("Index");
             }
-            catch
+            catch (Exception e)
             {
-                return View();
+                if (e.Message.Equals("timestamp"))
+                    ModelState.AddModelError("", "L'élément à été modifier. Veuillez revérifier les infos avant de confirmer la suppresion.");
+                else
+                    ModelState.AddModelError("", e.Message);
+                return View(MachineModel.getMachine(id));
             }
         }
     }
