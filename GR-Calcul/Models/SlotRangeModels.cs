@@ -1184,6 +1184,12 @@ namespace GR_Calcul.Models
                     System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
                     transaction.Rollback();
                     inserted = false;
+
+                    if (sqlError.Number > 50000)
+                    {
+                        // throw user exception message here for sqlException.Number > 50000 !!!
+                        throw new NotImplementedException();
+                    }
                 }
                 catch (Exception ex)
                 {

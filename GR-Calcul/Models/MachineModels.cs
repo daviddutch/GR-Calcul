@@ -365,7 +365,7 @@ namespace GR_Calcul.Models
             return errMsg;
         }
 
-        public static String DeleteMachine(Machine machine)
+        public static string DeleteMachine(Machine machine)
         {
             String errMsg = "";
 
@@ -425,7 +425,8 @@ namespace GR_Calcul.Models
                 System.Diagnostics.Debug.WriteLine(e.StackTrace);
                 errMsg += " " + Messages.errProd;
             }
-
+            if (!errMsg.Equals(""))
+                throw new Exception(errMsg);
             return errMsg;
         }
 
