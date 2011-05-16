@@ -30,7 +30,7 @@ function enableWizard(buildLastStep) {
         $("#back-step").click(function () {
             var $step = $(".wizard-step:visible");
             if ($step.next().hasClass("wizard-step")) {
-                $("#next-step").val("suivant");
+                $("#next-step").val("Suivant");
             }
         });
 
@@ -65,7 +65,7 @@ function enableWizard(buildLastStep) {
 
 
             if (!$step.next().next().hasClass("wizard-step")) {
-                $("#next-step").val("terminer");
+                $("#next-step").val("Terminer");
             }
             if (buildLastStep) {
                 if (!$step.next().next().hasClass("wizard-step") && $step.next().hasClass("wizard-step")) {

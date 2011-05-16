@@ -68,5 +68,5 @@ $(document).ready(function () {
     });
 
 
-    $("input:submit, a.button").button();
+    $("input:submit, .button").button();
 });

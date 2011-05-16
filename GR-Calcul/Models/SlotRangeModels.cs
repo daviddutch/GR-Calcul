@@ -783,6 +783,44 @@ namespace GR_Calcul.Models
             return slot;
         }
 
+        public static void DuplicateSlotRange(SlotRange source, int days)
+        {
+            try
+            {
+                SqlConnection db = new SqlConnection(connectionString);
+                SqlTransaction transaction;
+                db.Open();
+
+                transaction = db.BeginTransaction(IsolationLevel.ReadUncommitted);
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("sp_duplSlotRange", db, transaction);
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    cmd.Parameters.Add("@id", SqlDbType.Int).Value   = source.id_slotRange;
+                    cmd.Parameters.Add("@days", SqlDbType.Int).Value = days;
+
+                    cmd.ExecuteNonQuery();
+
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new GrException(e, Messages.errProd);
+                }
+                finally
+                {
+                    db.Close();
+                }
+            }
+            catch(Exception e)
+            {
+                if (e is GrException) throw e;
+                throw new GrException(e, Messages.errProd);
+            }
+        }
+
         public static void CreateSlotRange(SlotRange range)
         {
             try
