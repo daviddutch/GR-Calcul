@@ -297,10 +297,9 @@ namespace GR_Calcul.Models
                     else
                     {
                         rdr.Close();
-                        errMsg += " " + Messages.recommencerDelete;
                         Console.WriteLine("Cross modify");
+                        throw new GrException(Messages.recommencerDelete);
                     }
-
 
                     transaction.Commit();
                 }
@@ -309,16 +308,18 @@ namespace GR_Calcul.Models
                     System.Diagnostics.Debug.WriteLine(sqlError.Message);
                     System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
                     transaction.Rollback();
+                    throw new GrException(sqlError, Messages.errProd);
                 }
                 finally
                 {
                     db.Close();
                 }
             }
-            catch (SqlException sqlError)
+            catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(sqlError.Message);
-                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+                System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+                throw (ex is GrException) ? ex : new GrException(ex, Messages.errProd);
             }
         }
 

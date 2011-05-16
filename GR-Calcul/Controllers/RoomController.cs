@@ -103,10 +103,10 @@ namespace GR_Calcul.Controllers
             }
             catch(GrException gex)
             {
-                ViewBag.ErrorMessage = gex.UserMessage;
+                ModelState.AddModelError("", gex.UserMessage);
                 System.Diagnostics.Debug.WriteLine(gex.UserMessage);
                 System.Diagnostics.Debug.WriteLine(gex.StackTrace);
-                return View("Error");
+                return View(room);
             }
         }
     }
