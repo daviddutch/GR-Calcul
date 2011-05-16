@@ -258,7 +258,7 @@ namespace GR_Calcul.Controllers
                 }
                 InitViewbag(range.IdCourse);
 
-                ModelState.AddModelError("", "Il y a des données incorrectes. Corriger les erreurs!");
+                ModelState.AddModelError("", Messages.invalidData);
 
                 // schedule linux script to be sent to resource manager by email 
                 ScheduleEmail(range);
