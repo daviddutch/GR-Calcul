@@ -364,11 +364,6 @@ namespace GR_Calcul.Controllers
             task.Settings.ExecutionTimeLimit = "PT1H"; // 1 hour
             task.Settings.DeleteExpiredTaskAfter = "PT12M"; // 1 year
 
-            // Principals // doesn't work yet !
-            //task.Principal.RunLevel = _TASK_RUNLEVEL.TASK_RUNLEVEL_HIGHEST;
-            //task.Principal.UserId = "NT AUTHORITY\\LOCAL SERVICE";
-            //task.Principal.LogonType = _TASK_LOGON_TYPE.TASK_LOGON_SERVICE_ACCOUNT;
-
             ITimeTrigger trigger = (ITimeTrigger)task.Triggers.Create(_TASK_TRIGGER_TYPE2.TASK_TRIGGER_TIME);
             trigger.Id = "EmailTriggerForSlotRange_" + range.id_slotRange;
             DateTime dt = range.EndRes.Add(new System.TimeSpan(1, 0, 0, 0)); // Midnight after EndRes
@@ -380,9 +375,6 @@ namespace GR_Calcul.Controllers
             action.Id = "EmailActionForSlotRange_" + range.id_slotRange;
             action.Path = "C:\\script.vbs";
             action.Arguments = range.id_slotRange.ToString();
-
-            // TODO: we may need to specify that this task shall be executed even if no user is logged in
-            // "Local System" with VARIANT VT_EMPTY ??
 
             ITaskFolder root = scheduler.GetFolder("\\");
             IRegisteredTask regTask = root.RegisterTaskDefinition(
