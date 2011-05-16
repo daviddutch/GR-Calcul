@@ -13,11 +13,19 @@ using DataAnnotationsExtensions;
 
 namespace GR_Calcul.Models
 {
-    // CD 2011-05-02: IMPORTANT: enum names must be perfectly identical to DB Table names!
+    /// <summary>
+    /// The 3 types of users - type names must be identical to the table names
+    /// </summary>
     public enum PersonType { User, Responsible, ResourceManager };
 
+    /// <summary>
+    /// Class representing the attributes and methods of a person of type Person (used for authentication)
+    /// </summary>
     public class Person : MembershipUser
     {
+        /// <summary>
+        /// maps the PersonTypes to user-friendly names
+        /// </summary>
         public static readonly IDictionary<PersonType, string> pTypes = new Dictionary<PersonType, string>() 
         { 
             {PersonType.ResourceManager, "Gestionnaire des ressources"}, 
@@ -25,6 +33,9 @@ namespace GR_Calcul.Models
             {PersonType.User, "Utilisateur"}, 
         };
 
+        /// <summary>
+        /// maps the sql query abbreviations to PersonType enum
+        /// </summary>
         public static readonly Dictionary<string, PersonType> dbTypes = new Dictionary<string, PersonType>() 
         { 
             {"RM", PersonType.ResourceManager}, 
@@ -32,59 +43,87 @@ namespace GR_Calcul.Models
             {"US", PersonType.User}, 
         };
 
+        /// <summary>
+        /// maps the PersonType enums to the sql query abbreviations
+        /// </summary>
         public static readonly Dictionary<PersonType, string> dbTypesRev = new Dictionary<PersonType, string>() 
         { 
             {PersonType.ResourceManager, "RM"}, 
             {PersonType.Responsible, "RE"}, 
             {PersonType.User, "US"}, 
         };
-        
+
+        /// <summary>
+        /// select list for les 3 person types - used for dropdown
+        /// </summary>
         public static SelectList pTypeSel
         {
             get { return new SelectList(pTypes, "Key", "Value"); }
         }
 
-        //[Required]
-        //[Display(Name = "Type de personne")]
+        /// <summary>
+        /// the type of this person
+        /// </summary>
         public PersonType pType { get; set; }
 
+        /// <summary>
+        /// the primary key of this person
+        /// </summary>
         public int ID { get; set; }
 
-        //[Required]
-        //[Display(Name = "Prénom")]
+        /// <summary>
+        /// the first name of this person
+        /// </summary>
         public string FirstName { get; set; }
 
-        //[Required]
-        //[Display(Name = "Nom")]
+        /// <summary>
+        /// the last name of this person
+        /// </summary>
         public string LastName { get; set; }
 
-        //[Required]
-        //[Email]
-        //[Display(Name = "Email")]
+        /// <summary>
+        /// the email address of this person
+        /// </summary>
         public override string Email { get; set; }
 
-        //[Required]
-        //[Display(Name = "Nom d'utilisateur")]
+        /// <summary>
+        /// the user name of this person
+        /// </summary>
         public string Username { get; set; }
 
-        //[Required]
-        //[Display(Name = "Mot de passe")]
+        /// <summary>
+        /// the password of this person
+        /// </summary>
         public string Password { get; set; }
 
-        //[Required]
-        //[Timestamp]
-        //[HiddenInput(DisplayValue = false)]
+        /// <summary>
+        /// the timestamp when this person was last modified in the db
+        /// </summary>
         public string Timestamp { get; set; }
 
+        /// <summary>
+        /// gets the timestamp in byte[] format
+        /// </summary>
+        /// <returns>the timestamp in byte[] format</returns>
         public byte[] getByteTimestamp()
         {
             return Convert.FromBase64String(Timestamp);
         }
+
+        /// <summary>
+        /// set the timestamp with a byte[]
+        /// </summary>
+        /// <param name="timestamp">the timestamp as byte[]</param>
         public void setTimestamp(byte[] timestamp)
         {
             Timestamp = Convert.ToBase64String(timestamp);
         }
 
+        /// <summary>
+        /// whether or not this person has one of the given roles (types)
+        /// </summary>
+        /// <param name="roles">array of roles/types to test against</param>
+        /// <returns>whether or not this person has a given role</returns>
         public Boolean IsInRole(PersonType[] roles)
         {
             foreach (PersonType r in roles)
@@ -95,8 +134,21 @@ namespace GR_Calcul.Models
             return false;
         }
 
-        public Person() { }
+        ///// <summary>
+        ///// empty constructor
+        ///// </summary>
+        //public Person() { }
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="type">the type of this person</param>
+        /// <param name="id_person">the primary key of this person</param>
+        /// <param name="firstName">the first name of this person</param>
+        /// <param name="lastName">the last name of this person</param>
+        /// <param name="username">the user name of this person</param>
+        /// <param name="email">the email address of this person</param>
+        /// <param name="password">the password of this person</param>
         public Person(PersonType type, int id_person, string firstName, string lastName, string username, string email, string password)
         {
             pType = type;
@@ -107,71 +159,124 @@ namespace GR_Calcul.Models
             Password = password;
             Username = username;
         }
+
+        /// <summary>
+        /// returns this person's first and last name
+        /// </summary>
+        /// <returns>this person's first and last name</returns>
         public String toString()
         {
             return FirstName + " " + LastName;
         }
 
+        /// <summary>
+        /// converts this person to an object of the Person2 class
+        /// </summary>
+        /// <returns></returns>
         public Person2 toPerson2()
         {
             return new Person2(this);
         }
     }
 
+    /// <summary>
+    /// Class representing the attributes and methods of a person of type Person2 (used for editing the person data - to avoid conflicting with the MembershipUser class)
+    /// </summary>
     public class Person2
     {
+        /// <summary>
+        /// the type of this person
+        /// </summary>
         [Required]
         [Display(Name = "Type de personne")]
         public PersonType pType { get; set; }
 
+        /// <summary>
+        /// the first name of this person
+        /// </summary>
         public int ID { get; set; }
         [Required]
         [Display(Name = "Prénom")]
         public string FirstName { get; set; }
 
+        /// <summary>
+        /// the last name of this person
+        /// </summary>
         [Required]
         [Display(Name = "Nom")]
         public string LastName { get; set; }
 
+        /// <summary>
+        /// the email address of this person
+        /// </summary>
         [Required]
         [Email]
         [Display(Name = "Email")]
         public string Email { get; set; }
 
+        /// <summary>
+        /// the user name of this person
+        /// </summary>
         [Required]
         [Display(Name = "Nom d'utilisateur")]
         public string Username { get; set; }
 
+        /// <summary>
+        /// the password of this person
+        /// </summary>
         [Required]
         [Display(Name = "Mot de passe")]
         public string Password { get; set; }
 
-        //[Required]
+        /// <summary>
+        /// the timestamp when this person object was last modified in the DB
+        /// </summary>
         [Timestamp]
         [HiddenInput(DisplayValue = false)]
         public string Timestamp { get; set; }
 
+        /// <summary>
+        /// gets the time timestamp as byte[]
+        /// </summary>
+        /// <returns></returns>
         public byte[] getByteTimestamp()
         {
             return Convert.FromBase64String(Timestamp);
         }
+
+        /// <summary>
+        /// sets the timestamp using a byte[]
+        /// </summary>
+        /// <param name="timestamp"></param>
         public void setTimestamp(byte[] timestamp)
         {
             Timestamp = Convert.ToBase64String(timestamp);
         }
 
-        public Boolean IsInRole(PersonType[] roles)
-        {
-            foreach (PersonType r in roles)
-            {
-                if (r.Equals(pType))
-                    return true;
-            }
-            return false;
-        }
+        ///// <summary>
+        ///// whether this person is in one of the given roles/types
+        ///// </summary>
+        ///// <param name="roles">list of person types</param>
+        ///// <returns>whether this person is in one of the given roles/types</returns>
+        //public Boolean IsInRole(PersonType[] roles)
+        //{
+        //    foreach (PersonType r in roles)
+        //    {
+        //        if (r.Equals(pType))
+        //            return true;
+        //    }
+        //    return false;
+        //}
 
+        /// <summary>
+        /// Empty constructor
+        /// </summary>
         public Person2() { }
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="person">person object of "Person" type</param>
         public Person2(Person person) {
             pType = person.pType;
             ID = person.ID;
@@ -183,6 +288,16 @@ namespace GR_Calcul.Models
             Timestamp = person.Timestamp;
         }
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="type">the type of this person</param>
+        /// <param name="id_person">the primary key of this person</param>
+        /// <param name="firstName">the first name of this person</param>
+        /// <param name="lastName">the last name of this person</param>
+        /// <param name="username">the username of this person</param>
+        /// <param name="email">the email address of this person</param>
+        /// <param name="password">the password of this person</param>
         public Person2(PersonType type, int id_person, string firstName, string lastName, string username, string email, string password)
         {
             pType = type;
@@ -194,17 +309,28 @@ namespace GR_Calcul.Models
             Username = username;
         }
 
+        /// <summary>
+        /// the fist and last name of this person
+        /// </summary>
+        /// <returns>the fist and last name of this person</returns>
         public String toString()
         {
             return FirstName + " " + LastName;
         }
     }
 
-
+    /// <summary>
+    /// Class containing various methods related to Person and Person2
+    /// </summary>
     public class PersonModel
     {
         //static private String connectionString = ConnectionManager.GetConnectionString();//System.Configuration.ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString;
 
+        /// <summary>
+        /// Converts a list of persons of type Person to a list of persons of class Person2
+        /// </summary>
+        /// <param name="list">list of persons of vlyss Person</param>
+        /// <returns>list of persons of type Person2</returns>
         public static List<Person2> ConvertPersons(List<Person> list)
         {
             List<Person2> result = new List<Person2>(list.Count);
@@ -215,6 +341,10 @@ namespace GR_Calcul.Models
             return result;
         }
 
+        /// <summary>
+        /// get a list of all persons of type "Responsible"
+        /// </summary>
+        /// <returns>List of persons of class Person</returns>
         public static List<Person> GetResponsibles()
         {
             List<Person> list = new List<Person>();
@@ -259,17 +389,22 @@ namespace GR_Calcul.Models
                     System.Diagnostics.Debug.WriteLine(sqlError.Message);
                     System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
                     transaction.Rollback();
+                    throw new GrException(sqlError, Messages.errProd);
                 }
                 db.Close();
             }
-            catch
+            catch (Exception ex)
             {
-
+                throw (ex is GrException) ? ex : new GrException(ex, Messages.errProd);
             }
 
             return list;
         }
 
+        /// <summary>
+        /// Gets the list of all the ResourceManagers
+        /// </summary>
+        /// <returns>list of ResourceManagers</returns>
         public static List<Person> GetResourceManagers()
         {
             List<Person> list = new List<Person>();
@@ -313,18 +448,24 @@ namespace GR_Calcul.Models
                     System.Diagnostics.Debug.WriteLine(sqlError.Message);
                     System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
                     transaction.Rollback();
+                    throw new GrException(sqlError, Messages.errProd);
                 }
                 db.Close();
             }
-            catch (SqlException sqlError)
+            catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(sqlError.Message);
-                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+                System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+                throw (ex is GrException) ? ex : new GrException(ex, Messages.errProd);
             }
 
             return list;
         }
 
+        /// <summary>
+        /// Gets the list of all Persons
+        /// </summary>
+        /// <returns>the list of all Persons</returns>
         public static List<Person> ListPerson()
         {
             List<Person> list = new List<Person>();
@@ -372,23 +513,31 @@ namespace GR_Calcul.Models
                     rdr.Close();
                     transaction.Commit();
                 }
-                catch
+                catch (SqlException sqlException)
                 {
                     transaction.Rollback();
+                    System.Diagnostics.Debug.WriteLine(sqlException.Message);
+                    System.Diagnostics.Debug.WriteLine(sqlException.StackTrace);
+                    throw new GrException(sqlException, Messages.errProd);
                 }
                 db.Close();
             }
-            catch
+            catch (Exception ex)
             {
-
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+                System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+                throw (ex is GrException) ? ex : new GrException(ex, Messages.errProd);
             }
 
             return list;
         }
 
-        public static string CreatePerson(Person2 person)
+        /// <summary>
+        /// Creates a person
+        /// </summary>
+        /// <param name="person">the person to create</param>
+        public static void CreatePerson(Person2 person)
         {
-            string errMsg = "";
             try
             {
                 SqlConnection db = new SqlConnection(ConnectionManager.GetConnectionString());
@@ -419,27 +568,27 @@ namespace GR_Calcul.Models
                     System.Diagnostics.Debug.WriteLine(sqlError.Message);
                     System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
                     transaction.Rollback();
-                    errMsg += "il y a eu un problème à l'insertion. Vérifiez qu'aucun autre utilisateur existe avec le même nom ou le même adresse email!";
-                    if (sqlError.Number > 50000)
-                    {
-                        errMsg += " ERROR: " + sqlError.Message;
-                    }
+                    throw new GrException(sqlError, (sqlError.Number > 50000) ? sqlError.Message : Messages.uniqueUserEmail);
                 }
                 finally
                 {
                     db.Close();
                 }
             }
-            catch (SqlException sqlError)
+            catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(sqlError.Message);
-                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
-                errMsg += "il y a eu un problème";
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+                System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+                throw (ex is GrException) ? ex : new GrException(ex, Messages.errProd);
             }
-
-            return errMsg;
         }
 
+        /// <summary>
+        /// gets a person object
+        /// </summary>
+        /// <param name="id">the primary key of the person</param>
+        /// <param name="pType">the type of the person</param>
+        /// <returns>a Person</returns>
         public static Person getPerson(int id, PersonType pType)
         {
             Person person = null;
@@ -485,18 +634,26 @@ namespace GR_Calcul.Models
                     System.Diagnostics.Debug.WriteLine(sqlError.Message);
                     System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
                     transaction.Rollback();
+                    throw new GrException(sqlError, Messages.errProd);
                 }
                 conn.Close();
             }
-            catch (SqlException sqlError)
+            catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(sqlError.Message);
-                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+                System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+                throw (ex is GrException) ? ex : new GrException(ex, Messages.errProd);
             }
 
             return person;
         }
 
+        /// <summary>
+        /// Gets a person for a given username and password
+        /// </summary>
+        /// <param name="username">the username</param>
+        /// <param name="password">the password</param>
+        /// <returns>the person with the given username and password</returns>
         public static Person GetPerson(string username, string password)
         {
             Person person = null;
@@ -541,20 +698,25 @@ namespace GR_Calcul.Models
                     System.Diagnostics.Debug.WriteLine(sqlError.Message);
                     System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
                     transaction.Rollback();
-                    throw sqlError;
+                    throw new GrException(sqlError, Messages.errProd);
                 }
                 db.Close();
             }
-            catch (SqlException sqlError)
+            catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(sqlError.Message);
-                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
-                throw sqlError;
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+                System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+                throw (ex is GrException) ? ex : new GrException(ex, Messages.errProd);
             }
 
             return person;
         }
 
+        /// <summary>
+        /// Get a person with a given username
+        /// </summary>
+        /// <param name="username">the person's username</param>
+        /// <returns>the person</returns>
         public static Person GetPerson(string username)
         {
             Person person = null;
@@ -598,18 +760,25 @@ namespace GR_Calcul.Models
                     System.Diagnostics.Debug.WriteLine(sqlError.Message);
                     System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
                     transaction.Rollback();
+                    throw new GrException(sqlError, Messages.errProd);
                 }
                 db.Close();
             }
-            catch (SqlException sqlError)
+            catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(sqlError.Message);
-                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+                System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+                throw (ex is GrException) ? ex : new GrException(ex, Messages.errProd);
             }
 
             return person;
         }
 
+        /// <summary>
+        /// gets a person for a given email address
+        /// </summary>
+        /// <param name="email">email address</param>
+        /// <returns>the person</returns>
         public static string GetPersonByEmail(string email)
         {
             string username= null;
@@ -642,23 +811,26 @@ namespace GR_Calcul.Models
                     System.Diagnostics.Debug.WriteLine(sqlError.Message);
                     System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
                     transaction.Rollback();
+                    throw new GrException(sqlError, Messages.errProd);
                 }
                 db.Close();
             }
-            catch (SqlException sqlError)
+            catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(sqlError.Message);
-                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+                System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+                throw (ex is GrException) ? ex : new GrException(ex, Messages.errProd);
             }
 
             return username;
         }
 
-        public static string UpdatePerson(Person2 person)
+        /// <summary>
+        /// update a person
+        /// </summary>
+        /// <param name="person">the person object containing the new data to update</param>
+        public static void UpdatePerson(Person2 person)
         {
-            bool updated = true;
-            string errMsg = "";
-
             try
             {
                 SqlConnection db = new SqlConnection(ConnectionManager.GetConnectionString());
@@ -699,7 +871,7 @@ namespace GR_Calcul.Models
                     {
                         rdr.Close();
                         System.Diagnostics.Debug.WriteLine("Cross modify");
-                        updated = false;
+                        throw new GrException(Messages.recommencerEdit);
                     }
 
                     transaction.Commit();
@@ -709,11 +881,7 @@ namespace GR_Calcul.Models
                     System.Diagnostics.Debug.WriteLine(sqlError.Message);
                     System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
                     transaction.Rollback();
-                    errMsg += "il y a eu un problème avec la mise-à-jour. Vérifiez qu'aucun autre utilisateur existe avec le même nom ou le même adresse email!";
-                    if (sqlError.Number > 50000)
-                    {
-                        errMsg += " ERROR: " + sqlError.Message;
-                    }
+                    throw new GrException(sqlError, (sqlError.Number > 50000) ? sqlError.Message : Messages.uniqueUserEmail);
                 }
                 finally
                 {
@@ -721,20 +889,22 @@ namespace GR_Calcul.Models
                 }
 
             }
-            catch (SqlException sqlError)
+            catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(sqlError.Message);
-                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+                System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+                throw (ex is GrException) ? ex : new GrException(ex, Messages.errProd);
             }
-
-            if (!updated) throw new Exception("timestamp");
-
-            return errMsg;
         }
 
+        /// <summary>
+        /// changes the password for a given person
+        /// </summary>
+        /// <param name="username">the username of the person</param>
+        /// <param name="newpassword">the new password of the person</param>
+        /// <returns>the number of changed rows in the db (should be 1)</returns>
         public static int ChangePassword(string username, string newpassword)
         {
-            bool updated = true;
             Person person = GetPerson(username);
             int rows = 0;
             if (person == null)
@@ -773,36 +943,38 @@ namespace GR_Calcul.Models
                     {
                         rdr.Close();
                         System.Diagnostics.Debug.WriteLine("Cross modify");
-                        updated = false;
+                        throw new GrException(Messages.recommencerEdit);
                     }
 
                     transaction.Commit();
-                    return rows;
                 }
                 catch (SqlException sqlError)
                 {
                     System.Diagnostics.Debug.WriteLine(sqlError.Message);
                     System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
                     transaction.Rollback();
+                    throw new GrException(sqlError, Messages.errProd);
                 }
                 finally
                 {
                     db.Close();
                 }
             }
-            catch (SqlException sqlError)
+            catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(sqlError.Message);
-                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+                System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+                throw (ex is GrException) ? ex : new GrException(ex, Messages.errProd);
             }
-            if (!updated) throw new Exception("timestamp");
             return rows;
         }
 
-        public static String DeletePerson(Person2 person)
+        /// <summary>
+        /// delete a person from the db
+        /// </summary>
+        /// <param name="person">the person to delete</param>
+        public static void DeletePerson(Person2 person)
         {
-            String errMsg = "";
-
             try
             {
                 SqlConnection conn = new SqlConnection(ConnectionManager.GetConnectionString());
@@ -838,8 +1010,8 @@ namespace GR_Calcul.Models
                     else
                     {
                         rdr.Close();
-                        errMsg += " "+ Messages.recommencerDelete;
                         Console.WriteLine("Cross modify");
+                        throw new GrException(Messages.recommencerDelete);
                     }
 
                     transaction.Commit();
@@ -849,20 +1021,23 @@ namespace GR_Calcul.Models
                     System.Diagnostics.Debug.WriteLine(sqlError.Message);
                     System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
                     transaction.Rollback();
-                    errMsg += " " + Messages.errProd;
+                    throw new GrException(sqlError, Messages.errProd);
                 }
                 conn.Close();
             }
-            catch (SqlException sqlError)
+            catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(sqlError.Message);
-                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
-                errMsg += " " + Messages.errProd;
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+                System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+                throw (ex is GrException) ? ex : new GrException(ex, Messages.errProd);
             }
-
-            return errMsg;
         }
 
+        /// <summary>
+        /// Get a csv list of email addresses for a list of persons
+        /// </summary>
+        /// <param name="persons">the list of persons</param>
+        /// <returns>the csv list of email addresses</returns>
         public static String GetEmailCSV(List<Person> persons)
         {
             List<string> emails = new List<string>();

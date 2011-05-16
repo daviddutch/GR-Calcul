@@ -268,7 +268,6 @@ namespace GR_Calcul.Models
         // CD: this is really an Update
         public void InsertCommandXML(Person person, Slot slot, List<string> machines)
         {
-            bool updated = false;
             if (machines == null)
             {
                 machines = new List<string>();
@@ -284,23 +283,19 @@ namespace GR_Calcul.Models
                 transaction = db.BeginTransaction(IsolationLevel.Serializable); // CD serializable to prevent machine phantoms.
                 try
                 {
-                    //int timestamp = range.Timestamp;
-                    //byte[] timestamp = this.getByteTimestamp();
+                    byte[] timestamp = this.getByteTimestamp();
 
                     //SqlCommand cmd = new SqlCommand("SELECT * FROM SlotRange R " +
                     //    "WHERE R.[id_slotRange]=@id AND R.timestamp=@timestamp;", db, transaction);
 
-                    //cmd.Parameters.Add("@id", SqlDbType.Int).Value = this.id_slotRange;
-                    //cmd.Parameters.Add("@timestamp", SqlDbType.Binary).Value = timestamp;
+                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = this.id_slotRange;
+                    cmd.Parameters.Add("@timestamp", SqlDbType.Binary).Value = timestamp;
 
-                    //SqlDataReader rdr = cmd.ExecuteReader();
+                    SqlDataReader rdr = cmd.ExecuteReader();
 
-                    //if (rdr.Read())
-                    //{
-                        //rdr.Close();
-                        //cmd = new SqlCommand("UPDATE SlotRange " +
-                        //        "SET scriptDataXML.modify('insert @commandXML as last into (/script)[1]') " +
-                        //        "WHERE id_slotRange = @id_slotRange ", db, transaction);
+                    if (rdr.Read())
+                    {
+                        rdr.Close();
                         string xml_string = BuildScriptDataXML(person, slot, machines);
                         SqlCommand cmd = new SqlCommand("UPDATE SlotRange " +
                                 "SET scriptDataXML.modify('insert sql:variable(\"@xml_string\") as last into (/script)[1]') " +
@@ -308,21 +303,21 @@ namespace GR_Calcul.Models
                         cmd.Parameters.Add("@id_slotRange", SqlDbType.Int).Value = this.id_slotRange;
                         cmd.Parameters.Add("@xml_string", SqlDbType.Xml).Value = xml_string;
                         cmd.ExecuteNonQuery();
-                        updated = true;
 
                         transaction.Commit();
-                    //}
-                    //else
-                    //{
-                    //    rdr.Close();
-                    //    Console.WriteLine("Cross modify?");
-                    //}
-                }
+                    }
+                    else
+                    {
+                        rdr.Close();
+                        throw new GrException(Messages.recommencerEdit);
+                    }
+                }   
                 catch (Exception ex)
                 {
                     transaction.Rollback();
                     System.Diagnostics.Debug.WriteLine(ex.Message);
                     System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+                    if (ex is GrException) throw ex;
                     throw new GrException(ex, Messages.errProd);
                 }
                 finally
@@ -337,14 +332,11 @@ namespace GR_Calcul.Models
                 if (ex is GrException) throw ex;
                 throw new GrException(ex, Messages.errProd);
             }
-            if (!updated) throw new Exception("timestamp");
         }
 
         // CD: this is really an Update
         public void DeleteCommandXML(string username)
         {
-            bool updated = false;
-
             try
             {
                 SqlConnection db = new SqlConnection(connectionString);
@@ -355,19 +347,19 @@ namespace GR_Calcul.Models
                 transaction = db.BeginTransaction(IsolationLevel.RepeatableRead); // CD: single row but multiple queries
                 try
                 {
-                    //byte[] timestamp = this.getByteTimestamp();
+                    byte[] timestamp = this.getByteTimestamp();
 
                     SqlCommand cmd = new SqlCommand("SELECT * FROM SlotRange R " +
                         "WHERE R.[id_slotRange]=@id AND R.timestamp=@timestamp;", db, transaction);
 
-                    //cmd.Parameters.Add("@id", SqlDbType.Int).Value = this.id_slotRange;
-                    //cmd.Parameters.Add("@timestamp", SqlDbType.Binary).Value = timestamp;
+                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = this.id_slotRange;
+                    cmd.Parameters.Add("@timestamp", SqlDbType.Binary).Value = timestamp;
 
-                    //SqlDataReader rdr = cmd.ExecuteReader();
+                    SqlDataReader rdr = cmd.ExecuteReader();
 
-                    //if (rdr.Read())
-                    //{
-                    //    rdr.Close();
+                    if (rdr.Read())
+                    {
+                        rdr.Close();
 
                         cmd = new SqlCommand("UPDATE SlotRange " +
                             "SET scriptDataXML.modify('delete (/script/command[username=sql:variable(\"@username\")])') " +
@@ -376,21 +368,23 @@ namespace GR_Calcul.Models
                         cmd.Parameters.Add("@username", SqlDbType.Char).Value = username;
                         cmd.Parameters.Add("@id_slotRange", SqlDbType.Int).Value = this.id_slotRange;
                         cmd.ExecuteNonQuery();
-                        updated = true;
 
                         transaction.Commit();
-                    //}
-                    //else
-                    //{
-                    //    rdr.Close();
-                    //    Console.WriteLine("Cross modify?");
-                    //}
+                    }
+                    else
+                    {
+                        rdr.Close();
+                        throw new GrException(Messages.recommencerEdit);
+                    }
                 }
                 catch (Exception ex)
                 {
                     transaction.Rollback();
                     System.Diagnostics.Debug.WriteLine(ex.Message);
                     System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+                    
+                    if (ex is GrException) throw ex;
+                    throw new GrException(ex, Messages.errProd);
                 }
                 finally
                 {
@@ -401,8 +395,9 @@ namespace GR_Calcul.Models
             {
                 System.Diagnostics.Debug.WriteLine(ex.Message);
                 System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+                if (ex is GrException) throw ex;
+                throw new GrException(ex, Messages.errProd);
             }
-            if (!updated) throw new Exception("timestamp");
         }
 
         public string GenerateScript()
@@ -659,7 +654,7 @@ namespace GR_Calcul.Models
                     }
 
                     //get machines
-                    SqlCommand cmd2 = new SqlCommand("SELECT M.[id_machine] " +
+                    SqlCommand cmd2 = new SqlCommand("SELECT MSR.[id_machine] " +
                                                      "FROM MachineSlotRange MSR " +
                                                      "WHERE id_slotRange=@id;", db, transaction);
 
@@ -1226,7 +1221,7 @@ namespace GR_Calcul.Models
 
                         cmd.ExecuteNonQuery();
 
-                        // XML treatment follows here ..
+                        // XML treatment ...
 
                         // get slot
                         Slot slot = SlotRangeModel.GetSlot(id_slot);
@@ -1251,16 +1246,14 @@ namespace GR_Calcul.Models
                     transaction.Rollback();
                     inserted = false;
 
-                    if (sqlError.Number > 50000)
-                    {
-                        // throw user exception message here for sqlException.Number > 50000 !!!
-                        throw new NotImplementedException();
-                    }
+                    throw new GrException(sqlError, (sqlError.Number > 50000) ? sqlError.Message : Messages.uniqueUserEmail);
                 }
                 catch (Exception ex)
                 {
                     System.Diagnostics.Debug.WriteLine(ex.Message);
                     System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+                    if (ex is GrException) throw ex;
+                    throw new GrException(ex, Messages.errProd);
                 }
                 finally
                 {
@@ -1273,7 +1266,8 @@ namespace GR_Calcul.Models
                 System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
                 inserted = false;
             }
-            if (!inserted) throw new Exception("Slot déjà reservé !");
+            if (!inserted)
+                throw new GrException("Slot déjà reservé !");
         }
         public static void UnReserveSlot(int id_slot, int? id_person)
         {
@@ -1317,6 +1311,7 @@ namespace GR_Calcul.Models
                     System.Diagnostics.Debug.WriteLine(sqlError.Message);
                     System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
                     transaction.Rollback();
+                    throw new GrException(Messages.errProd);
                 }
                 finally
                 {
@@ -1327,6 +1322,7 @@ namespace GR_Calcul.Models
             {
                 System.Diagnostics.Debug.WriteLine(sqlError.Message);
                 System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                throw new GrException(Messages.errProd);
             }
         }
     }

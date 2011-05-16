@@ -45,11 +45,11 @@ namespace GR_Calcul.Controllers
                 RoomModel.CreateRoom(room);
                 return RedirectToAction("Index");
             }
-            catch (Exception sqlError)
+            catch (GrException gex)
             {
-                ViewBag.ErrorMessage = sqlError.Message;
-                System.Diagnostics.Debug.WriteLine(sqlError.Message);
-                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                ViewBag.ErrorMessage = gex.UserMessage;
+                System.Diagnostics.Debug.WriteLine(gex.UserMessage);
+                System.Diagnostics.Debug.WriteLine(gex.StackTrace);
                 return View("Error");
             }
         }
@@ -73,11 +73,11 @@ namespace GR_Calcul.Controllers
                 RoomModel.UpdateRoom(room);
                 return RedirectToAction("Index");
             }
-            catch (Exception sqlError)
+            catch (GrException gex)
             {
-                ViewBag.ErrorMessage = sqlError.Message;
-                System.Diagnostics.Debug.WriteLine(sqlError.Message);
-                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                ViewBag.ErrorMessage = gex.UserMessage;
+                System.Diagnostics.Debug.WriteLine(gex.UserMessage);
+                System.Diagnostics.Debug.WriteLine(gex.StackTrace);
                 return View("Error");
             }
         }
@@ -101,11 +101,11 @@ namespace GR_Calcul.Controllers
                 RoomModel.DeleteRoom(id, room);
                 return RedirectToAction("Index");
             }
-            catch(Exception sqlError)
+            catch(GrException gex)
             {
-                ViewBag.ErrorMessage = sqlError.Message;
-                System.Diagnostics.Debug.WriteLine(sqlError.Message);
-                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                ViewBag.ErrorMessage = gex.UserMessage;
+                System.Diagnostics.Debug.WriteLine(gex.UserMessage);
+                System.Diagnostics.Debug.WriteLine(gex.StackTrace);
                 return View("Error");
             }
         }

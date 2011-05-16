@@ -81,11 +81,11 @@ namespace GR_Calcul.Controllers
                     CourseModel.CreateCourse(course);
                     return RedirectToAction("Index");
                 }
-                catch (GrException e)
+                catch (GrException gex)
                 {
-                    System.Diagnostics.Debug.WriteLine(e.Message);
-                    System.Diagnostics.Debug.WriteLine(e.StackTrace);
-                    ModelState.AddModelError("", e.UserMessage);
+                    System.Diagnostics.Debug.WriteLine(gex.UserMessage);
+                    System.Diagnostics.Debug.WriteLine(gex.StackTrace);
+                    ModelState.AddModelError("", gex.UserMessage);
                     return View(course);
                 }
             }
@@ -220,11 +220,11 @@ namespace GR_Calcul.Controllers
                         }
                         return RedirectToAction("Index");
                     }
-                    catch (GrException e)
+                    catch (GrException gex)
                     {
-                        System.Diagnostics.Debug.WriteLine(e.Message);
-                        System.Diagnostics.Debug.WriteLine(e.StackTrace);
-                        ModelState.AddModelError("", e.UserMessage);
+                        System.Diagnostics.Debug.WriteLine(gex.UserMessage);
+                        System.Diagnostics.Debug.WriteLine(gex.StackTrace);
+                        ModelState.AddModelError("", gex.UserMessage);
                         return View(course);
                     }
                 }
@@ -280,11 +280,11 @@ namespace GR_Calcul.Controllers
 
                     return RedirectToAction("Index");
                 }
-                catch (GrException e)
+                catch (GrException gex)
                 {
-                    System.Diagnostics.Debug.WriteLine(e.Message);
-                    System.Diagnostics.Debug.WriteLine(e.StackTrace);
-                    ModelState.AddModelError("", e.UserMessage);
+                    System.Diagnostics.Debug.WriteLine(gex.UserMessage);
+                    System.Diagnostics.Debug.WriteLine(gex.StackTrace);
+                    ModelState.AddModelError("", gex.UserMessage);
                     return View(CourseModel.GetCourse(id));
                 }
             }
@@ -321,11 +321,11 @@ namespace GR_Calcul.Controllers
 
                 return RedirectToAction("Index");
             }
-            catch (GrException e)
+            catch (GrException gex)
             {
-                System.Diagnostics.Debug.WriteLine(e.Message);
-                System.Diagnostics.Debug.WriteLine(e.StackTrace);
-                ModelState.AddModelError("", e.UserMessage);
+                System.Diagnostics.Debug.WriteLine(gex.UserMessage);
+                System.Diagnostics.Debug.WriteLine(gex.StackTrace);
+                ModelState.AddModelError("", gex.UserMessage);
                 return View();
             }
         }
@@ -365,11 +365,11 @@ namespace GR_Calcul.Controllers
                     return View(course);
                 }
             }
-            catch (GrException e)
+            catch (GrException gex)
             {
-                System.Diagnostics.Debug.WriteLine(e.Message);
-                System.Diagnostics.Debug.WriteLine(e.StackTrace);
-                ModelState.AddModelError("", e.UserMessage);
+                System.Diagnostics.Debug.WriteLine(gex.UserMessage);
+                System.Diagnostics.Debug.WriteLine(gex.StackTrace);
+                ModelState.AddModelError("", gex.UserMessage);
                 return View();
             }
         }

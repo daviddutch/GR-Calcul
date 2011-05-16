@@ -5,7 +5,7 @@ using System.Web;
 
 namespace GR_Calcul.Misc
 {
-    public class GrException : Exception
+    public class GrException : ApplicationException
     {
         public string UserMessage { get; set; }
 
