@@ -1184,6 +1184,8 @@ namespace GR_Calcul.Models
                     System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
                     transaction.Rollback();
                     inserted = false;
+
+                    // throw user exception message here for sqlException.Number > 50000 !!!
                 }
                 catch (Exception ex)
                 {
