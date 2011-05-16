@@ -16,7 +16,6 @@ namespace GR_Calcul.Controllers
     /// </summary>
     public class PersonController : BaseController
     {
-        private PersonModel model = new PersonModel();
         //
         // GET: /Person/
         [DuffAuthorize(PersonType.ResourceManager)]
@@ -34,7 +33,7 @@ namespace GR_Calcul.Controllers
         public ActionResult List()
         {
             //return View(model.ListPerson());
-            return View(PersonModel.ConvertPersons(model.ListPerson()));
+            return View(PersonModel.ConvertPersons(PersonModel.ListPerson()));
         }
 
         //
@@ -53,7 +52,7 @@ namespace GR_Calcul.Controllers
         {
             if (ModelState.IsValid)
             {
-                string errMsg = model.CreatePerson(person);
+                string errMsg = PersonModel.CreatePerson(person);
 
                 if (errMsg == "")
                 {
@@ -78,7 +77,7 @@ namespace GR_Calcul.Controllers
         [DuffAuthorize(PersonType.ResourceManager)]
         public ActionResult Edit(int id, PersonType pType)
         {
-            Person person = model.getPerson(id, pType);
+            Person person = PersonModel.getPerson(id, pType);
             return View(person.toPerson2());
         }
 
@@ -98,7 +97,7 @@ namespace GR_Calcul.Controllers
                 ModelState.IsValidField("Username")
             )
             {
-                string errMsg = model.UpdatePerson(person);
+                string errMsg = PersonModel.UpdatePerson(person);
 
                 if (errMsg == "")
                 {
@@ -123,7 +122,7 @@ namespace GR_Calcul.Controllers
         [DuffAuthorize(PersonType.ResourceManager)] 
         public ActionResult Delete(int id, PersonType pType)
         {
-            return View(model.getPerson(id, pType).toPerson2());
+            return View(PersonModel.getPerson(id, pType).toPerson2());
         }
 
         //
@@ -132,7 +131,7 @@ namespace GR_Calcul.Controllers
         [HttpPost]
         public ActionResult Delete(int id, Person2 person)
         {
-            String errMsg = model.DeletePerson(person);
+            String errMsg = PersonModel.DeletePerson(person);
 
             if (errMsg == "")
             {
@@ -143,7 +142,7 @@ namespace GR_Calcul.Controllers
                 ModelState.AddModelError("", errMsg);
 
                 // get updated data
-                Person person_ = (new PersonModel()).getPerson(id, person.pType);
+                Person person_ = PersonModel.getPerson(id, person.pType);
 
                 // update timestamp in case user really wants to delete this
                 ModelState.SetModelValue("Timestamp", new ValueProviderResult(person_.Timestamp, "", CultureInfo.InvariantCulture));

@@ -783,7 +783,7 @@ namespace GR_Calcul.Models
             return slot;
         }
 
-        public void CreateSlotRange(SlotRange range)
+        public static void CreateSlotRange(SlotRange range)
         {
             try
             {
@@ -839,7 +839,7 @@ namespace GR_Calcul.Models
             }
         }
 
-        private void InsertMachines(Int32 machine, int rangeId, SqlConnection db, SqlTransaction transaction)
+        private static void InsertMachines(Int32 machine, int rangeId, SqlConnection db, SqlTransaction transaction)
         {
             SqlCommand cmd3 = new SqlCommand("INSERT INTO MachineSlotRange(id_machine, id_slotRange) " +
                         "VALUES(@id_machine, @id_slotRange);", db, transaction);
@@ -853,13 +853,13 @@ namespace GR_Calcul.Models
             cmd3.ExecuteNonQuery();
         }
 
-        private void InsertAllSlots(SlotRange range, int rangeId, SqlConnection db, SqlTransaction transaction)
+        private static void InsertAllSlots(SlotRange range, int rangeId, SqlConnection db, SqlTransaction transaction)
         {
             InsertSlots(range.Startz, range.Endz, range.Slotdate, range.SlotDuration, rangeId, db, transaction);
             InsertSlots(range.StartzAdded, range.EndzAdded, range.SlotdateAdded, range.SlotDuration, rangeId, db, transaction);
         }
 
-        private void InsertSlots(List<string> start, List<string> end, List<DateTime> dt, int slotDuration, int rangeId, SqlConnection db, SqlTransaction transaction)
+        private static void InsertSlots(List<string> start, List<string> end, List<DateTime> dt, int slotDuration, int rangeId, SqlConnection db, SqlTransaction transaction)
         {
             if (start.Count == end.Count && dt.Count > 0)
             {
@@ -880,7 +880,7 @@ namespace GR_Calcul.Models
             }
         }
 
-        private void InsertSlot(string start, string end, DateTime dt, int rangeId, SqlConnection db, SqlTransaction transaction)
+        private static void InsertSlot(string start, string end, DateTime dt, int rangeId, SqlConnection db, SqlTransaction transaction)
         {
             DateTime startDate = buildDateTime(start, dt);
 
@@ -899,7 +899,7 @@ namespace GR_Calcul.Models
             cmd2.ExecuteNonQuery();
         }
 
-        private DateTime buildDateTime(string time, DateTime datePart)
+        private static DateTime buildDateTime(string time, DateTime datePart)
         {
             int hour = Int32.Parse(time.Substring(0, time.IndexOf(':')));
             int minute = Int32.Parse(time.Substring(time.IndexOf(':') + 1, time.Length - time.IndexOf(':') - 1));
@@ -924,7 +924,7 @@ namespace GR_Calcul.Models
             return new DateTime(datePart.Year, datePart.Month, datePart.Day, hour, minute, 0);
         }
 
-        public void UpdateSlotRange(SlotRange range)
+        public static void UpdateSlotRange(SlotRange range)
         {
             bool updated = false;
 
@@ -1017,7 +1017,7 @@ namespace GR_Calcul.Models
             if (!updated) throw new Exception("timestamp");
         }
 
-        public void DeleteSlotRange(int id)
+        public static void DeleteSlotRange(int id)
         {
             try
             {
@@ -1057,7 +1057,7 @@ namespace GR_Calcul.Models
             }
         }
 
-        internal List<Reservation> getReservations(int id_course, int? id_person)
+        public static List<Reservation> getReservations(int id_course, int? id_person)
         {
             List<Reservation> reservations = new List<Reservation>();
 
@@ -1165,7 +1165,7 @@ namespace GR_Calcul.Models
                         // get slot
                         Slot slot = SlotRangeModel.GetSlot(id_slot);
                         // get person
-                        Person user = (new PersonModel()).getPerson((int)id_person, PersonType.User);
+                        Person user = PersonModel.getPerson((int)id_person, PersonType.User);
                         // get slotrange
                         SlotRange range = SlotRangeModel.GetSlotRange(slot.id_slotRange);
                         range.InsertCommandXML(user, slot, machineModel.getMachineNames(range.Machines));
@@ -1232,7 +1232,7 @@ namespace GR_Calcul.Models
                     // get slot
                     Slot slot = SlotRangeModel.GetSlot(id_slot);
                     // get person
-                    Person user = (new PersonModel()).getPerson((int)id_person, PersonType.User);
+                    Person user = PersonModel.getPerson((int)id_person, PersonType.User);
                     // get slotrange
                     SlotRange range = SlotRangeModel.GetSlotRange(slot.id_slotRange);
 

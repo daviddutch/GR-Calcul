@@ -27,7 +27,6 @@ public class MyMembershipProvider : MembershipProvider
     //Regular expression the password should match (empty for none)
     private string passwordStrengthRegularExpression = String.Empty;
 
-    private PersonModel personModel = new PersonModel();
 
     public override bool EnablePasswordRetrieval
     {
@@ -67,7 +66,7 @@ public class MyMembershipProvider : MembershipProvider
 
     public override bool ValidateUser(string username, string password)
     {
-        Person p = personModel.GetPerson(username, password);
+        Person p = PersonModel.GetPerson(username, password);
         if (p == null)
         {
             return false;
@@ -80,7 +79,7 @@ public class MyMembershipProvider : MembershipProvider
 
     public override string GetUserNameByEmail(string email)
     {
-        return personModel.GetPersonByEmail(email);
+        return PersonModel.GetPersonByEmail(email);
     }
 
     public bool ChangePassword(string username, string newPwd)
@@ -94,7 +93,7 @@ public class MyMembershipProvider : MembershipProvider
                 throw args.FailureInformation;
             else
                 throw new MembershipPasswordException("Change password canceled due to new password validation failure.");
-        int affectesRows = personModel.ChangePassword(username, newPwd);
+        int affectesRows = PersonModel.ChangePassword(username, newPwd);
         return affectesRows > 0;
     }
 
@@ -133,7 +132,7 @@ public class MyMembershipProvider : MembershipProvider
 
     public override MembershipUserCollection GetAllUsers(int pageIndex, int pageSize, out int totalRecords)
     {
-        List<Person> list = personModel.ListPerson();
+        List<Person> list = PersonModel.ListPerson();
         totalRecords = list.Count;
         MembershipUserCollection ret = new MembershipUserCollection();
         foreach (Person p in list)
@@ -148,7 +147,7 @@ public class MyMembershipProvider : MembershipProvider
 
     public override string GetPassword(string username, string answer)
     {
-        Person p = personModel.GetPerson(username);
+        Person p = PersonModel.GetPerson(username);
         if(p != null)
             return p.Password;
         return null;
@@ -156,7 +155,7 @@ public class MyMembershipProvider : MembershipProvider
 
     public override MembershipUser GetUser(string username, bool userIsOnline)
     {
-        return personModel.GetPerson(username);
+        return PersonModel.GetPerson(username);
     }
 
     public override MembershipUser GetUser(object providerUserKey, bool userIsOnline)
