@@ -16,8 +16,9 @@ namespace GR_Calcul.Controllers
     /// </summary>
     public class PersonController : BaseController
     {
-        //
-        // GET: /Person/
+        /// <summary>
+        /// GET: /Person/
+        /// </summary>
         [DuffAuthorize(PersonType.ResourceManager)]
         public ActionResult Index()
         {
@@ -27,8 +28,9 @@ namespace GR_Calcul.Controllers
             //return View(PersonModel.ConvertPersons(model.ListPerson()));
         }
 
-        //
-        // GET: /Person/List
+        /// <summary>
+        /// GET: /Person/List
+        /// </summary>
         [DuffAuthorize(PersonType.ResourceManager)]
         public ActionResult List()
         {
@@ -36,44 +38,50 @@ namespace GR_Calcul.Controllers
             return View(PersonModel.ConvertPersons(PersonModel.ListPerson()));
         }
 
-        //
-        // GET: /Person/Create
+        /// <summary>
+        /// GET: /Person/Create
+        /// </summary>
         [DuffAuthorize(PersonType.ResourceManager)]
         public ActionResult Create()
         {
             return View();
         }
 
-        //
-        // POST: /Person/Create
+
+        /// <summary>
+        /// POST: /Person/Create
+        /// </summary>
+        /// <param name="person">person object to create</param>
         [DuffAuthorize(PersonType.ResourceManager)]
         [HttpPost]
         public ActionResult Create(Person2 person)
         {
             if (ModelState.IsValid)
             {
-                string errMsg = PersonModel.CreatePerson(person);
-
-                if (errMsg == "")
+                try
                 {
+                    PersonModel.CreatePerson(person);
                     return RedirectToAction("Index");
                 }
-                else
+                catch (GrException gex)
                 {
-                    ModelState.AddModelError("", errMsg);
+                    ModelState.AddModelError("", gex.Message);
                     return View();
                 }
             }
             else
             {
                 // addinge extra error message here in case JS is deactivated on client.
-                ModelState.AddModelError("", "vous avez envoyé des données invalides"); 
+                ModelState.AddModelError("", Messages.invalidData); 
                 return View();
             }
         }
 
-        //
-        // GET: /Person/Edit/5
+        /// <summary>
+        /// GET: /Person/Edit/5
+        /// </summary>
+        /// <param name="id">id of the person to edit</param>
+        /// <param name="pType">type of the person to edit</param>
         [DuffAuthorize(PersonType.ResourceManager)]
         public ActionResult Edit(int id, PersonType pType)
         {
@@ -81,8 +89,11 @@ namespace GR_Calcul.Controllers
             return View(person.toPerson2());
         }
 
-        //
-        // POST: /Person/Edit/5
+        /// <summary>
+        /// POST: /Person/Edit/5
+        /// </summary>
+        /// <param name="id">id of the person to edit</param>
+        /// <param name="person">type of the person to edit</param>
         [DuffAuthorize(PersonType.ResourceManager)]
         [HttpPost]
         public ActionResult Edit(int id, Person2 person)
@@ -97,49 +108,53 @@ namespace GR_Calcul.Controllers
                 ModelState.IsValidField("Username")
             )
             {
-                string errMsg = PersonModel.UpdatePerson(person);
-
-                if (errMsg == "")
+                try
                 {
+                    PersonModel.UpdatePerson(person);
                     return RedirectToAction("Index");
                 }
-                else
+                catch (GrException gex)
                 {
-                    ModelState.AddModelError("", errMsg);
+                    ModelState.AddModelError("", gex.Message);
                     return View();
                 }
             }
             else
             {
                 // addinge extra error message here in case JS is deactivated on client.
-                ModelState.AddModelError("", "vous avez envoyé des données invalides");
+                ModelState.AddModelError("", Messages.invalidData);
                 return View();
             }
         }
 
-        //
-        // GET: /Person/Delete/5
+        /// <summary>
+        /// GET: /Person/Delete/5
+        /// </summary>
+        /// <param name="id">id of the person to delete</param>
+        /// <param name="pType">type of the person to delete</param>
         [DuffAuthorize(PersonType.ResourceManager)] 
         public ActionResult Delete(int id, PersonType pType)
         {
             return View(PersonModel.getPerson(id, pType).toPerson2());
         }
 
-        //
-        // POST: /Person/Delete/5
+        /// <summary>
+        /// POST: /Person/Delete/5
+        /// </summary>
+        /// <param name="id">id of the person to delete</param>
+        /// <param name="person">type of the person to delete</param>
         [DuffAuthorize(PersonType.ResourceManager)]
         [HttpPost]
         public ActionResult Delete(int id, Person2 person)
         {
-            String errMsg = PersonModel.DeletePerson(person);
-
-            if (errMsg == "")
+            try
             {
+                PersonModel.DeletePerson(person);
                 return RedirectToAction("Index");
             }
-            else
+            catch (GrException gex)
             {
-                ModelState.AddModelError("", errMsg);
+                ModelState.AddModelError("", gex.Message);
 
                 // get updated data
                 Person person_ = PersonModel.getPerson(id, person.pType);
@@ -148,7 +163,7 @@ namespace GR_Calcul.Controllers
                 ModelState.SetModelValue("Timestamp", new ValueProviderResult(person_.Timestamp, "", CultureInfo.InvariantCulture));
 
                 // show new values before user decided to really delete them
-                return View(person_.toPerson2()); 
+                return View(person_.toPerson2());
             }
         }
     }

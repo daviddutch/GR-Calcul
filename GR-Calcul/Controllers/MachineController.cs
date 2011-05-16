@@ -19,8 +19,9 @@ namespace GR_Calcul.Controllers
         private MachineModel model = new MachineModel();
         private RoomModel roomModel = new RoomModel();
 
-        //
-        // GET: /Machine/
+        /// <summary>
+        /// GET: /Machine/
+        /// </summary>
         [DuffAuthorize(PersonType.ResourceManager, PersonType.Responsible)]
         public ActionResult Index()
         {
@@ -28,8 +29,9 @@ namespace GR_Calcul.Controllers
         }
 
 
-        //
-        // GET: /Machine/Create
+        /// <summary>
+        /// GET: /Machine/Create
+        /// </summary>
         [DuffAuthorize(PersonType.ResourceManager)]
         public ActionResult Create()
         {
@@ -38,37 +40,38 @@ namespace GR_Calcul.Controllers
             return View();
         } 
 
-        //
-        // POST: /Machine/Create
+        /// <summary>
+        /// POST: /Machine/Create
+        /// </summary>
+        /// <param name="machine">the machine to create</param>
         [DuffAuthorize(PersonType.ResourceManager)]
         [HttpPost]
         public ActionResult Create(Machine machine)
         {
             if (ModelState.IsValid)
             {
-                string errMsg = MachineModel.CreateMachine(machine);
-                
-                if (errMsg == "")
+                try
                 {
+                    MachineModel.CreateMachine(machine);
                     return RedirectToAction("Index");
                 }
-
-                else
+                catch (GrException gex)
                 {
-                    ModelState.AddModelError("", errMsg);
+                    ModelState.AddModelError("", gex.UserMessage);
                     return View();
                 }
             }
             else
             {
-                // addinge extra error message here in case JS is deactivated on client.
-                ModelState.AddModelError("", "vous avez envoyé des données invalides");
+                ModelState.AddModelError("", Messages.invalidData);
                 return View();
             }
         }
         
-        //
-        // GET: /Machine/Edit/5
+        /// <summary>
+        /// GET: /Machine/Edit/5
+        /// </summary>
+        /// <param name="id">the id of the machine to edit</param>
         [DuffAuthorize(PersonType.ResourceManager)] 
         public ActionResult Edit(int id)
         {
@@ -78,55 +81,63 @@ namespace GR_Calcul.Controllers
             return View(machine);
         }
 
-        //
-        // POST: /Machine/Edit/5
+        /// <summary>
+        /// POST: /Machine/Edit/5
+        /// </summary>
+        /// <param name="id">id of the machine to edit</param>
+        /// <param name="machine">the machine object containing the new data</param>
         [DuffAuthorize(PersonType.ResourceManager)]
         [HttpPost]
         public ActionResult Edit(int id, Machine machine)
         {
             if (ModelState.IsValid)
             {
-                string errMsg = MachineModel.UpdateMachine(machine);
-
-                if (errMsg == "")
+                try
                 {
+                    MachineModel.UpdateMachine(machine);
                     return RedirectToAction("Index");
                 }
-                else
+                catch (GrException gex)
                 {
-                    ModelState.AddModelError("", errMsg);
+                    ModelState.AddModelError("", gex.UserMessage);
                     return View();
                 }
             }
             else
             {
                 // addinge extra error message here in case JS is deactivated on client.
-                ModelState.AddModelError("", "vous avez envoyé des données invalides");
+                ModelState.AddModelError("", Messages.invalidData);
                 return View();
             }
         }
 
-        ////
-        //// GET: /Machine/Delete/5
+        /// <summary>
+        /// GET: /Machine/Delete/5
+        /// </summary>
+        /// <param name="id">the id of the machine to delete</param>
         [DuffAuthorize(PersonType.ResourceManager)]
         public ActionResult Delete(int id)
         {
             return View(MachineModel.getMachine(id));
         }
 
-        //
-        // POST: /Machine/Delete/5
+        /// <summary>
+        /// POST: /Machine/Delete/5
+        /// </summary>
+        /// <param name="id">id of the machine to delete</param>
+        /// <param name="machine">machine object to delete</param>
         [DuffAuthorize(PersonType.ResourceManager)]
         [HttpPost]
         public ActionResult Delete(int id, Machine machine)
         {
-            String errMsg = MachineModel.DeleteMachine(machine);
-
-            if(errMsg == ""){
+            try
+            {
+                MachineModel.DeleteMachine(machine);
                 return RedirectToAction("Index");
             }
-            else{
-                ModelState.AddModelError("", errMsg);
+            catch (GrException gex)
+            {
+                ModelState.AddModelError("", gex.UserMessage);
 
                 // get updated data
                 Machine machine_ = MachineModel.getMachine(id);

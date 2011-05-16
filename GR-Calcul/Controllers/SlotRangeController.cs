@@ -71,9 +71,9 @@ namespace GR_Calcul.Controllers
                 }
                 return new JsonResult { Data = new { Success = true, Message = "Bravo" }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
-            catch (Exception e)
+            catch (GrException gex)
             {
-                return new JsonResult { Data = new { Success = false, Message = e.Message }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                return new JsonResult { Data = new { Success = false, Message = gex.UserMessage }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
         }
 
@@ -125,13 +125,13 @@ namespace GR_Calcul.Controllers
 
                     return View("Complete", range);
                 }
-                catch (Exception error)
+                catch (GrException gex)
                 {
                     ModelState.AddModelError("", "Une erreur est survenue.");
-                    ViewBag.Error = error.Message;
+                    ViewBag.Error = gex.UserMessage;
 
-                    System.Diagnostics.Debug.WriteLine(error.Message);
-                    System.Diagnostics.Debug.WriteLine(error.StackTrace);
+                    System.Diagnostics.Debug.WriteLine(gex.UserMessage);
+                    System.Diagnostics.Debug.WriteLine(gex.StackTrace);
                     
                     return View(range);
                 }
