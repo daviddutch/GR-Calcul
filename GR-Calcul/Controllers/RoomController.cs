@@ -94,11 +94,11 @@ namespace GR_Calcul.Controllers
         // POST: /Room/Delete/5
         [DuffAuthorize(PersonType.ResourceManager)]
         [HttpPost]
-        public ActionResult Delete(int id, FormCollection collection)
+        public ActionResult Delete(int id, Room room)
         {
             try
             {
-                RoomModel.DeleteRoom(id);
+                RoomModel.DeleteRoom(id, room);
                 return RedirectToAction("Index");
             }
             catch(GrException gex)

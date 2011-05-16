@@ -157,19 +157,19 @@ namespace TestProject1
         public void TestGeneral()
         {
             RoomModel target = new RoomModel();
-            List<Room> rooms = target.ListRooms();
+            List<Room> rooms = RoomModel.ListRooms();
             int k = rooms.Count;
             List<Int32> initialIds = new List<int>();
             foreach(var r in rooms)
                 initialIds.Add(r.ID);
 
-            target.CreateRoom(new Room());
-            target.CreateRoom(new Room());
+            RoomModel.CreateRoom(new Room());
+            RoomModel.CreateRoom(new Room());
 
-            int k2 = target.ListRooms().Count;
+            int k2 = RoomModel.ListRooms().Count;
             Assert.AreEqual(k + 2, k2);
 
-            List<Room> rooms2 = target.ListRooms();
+            List<Room> rooms2 = RoomModel.ListRooms();
             List<Int32> newIds = new List<int>();
             foreach (var r in rooms2)
                 newIds.Add(r.ID);
@@ -177,8 +177,8 @@ namespace TestProject1
             newIds.RemoveAll(delegate(int i){ return initialIds.Contains(i); });
 
             foreach (int i in newIds)
-                target.DeleteRoom(i);
-            int p = target.ListRooms().Count;
+                RoomModel.DeleteRoom(i, RoomModel.GetRoom(i));
+            int p = RoomModel.ListRooms().Count;
             Assert.AreEqual(k, p);
         }
 

@@ -36,6 +36,14 @@ namespace GR_Calcul.Models
         [Display(Name = "Responsable")]
         public int Responsible { get; set; }
 
+
+        [Required(ErrorMessage = "La date est invalide!")]
+        [Display(Name = "Date de destination", Description = "dd.mm.yyyy")]
+        [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:dd.MM.yyyy}", ApplyFormatInEditMode = true)]
+        [UIHint("DateFormat")]
+        public DateTime DuplDestDate { get; set; }
+
         public string ResponsibleString { get; set; }
 
         public bool MyCourse { get; set; }
@@ -91,7 +99,8 @@ namespace GR_Calcul.Models
                 {
                     SqlCommand cmd = new SqlCommand("SELECT [id_slotRange], [startRes] ,[endRes], [name] ,[id_course]" +
                                                     "FROM SlotRange SR " +
-                                                    "WHERE id_course=@id;", db, transaction);
+                                                    "WHERE id_course=@id " +
+                                                    "ORDER BY SR.startRes ASC;", db, transaction);
 
                     cmd.Parameters.Add("@id", SqlDbType.Int).Value = this.ID;
 
@@ -237,7 +246,7 @@ namespace GR_Calcul.Models
         /// Unsubscribes a user from the current course
         /// </summary>
         /// <param name="id_person">The id of the user</param>
-        public void Unsubscribe(int? id_person)
+        public void Unsubscribe(int? id_person, Course course)
         {
             try
             {
@@ -249,9 +258,10 @@ namespace GR_Calcul.Models
                 transaction = db.BeginTransaction(IsolationLevel.Serializable);
                 try
                 {
+
                     SqlCommand cmd = new SqlCommand("DELETE FROM Reservation " +
-                                                    "WHERE id_person=@id_person AND id_slot IN (SELECT id_slot " +
-                                                                                            "FROM slot INNER JOIN slotRange ON slot.id_slotRange=slotRange.id_slotRange WHERE id_course=@id_course);", db, transaction);
+                        "WHERE id_person=@id_person AND id_slot IN (SELECT id_slot " +
+                        "FROM slot INNER JOIN slotRange ON slot.id_slotRange=slotRange.id_slotRange WHERE id_course=@id_course);", db, transaction);
 
                     cmd.Parameters.Add("@id_course", SqlDbType.Int).Value = ID;
                     cmd.Parameters.Add("@id_person", SqlDbType.Int).Value = id_person;
@@ -692,8 +702,9 @@ namespace GR_Calcul.Models
         /// Insert's the course in the database
         /// </summary>
         /// <param name="course">The course to be inserted</param>
-        public static void CreateCourse(Course course)
+        public static int CreateCourse(Course course)
         {
+            int id;
             try
             {
                 SqlConnection db = new SqlConnection(connectionString);
@@ -706,18 +717,15 @@ namespace GR_Calcul.Models
                 {
                     SqlCommand cmd = new SqlCommand("INSERT INTO Course " +
                                    "(name, [key], active, id_person) " +
-                                   "VALUES (@name, @key, @active, @id_person);", db, transaction);
-                    cmd.Parameters.Add("@name", SqlDbType.Char);
-                    cmd.Parameters.Add("@key", SqlDbType.Char);
-                    cmd.Parameters.Add("@active", SqlDbType.Bit);
-                    cmd.Parameters.Add("@id_person", SqlDbType.Int);
+                                   "VALUES (@name, @key, @active, @id_person); " +
+                                   "SELECT scope_identity()", db, transaction);
 
-                    cmd.Parameters["@name"].Value = course.Name;
-                    cmd.Parameters["@key"].Value = course.Key;
-                    cmd.Parameters["@active"].Value = course.Active;
-                    cmd.Parameters["@id_person"].Value = course.Responsible;
+                    cmd.Parameters.Add("@name", SqlDbType.Char).Value = course.Name;
+                    cmd.Parameters.Add("@key", SqlDbType.Char).Value = course.Key;
+                    cmd.Parameters.Add("@active", SqlDbType.Bit).Value = course.Active;
+                    cmd.Parameters.Add("@id_person", SqlDbType.Int).Value = course.Responsible;
 
-                    cmd.ExecuteNonQuery();
+                    id = Convert.ToInt32(cmd.ExecuteScalar());
 
                     transaction.Commit();
                 }
@@ -733,6 +741,7 @@ namespace GR_Calcul.Models
                 if (e is GrException) throw e;
                 throw new GrException(e, Messages.errProd);
             }
+            return id;
         }
         /// <summary>
         /// Update the course in the database
@@ -816,9 +825,8 @@ namespace GR_Calcul.Models
                 {
                     byte[] timestamp = course.getByteTimestamp();
 
-                    SqlCommand cmd = new SqlCommand("SELECT * " +
-                                                    "FROM Course C " +
-                                                    "WHERE C.id_course=@id_course AND C.timestamp=@timestamp;", db, transaction);
+                    SqlCommand cmd =new SqlCommand("SELECT * FROM Course C " +
+                                                   "WHERE C.id_course=@id_course AND C.timestamp=@timestamp;", db, transaction);
 
                     cmd.Parameters.Add("@id_course", SqlDbType.Int).Value = course.ID;
                     cmd.Parameters.Add("@timestamp", SqlDbType.Binary).Value = timestamp;

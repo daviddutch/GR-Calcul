@@ -90,6 +90,7 @@ namespace GR_Calcul.Models
         [DataType(DataType.Date)]
         [UIHint("lollipop")]
         [DisplayFormat(DataFormatString = "{0:dd.MM.yyyy}", ApplyFormatInEditMode = true)]
+        [GreaterThan("StartRes")]
         public DateTime EndRes { get; set; }
 
         [Required]
@@ -781,6 +782,45 @@ namespace GR_Calcul.Models
             return slot;
         }
 
+        public static void DuplicateSlotRange(SlotRange source, int days, int id_course)
+        {
+            try
+            {
+                SqlConnection db = new SqlConnection(connectionString);
+                SqlTransaction transaction;
+                db.Open();
+
+                transaction = db.BeginTransaction(IsolationLevel.ReadUncommitted);
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("sp_duplSlotRange", db, transaction);
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    cmd.Parameters.Add("@id", SqlDbType.Int).Value   = source.id_slotRange;
+                    cmd.Parameters.Add("@days", SqlDbType.Int).Value = days;
+                    cmd.Parameters.Add("@id_course", SqlDbType.Int).Value = id_course;
+
+                    cmd.ExecuteNonQuery();
+
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    throw new GrException(e, Messages.errProd);
+                }
+                finally
+                {
+                    db.Close();
+                }
+            }
+            catch(Exception e)
+            {
+                if (e is GrException) throw e;
+                throw new GrException(e, Messages.errProd);
+            }
+        }
+
         public static void CreateSlotRange(SlotRange range)
         {
             try
@@ -1015,8 +1055,10 @@ namespace GR_Calcul.Models
             if (!updated) throw new Exception("timestamp");
         }
 
-        public static void DeleteSlotRange(int id)
+        public static void DeleteSlotRange(int id, SlotRange range)
         {
+            string errMsg = "";
+
             try
             {
                 SqlConnection db = new SqlConnection(connectionString);
@@ -1027,18 +1069,39 @@ namespace GR_Calcul.Models
                 transaction = db.BeginTransaction(IsolationLevel.RepeatableRead);
                 try
                 {
+                    byte[] timestamp = range.getByteTimestamp();
 
-                    SqlCommand cmd = new SqlCommand("DELETE FROM Slot WHERE id_slotRange=@id;", db, transaction);
-                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
-                    cmd.ExecuteNonQuery();
+                    SqlCommand cmd = new SqlCommand("SELECT * " +
+                                                    "FROM SlotRange S " +
+                                                    "WHERE S.id_slotRange=@id AND S.timestamp=@timestamp;", db, transaction);
 
-                    cmd = new SqlCommand("DELETE FROM MachineSlotRange WHERE id_slotRange=@id;", db, transaction);
                     cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
-                    cmd.ExecuteNonQuery();
+                    cmd.Parameters.Add("@timestamp", SqlDbType.Binary).Value = timestamp;
 
-                    cmd = new SqlCommand("DELETE FROM SlotRange WHERE id_slotRange=@id;", db, transaction);
-                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
-                    cmd.ExecuteNonQuery();
+                    SqlDataReader rdr = cmd.ExecuteReader();
+
+                    if (rdr.Read())
+                    {
+                        rdr.Close();
+
+                        cmd = new SqlCommand("DELETE FROM Slot WHERE id_slotRange=@id;", db, transaction);
+                        cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
+                        cmd.ExecuteNonQuery();
+
+                        cmd = new SqlCommand("DELETE FROM MachineSlotRange WHERE id_slotRange=@id;", db, transaction);
+                        cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
+                        cmd.ExecuteNonQuery();
+
+                        cmd = new SqlCommand("DELETE FROM SlotRange WHERE id_slotRange=@id;", db, transaction);
+                        cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
+                        cmd.ExecuteNonQuery();
+                    }
+                    else
+                    {
+                        rdr.Close();
+                        errMsg += " " + Messages.recommencerDelete;
+                        Console.WriteLine("Cross modify");
+                    }
 
                     transaction.Commit();
                 }

@@ -171,6 +171,53 @@ namespace GR_Calcul.Controllers
             }
         }
 
+
+        [DuffAuthorize(PersonType.Responsible)]
+        public ActionResult Duplicate(int id)
+        {
+            SlotRange range = SlotRangeModel.GetSlotRange(id);
+            if (range == null)
+            {
+                return View("NoSuchRange");
+            }
+            int? rId = range.GetResponsible();
+            if (IsAuthorized(range))
+            {
+                return View(range);
+            }
+            else
+            {
+                SessionManager.RedirectAccessDenied(HttpContext.Request.RequestContext);
+                return null;
+            }
+        }
+        
+
+        [HttpPost]
+        [DuffAuthorize(PersonType.Responsible)]
+        public ActionResult Duplicate(int id, SlotRange target)
+        {
+            SlotRange source = SlotRangeModel.GetSlotRange(id);
+            if (source == null)
+            {
+                return View("NoSuchRange");
+            }
+            int? rId = source.GetResponsible();
+            if (IsAuthorized(source))
+            {
+                TimeSpan span= target.StartRes - source.StartRes;
+                int days = (int)span.TotalDays;
+                SlotRangeModel.DuplicateSlotRange(source, days, source.IdCourse);
+                return RedirectToAction("CourseRanges", new { id = source.IdCourse});
+            }
+            else
+            {
+                SessionManager.RedirectAccessDenied(HttpContext.Request.RequestContext);
+                return null;
+            }
+        }
+
+
         //
         // GET: /SlotRange/Edit/5
         [DuffAuthorize(PersonType.Responsible)]
@@ -184,10 +231,6 @@ namespace GR_Calcul.Controllers
             int? rId = range.GetResponsible();
             if (IsAuthorized(range))
             {
-                ////ViewBag.IdCourse = new SelectList(CourseModel.ListCourses(SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name)), "ID", "Name", range.IdCourse);
-                
-                //ViewBag.SlotDuration = new SelectList(Slot.durationList, "Text", "Text", range.SlotDuration);
-                //ViewBag.CourseName = CourseModel.GetCourse(range.IdCourse).Name;// cd: for when locked
                 InitViewbag(range.IdCourse);
 
                 return View(range);
@@ -270,13 +313,13 @@ namespace GR_Calcul.Controllers
 
         [HttpPost]
         [DuffAuthorize(PersonType.Responsible)]
-        public ActionResult Delete(int id, FormCollection collection)
+        public ActionResult Delete(int id, SlotRange collection)
         {
             if (IsAuthorized(SlotRangeModel.GetSlotRange(id)))
             {
                 try
                 {
-                    SlotRangeModel.DeleteSlotRange(id);
+                    SlotRangeModel.DeleteSlotRange(id, collection);
                     return RedirectToAction("CourseRanges");
                 }
                 catch (Exception exx)
