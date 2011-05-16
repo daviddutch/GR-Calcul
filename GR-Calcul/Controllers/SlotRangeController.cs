@@ -371,7 +371,7 @@ namespace GR_Calcul.Controllers
 
             ITimeTrigger trigger = (ITimeTrigger)task.Triggers.Create(_TASK_TRIGGER_TYPE2.TASK_TRIGGER_TIME);
             trigger.Id = "EmailTriggerForSlotRange_" + range.id_slotRange;
-            DateTime dt = range.EndRes.Add(new System.TimeSpan(1, 0, 0, 0)); // EndRes + 1d
+            DateTime dt = range.EndRes.Add(new System.TimeSpan(1, 0, 0, 0)); // Midnight after EndRes
             trigger.StartBoundary = dt.ToString("yyyy-MM-ddTHH:MM:ss");
             trigger.EndBoundary = dt.Add(new System.TimeSpan(0, 0, 1, 0)).ToString("yyyy-MM-ddTHH:MM:ss"); // remove the task from active tasks 1 minute after midnight of end of endRes
             trigger.ExecutionTimeLimit = "PT2M"; // 2 minutes
