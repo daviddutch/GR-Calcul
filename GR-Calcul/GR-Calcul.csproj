@@ -99,6 +99,7 @@
     <Compile Include="Misc\SessionManager.cs" />
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\CourseModels.cs" />
+    <Compile Include="Models\GreaterThanAttribute.cs" />
     <Compile Include="Models\MachineModels.cs" />
     <Compile Include="Models\MyMembershipProvider.cs" />
     <Compile Include="Models\MyMenuItem.cs" />

@@ -7,13 +7,16 @@
 <h2>@ViewBag.Title</h2>
 
 <h3>Êtes-vous sûr de vouloir supprimer cette salle?</h3>
-<fieldset>
-    <legend>Salle</legend>
+
+@using (Html.BeginForm())
+{
+    @Html.ValidationSummary(true)
+
+     @Html.HiddenFor(model => model.ID)
+     <input type="hidden" id="Timestamp" name="Timestamp" value="@Model.Timestamp" />
 
     <p><b>Name : </b>@Model.Name</p>
-
-</fieldset>
-@using (Html.BeginForm()) {
+    
     <p>
         <input type="submit" value="Supprimer" /> |
         @Html.ActionLink("Retour à la liste", "Index")

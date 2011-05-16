@@ -10,6 +10,8 @@ function enableWizard(buildLastStep) {
     $(function () {
 
         $(".wizard-step:first").fadeIn(); // show first step
+        if ($(".wizard-step").length == 1) //if there's only one step
+            $("#next-step").val("Terminer");
 
 
         // attach backStep button handler

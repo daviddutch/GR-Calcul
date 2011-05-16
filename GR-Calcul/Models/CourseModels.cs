@@ -246,7 +246,7 @@ namespace GR_Calcul.Models
         /// Unsubscribes a user from the current course
         /// </summary>
         /// <param name="id_person">The id of the user</param>
-        public void Unsubscribe(int? id_person)
+        public void Unsubscribe(int? id_person, Course course)
         {
             try
             {
@@ -258,9 +258,10 @@ namespace GR_Calcul.Models
                 transaction = db.BeginTransaction(IsolationLevel.Serializable);
                 try
                 {
+
                     SqlCommand cmd = new SqlCommand("DELETE FROM Reservation " +
-                                                    "WHERE id_person=@id_person AND id_slot IN (SELECT id_slot " +
-                                                                                            "FROM slot INNER JOIN slotRange ON slot.id_slotRange=slotRange.id_slotRange WHERE id_course=@id_course);", db, transaction);
+                        "WHERE id_person=@id_person AND id_slot IN (SELECT id_slot " +
+                        "FROM slot INNER JOIN slotRange ON slot.id_slotRange=slotRange.id_slotRange WHERE id_course=@id_course);", db, transaction);
 
                     cmd.Parameters.Add("@id_course", SqlDbType.Int).Value = ID;
                     cmd.Parameters.Add("@id_person", SqlDbType.Int).Value = id_person;
@@ -824,9 +825,8 @@ namespace GR_Calcul.Models
                 {
                     byte[] timestamp = course.getByteTimestamp();
 
-                    SqlCommand cmd = new SqlCommand("SELECT * " +
-                                                    "FROM Course C " +
-                                                    "WHERE C.id_course=@id_course AND C.timestamp=@timestamp;", db, transaction);
+                    SqlCommand cmd =new SqlCommand("SELECT * FROM Course C " +
+                                                   "WHERE C.id_course=@id_course AND C.timestamp=@timestamp;", db, transaction);
 
                     cmd.Parameters.Add("@id_course", SqlDbType.Int).Value = course.ID;
                     cmd.Parameters.Add("@timestamp", SqlDbType.Binary).Value = timestamp;

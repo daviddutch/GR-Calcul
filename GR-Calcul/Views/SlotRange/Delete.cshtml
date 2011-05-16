@@ -7,26 +7,20 @@
 <h2>Delete</h2>
 
 <h3>Êtes vous sûr de vouloir supprimer cette plage de créneaux?</h3>
-<fieldset>
-    <legend>Plage de créneau</legend>
 
-    <div class="display-label">id_slotRange</div>
-    <div class="display-field">@Model.id_slotRange</div>
 
-    <div class="display-label">Name</div>
-    <div class="display-field">@Model.Name</div>
+@using (Html.BeginForm())
+{
+    @Html.ValidationSummary(true)
 
-    <div class="display-label">StartRes</div>
-    <div class="display-field">@String.Format("{0:g}", Model.StartRes)</div>
+     @Html.HiddenFor(model => model.id_slotRange)
+     <input type="hidden" id="Timestamp" name="Timestamp" value="@Model.Timestamp" />
 
-    <div class="display-label">EndRes</div>
-    <div class="display-field">@String.Format("{0:g}", Model.EndRes)</div>
+    <p><b>Nom : </b>@Model.Name</p>
+    <p><b>Début de la réservation: </b>@String.Format("{0:g}", Model.StartRes)</p>
+    <p><b>Fin de la réservation: </b>@String.Format("{0:g}", Model.EndRes)</p>
+    <p><b>Cours : </b>@Model.IdCourse</p>
 
-    <div class="display-label">IdCourse</div>
-    <div class="display-field">@Model.IdCourse</div>
-
-</fieldset>
-@using (Html.BeginForm()) {
     <p>
         <input type="submit" value="Delete" /> |
         @Html.ActionLink("Back to List", "Index")

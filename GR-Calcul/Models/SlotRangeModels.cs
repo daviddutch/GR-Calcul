@@ -90,6 +90,7 @@ namespace GR_Calcul.Models
         [DataType(DataType.Date)]
         [UIHint("lollipop")]
         [DisplayFormat(DataFormatString = "{0:dd.MM.yyyy}", ApplyFormatInEditMode = true)]
+        [GreaterThan("StartRes")]
         public DateTime EndRes { get; set; }
 
         [Required]
@@ -1056,8 +1057,10 @@ namespace GR_Calcul.Models
             if (!updated) throw new Exception("timestamp");
         }
 
-        public static void DeleteSlotRange(int id)
+        public static void DeleteSlotRange(int id, SlotRange range)
         {
+            string errMsg = "";
+
             try
             {
                 SqlConnection db = new SqlConnection(connectionString);
@@ -1068,18 +1071,39 @@ namespace GR_Calcul.Models
                 transaction = db.BeginTransaction(IsolationLevel.RepeatableRead);
                 try
                 {
+                    byte[] timestamp = range.getByteTimestamp();
 
-                    SqlCommand cmd = new SqlCommand("DELETE FROM Slot WHERE id_slotRange=@id;", db, transaction);
-                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
-                    cmd.ExecuteNonQuery();
+                    SqlCommand cmd = new SqlCommand("SELECT * " +
+                                                    "FROM SlotRange S " +
+                                                    "WHERE S.id_slotRange=@id AND S.timestamp=@timestamp;", db, transaction);
 
-                    cmd = new SqlCommand("DELETE FROM MachineSlotRange WHERE id_slotRange=@id;", db, transaction);
                     cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
-                    cmd.ExecuteNonQuery();
+                    cmd.Parameters.Add("@timestamp", SqlDbType.Binary).Value = timestamp;
 
-                    cmd = new SqlCommand("DELETE FROM SlotRange WHERE id_slotRange=@id;", db, transaction);
-                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
-                    cmd.ExecuteNonQuery();
+                    SqlDataReader rdr = cmd.ExecuteReader();
+
+                    if (rdr.Read())
+                    {
+                        rdr.Close();
+
+                        cmd = new SqlCommand("DELETE FROM Slot WHERE id_slotRange=@id;", db, transaction);
+                        cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
+                        cmd.ExecuteNonQuery();
+
+                        cmd = new SqlCommand("DELETE FROM MachineSlotRange WHERE id_slotRange=@id;", db, transaction);
+                        cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
+                        cmd.ExecuteNonQuery();
+
+                        cmd = new SqlCommand("DELETE FROM SlotRange WHERE id_slotRange=@id;", db, transaction);
+                        cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
+                        cmd.ExecuteNonQuery();
+                    }
+                    else
+                    {
+                        rdr.Close();
+                        errMsg += " " + Messages.recommencerDelete;
+                        Console.WriteLine("Cross modify");
+                    }
 
                     transaction.Commit();
                 }

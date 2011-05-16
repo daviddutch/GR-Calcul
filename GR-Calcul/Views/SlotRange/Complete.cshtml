@@ -7,7 +7,7 @@
 <h2>La plage de créneaux nommée '@Model.Name' a été @ViewBag.Mode avec succès.</h2>
 
 <p>
-    @Html.ActionLink("Créer une nouvelle plage de créneaux", "Create")
+    @Html.ActionLink("Créer une nouvelle plage de créneaux", "Create", new { IdCourse=@Model.IdCourse })
 </p>
 <p>
     @Html.ActionLink("Voir les plages de slot du cours", "CourseRanges", new { id = Model.IdCourse })
