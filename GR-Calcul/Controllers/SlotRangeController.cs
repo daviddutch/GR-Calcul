@@ -9,6 +9,7 @@ using System.Web.Security;
 using GR_Calcul.Misc;
 using System.Text;
 using TaskScheduler;
+using System.Globalization;
 
 
 namespace GR_Calcul.Controllers
@@ -103,15 +104,6 @@ namespace GR_Calcul.Controllers
         [DuffAuthorize(PersonType.Responsible)]
         public ActionResult Create(SlotRange range)
         {
-
-            foreach (ModelState modelState in ViewData.ModelState.Values)
-            {
-                foreach (ModelError error in modelState.Errors)
-                {
-                    var k = error;
-                }
-            }
-
             InitViewbag(range.IdCourse);
             if (ModelState.IsValid)
             {
@@ -127,7 +119,7 @@ namespace GR_Calcul.Controllers
                 }
                 catch (GrException gex)
                 {
-                    ModelState.AddModelError("", "Une erreur est survenue.");
+                    ModelState.AddModelError("", gex.UserMessage);
                     ViewBag.Error = gex.UserMessage;
 
                     System.Diagnostics.Debug.WriteLine(gex.UserMessage);
@@ -136,7 +128,7 @@ namespace GR_Calcul.Controllers
                     return View(range);
                 }
             }
-            ModelState.AddModelError("", "Il y a des données incorrectes. Corriger les erreurs!");
+            ModelState.AddModelError("", Messages.invalidData);
             
             return View(range);
         }
@@ -192,7 +184,6 @@ namespace GR_Calcul.Controllers
             }
         }
         
-
         [HttpPost]
         [DuffAuthorize(PersonType.Responsible)]
         public ActionResult Duplicate(int id, SlotRange target)
@@ -216,7 +207,6 @@ namespace GR_Calcul.Controllers
                 return null;
             }
         }
-
 
         //
         // GET: /SlotRange/Edit/5
@@ -258,16 +248,14 @@ namespace GR_Calcul.Controllers
                         ViewBag.Mode = "mise a jour";
                         return View("Complete", range);
                     }
-                    catch (Exception exx)
+                    catch (GrException gex)
                     {
-                        ViewBag.ErrorMode = "la mise à jour";
-                        return View("Error", exx);
+                        //ViewBag.ErrorMode = "la mise à jour";
+                        //return View("Error", exx);
+                        ModelState.AddModelError("", gex.UserMessage);
+                        return View(range);
                     }
                 }
-                ////ViewBag.IdCourse = new SelectList(CourseModel.ListCourses(SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name)), "ID", "Name", range.IdCourse);
-                
-                //ViewBag.SlotDuration = new SelectList(Slot.durationList, "Text", "Text", range.SlotDuration);
-                //ViewBag.CourseName = CourseModel.GetCourse(range.IdCourse).Name;// cd: for when locked
                 InitViewbag(range.IdCourse);
 
                 ModelState.AddModelError("", "Il y a des données incorrectes. Corriger les erreurs!");
@@ -322,10 +310,22 @@ namespace GR_Calcul.Controllers
                     SlotRangeModel.DeleteSlotRange(id, collection);
                     return RedirectToAction("CourseRanges");
                 }
-                catch (Exception exx)
+                catch (GrException gex)
                 {
-                    ViewBag.ErrorMode = "la suppression";
-                    return View("Error", exx);
+
+                    ModelState.AddModelError("", gex.UserMessage);
+
+                    // get updated data
+                    SlotRange range_ = SlotRangeModel.GetSlotRange(id);
+
+                    // update timestamp in case user really wants to delete this
+                    ModelState.SetModelValue("Timestamp", new ValueProviderResult(range_.Timestamp, "", CultureInfo.InvariantCulture));
+
+                    // show new values before user decided to really delete them
+                    return View(range_);
+
+                    //ViewBag.ErrorMode = "la suppression";
+                    //return View("Error", exx);
                 }
             }
             else
