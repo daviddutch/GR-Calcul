@@ -10,6 +10,8 @@ function enableWizard(buildLastStep) {
     $(function () {
 
         $(".wizard-step:first").fadeIn(); // show first step
+        if ($(".wizard-step").length == 1) //if there's only one step
+            $("#next-step").val("Terminer");
 
 
         // attach backStep button handler
@@ -30,7 +32,7 @@ function enableWizard(buildLastStep) {
         $("#back-step").click(function () {
             var $step = $(".wizard-step:visible");
             if ($step.next().hasClass("wizard-step")) {
-                $("#next-step").val("suivant");
+                $("#next-step").val("Suivant");
             }
         });
 
@@ -65,7 +67,7 @@ function enableWizard(buildLastStep) {
 
 
             if (!$step.next().next().hasClass("wizard-step")) {
-                $("#next-step").val("terminer");
+                $("#next-step").val("Terminer");
             }
             if (buildLastStep) {
                 if (!$step.next().next().hasClass("wizard-step") && $step.next().hasClass("wizard-step")) {
