@@ -262,7 +262,6 @@ namespace GR_Calcul.Models
 
         public static void DeleteRoom(int id, Room room)
         {
-            string errMsg = "";
             try
             {
                 SqlConnection db = new SqlConnection(connectionString);
