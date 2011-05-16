@@ -79,17 +79,17 @@ namespace GR_Calcul.Models
         public string Name { get; set; }
 
         [Required(ErrorMessage = "La date est invalide!")]
-        [Display(Name = "Début de Réservation", Description = "dd/mm/yyyy")]
+        [Display(Name = "Début de Réservation", Description = "dd.mm.yyyy")]
         [DataType(DataType.Date)]
-        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
+        [DisplayFormat(DataFormatString = "{0:dd.MM.yyyy}", ApplyFormatInEditMode = true)]
         [UIHint("lollipop")]
         public DateTime StartRes { get; set; }
 
         [Required(ErrorMessage = "La date est invalide!")]
-        [Display(Name = "Fin de Réservation", Description = "dd/mm/yyyy")]
+        [Display(Name = "Fin de Réservation", Description = "dd.mm.yyyy")]
         [DataType(DataType.Date)]
         [UIHint("lollipop")]
-        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
+        [DisplayFormat(DataFormatString = "{0:dd.MM.yyyy}", ApplyFormatInEditMode = true)]
         public DateTime EndRes { get; set; }
 
         [Required]
@@ -102,7 +102,7 @@ namespace GR_Calcul.Models
 
         public List<string> Endz { get; set; }
 
-        public List<Machine> Machines { get; set; }
+        public List<Int32> Machines { get; set; }
 
         public List<DateTime> Slotdate { get; set; }
 
@@ -115,9 +115,9 @@ namespace GR_Calcul.Models
 
         //step2 data
         [Required]
-        [Display(Name = "Date de départ", Description = "dd/mm/yyyy")]
+        [Display(Name = "Date de départ", Description = "dd.mm.yyyy")]
         [DataType(DataType.Date)]
-        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
+        [DisplayFormat(DataFormatString = "{0:dd.MM.yyyy}", ApplyFormatInEditMode = true)]
         [UIHint("lollipop")]
         public DateTime Beginning { get; set; }
 
@@ -137,7 +137,7 @@ namespace GR_Calcul.Models
             Beginning = DateTime.Now;
 
             Slots = new List<Slot>();
-            Machines = new List<Machine>();
+            Machines = new List<Int32>();
             Startz = new List<string>();
             Endz = new List<string>();
             Slotdate = new List<DateTime>();
@@ -196,7 +196,7 @@ namespace GR_Calcul.Models
         // CD: XML methods - should always be called from Reservation C(R)UD methods in other models (User?)
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        private String BuildScriptDataXML(Person person, Slot slot, List<Machine> machines)
+        private String BuildScriptDataXML(Person person, Slot slot, List<string> machines)
         {
             // create document
             XmlDocument doc = new XmlDocument();
@@ -229,11 +229,11 @@ namespace GR_Calcul.Models
 
             // create <machines> node and <machine> child nodes and add to <command> node
             XmlNode machinesNode = doc.CreateElement("machines");
-            machines.ForEach(delegate(Machine machine)
+            machines.ForEach(delegate(string machine)
             {
                 XmlNode machineNode = doc.CreateElement("machine");
                 XmlNode nameNode = doc.CreateElement("name");
-                nameNode.AppendChild(doc.CreateTextNode(escXML(machine.Name)));
+                nameNode.AppendChild(doc.CreateTextNode(escXML(machine)));
                 machineNode.AppendChild(nameNode);
                 machinesNode.AppendChild(machineNode);
             });
@@ -253,12 +253,12 @@ namespace GR_Calcul.Models
         }
 
         // CD: this is really an Update
-        public void InsertCommandXML(Person person, Slot slot, List<Machine> machines)
+        public void InsertCommandXML(Person person, Slot slot, List<string> machines)
         {
             bool updated = false;
             if (machines == null)
             {
-                machines = new List<Machine>();
+                machines = new List<string>();
             }
 
             try
@@ -590,8 +590,9 @@ namespace GR_Calcul.Models
 
     public class SlotRangeModel
     {
-
         static private String connectionString = ConnectionManager.GetConnectionString();//System.Configuration.ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString;
+
+        private static MachineModel machineModel = new MachineModel();
 
         public static SlotRange GetSlotRange(int id)
         {
@@ -639,9 +640,8 @@ namespace GR_Calcul.Models
                     }
 
                     //get machines
-                    SqlCommand cmd2 = new SqlCommand("SELECT M.[id_machine], [name], [IP], [id_room] " +
+                    SqlCommand cmd2 = new SqlCommand("SELECT M.[id_machine] " +
                                                      "FROM MachineSlotRange MSR " +
-                                                     "JOIN Machine M ON M.id_machine=MSR.id_machine " +
                                                      "WHERE id_slotRange=@id;", db, transaction);
 
                     cmd2.Parameters.Add("@id", SqlDbType.Int).Value = id;
@@ -651,11 +651,7 @@ namespace GR_Calcul.Models
                     while (rdr2.Read())
                     {
                         int id_machine = rdr2.GetInt32(rdr2.GetOrdinal("id_machine"));
-                        string name = rdr2.GetString(rdr2.GetOrdinal("name"));
-                        string IP = rdr2.GetString(rdr2.GetOrdinal("IP"));
-                        int id_room = rdr2.GetInt32(rdr2.GetOrdinal("id_room"));
-                        Machine machine = new Machine(id_machine, name, IP, id_room);
-                        range.Machines.Add(machine);
+                        range.Machines.Add(id_machine);
                     }
                     rdr2.Close();
 
@@ -828,7 +824,7 @@ namespace GR_Calcul.Models
             }
         }
 
-        private void InsertMachines(Machine machine, int rangeId, SqlConnection db, SqlTransaction transaction)
+        private void InsertMachines(Int32 machine, int rangeId, SqlConnection db, SqlTransaction transaction)
         {
             SqlCommand cmd3 = new SqlCommand("INSERT INTO MachineSlotRange(id_machine, id_slotRange) " +
                         "VALUES(@id_machine, @id_slotRange);", db, transaction);
@@ -836,7 +832,7 @@ namespace GR_Calcul.Models
             cmd3.Parameters.Add("@id_machine", SqlDbType.Int);
             cmd3.Parameters.Add("@id_slotRange", SqlDbType.Int);
 
-            cmd3.Parameters["@id_machine"].Value = machine.id_machine;
+            cmd3.Parameters["@id_machine"].Value = machine;
             cmd3.Parameters["@id_slotRange"].Value = rangeId;
 
             cmd3.ExecuteNonQuery();
@@ -1157,8 +1153,7 @@ namespace GR_Calcul.Models
                         Person user = (new PersonModel()).getPerson((int)id_person, PersonType.User);
                         // get slotrange
                         SlotRange range = SlotRangeModel.GetSlotRange(slot.id_slotRange);
-
-                        range.InsertCommandXML(user, slot, range.Machines);
+                        range.InsertCommandXML(user, slot, machineModel.getMachineNames(range.Machines));
                     }
                     else //slot already in use
                     {

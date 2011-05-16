@@ -107,6 +107,15 @@ namespace GR_Calcul.Controllers
         [DuffAuthorize(PersonType.Responsible)]
         public ActionResult Create(SlotRange range)
         {
+
+            foreach (ModelState modelState in ViewData.ModelState.Values)
+            {
+                foreach (ModelError error in modelState.Errors)
+                {
+                    var k = error;
+                }
+            }
+
             InitViewbag();
             if (ModelState.IsValid)
             {
