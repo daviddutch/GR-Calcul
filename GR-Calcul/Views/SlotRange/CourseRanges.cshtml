@@ -10,7 +10,7 @@
     if (Request.IsAuthenticated && ((GR_Calcul.Models.Person)Membership.GetUser(Context.User.Identity.Name)).pType == GR_Calcul.Models.PersonType.Responsible)
     {
         isResponsible = true;
-        <span style="float:right; margin-right:20px;"><a href="@Url.Action("Create", new {id_course = Model.Course.ID}).ToString()" class="button">Ajouter range</a></span>
+        <span style="float:right; margin-right:20px;"><a href="@Url.Action("Create", new {IdCourse = Model.Course.ID}).ToString()" class="button">Ajouter range</a></span>
     }
     var isResourceManager = false;
     if (Request.IsAuthenticated && ((GR_Calcul.Models.Person)Membership.GetUser(Context.User.Identity.Name)).pType == GR_Calcul.Models.PersonType.ResourceManager)
