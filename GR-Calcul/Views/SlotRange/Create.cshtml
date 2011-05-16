@@ -41,9 +41,10 @@
                 @Html.LabelFor(model => model.IdCourse)
             </div>
             <div class="editor-field">
-                @Html.DropDownList("IdCourse")
+                @ViewBag.CourseName
+@*                @Html.DropDownList("IdCourse")
                 @Html.ValidationMessageFor(model => model.IdCourse)
-            </div>
+*@            </div>
             <div class="editor-label">
                 <label>
                     Machines</label>

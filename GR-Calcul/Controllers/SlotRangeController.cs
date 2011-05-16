@@ -18,9 +18,10 @@ namespace GR_Calcul.Controllers
     /// </summary>
     public class SlotRangeController : BaseController
     {
-        private void InitViewbag()
+        private void InitViewbag(int IdCourse)
         {
-            ViewBag.IdCourse = new SelectList(CourseModel.ListCourses(SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name)), "ID", "Name");
+            //ViewBag.IdCourse = new SelectList(CourseModel.ListCourses(SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name)), "ID", "Name");
+            ViewBag.CourseName = CourseModel.GetCourse(IdCourse).Name;// cd: for when locked
             ViewBag.SlotDuration = new SelectList(Slot.durationList, "Text", "Text");
         }
 
@@ -29,7 +30,7 @@ namespace GR_Calcul.Controllers
         [DuffAuthorize(PersonType.Responsible, PersonType.ResourceManager)]
         public ActionResult CourseRanges(int id)
         {
-            InitViewbag();
+            InitViewbag(id);
             CourseRangesViewModel viewModel = new CourseRangesViewModel();
             Course course = CourseModel.GetCourse(id);
             viewModel.Course = course;
@@ -43,7 +44,7 @@ namespace GR_Calcul.Controllers
         [DuffAuthorize(PersonType.User)]
         public ActionResult ReserveSlotRange(int id)
         {
-            InitViewbag();
+            InitViewbag(id);
             ReserveSlotRangeViewModel viewModel = new ReserveSlotRangeViewModel();
             Course course = CourseModel.GetCourse(id);
             viewModel.Course = course;
@@ -89,9 +90,9 @@ namespace GR_Calcul.Controllers
         //
         // GET: /SlotRange/Create
         [DuffAuthorize(PersonType.Responsible)]
-        public ActionResult Create()
+        public ActionResult Create(int IdCourse)
         {
-            InitViewbag();
+            InitViewbag(IdCourse);
             return View();
         }
 
@@ -111,7 +112,7 @@ namespace GR_Calcul.Controllers
                 }
             }
 
-            InitViewbag();
+            InitViewbag(range.IdCourse);
             if (ModelState.IsValid)
             {
                 try
@@ -183,9 +184,12 @@ namespace GR_Calcul.Controllers
             int? rId = range.GetResponsible();
             if (IsAuthorized(range))
             {
-                ViewBag.IdCourse = new SelectList(CourseModel.ListCourses(SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name)), "ID", "Name", range.IdCourse);
-                ViewBag.SlotDuration = new SelectList(Slot.durationList, "Text", "Text", range.SlotDuration);
-                ViewBag.CourseName = CourseModel.GetCourse(range.IdCourse).Name;// cd: for when locked
+                ////ViewBag.IdCourse = new SelectList(CourseModel.ListCourses(SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name)), "ID", "Name", range.IdCourse);
+                
+                //ViewBag.SlotDuration = new SelectList(Slot.durationList, "Text", "Text", range.SlotDuration);
+                //ViewBag.CourseName = CourseModel.GetCourse(range.IdCourse).Name;// cd: for when locked
+                InitViewbag(range.IdCourse);
+
                 return View(range);
             }
             else
@@ -217,9 +221,11 @@ namespace GR_Calcul.Controllers
                         return View("Error", exx);
                     }
                 }
-                ViewBag.IdCourse = new SelectList(CourseModel.ListCourses(SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name)), "ID", "Name", range.IdCourse);
-                ViewBag.SlotDuration = new SelectList(Slot.durationList, "Text", "Text", range.SlotDuration);
-                ViewBag.CourseName = CourseModel.GetCourse(range.IdCourse).Name;// cd: for when locked
+                ////ViewBag.IdCourse = new SelectList(CourseModel.ListCourses(SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name)), "ID", "Name", range.IdCourse);
+                
+                //ViewBag.SlotDuration = new SelectList(Slot.durationList, "Text", "Text", range.SlotDuration);
+                //ViewBag.CourseName = CourseModel.GetCourse(range.IdCourse).Name;// cd: for when locked
+                InitViewbag(range.IdCourse);
 
                 ModelState.AddModelError("", "Il y a des données incorrectes. Corriger les erreurs!");
 
