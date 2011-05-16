@@ -33,6 +33,7 @@
     
     columns: grid.Columns(
             grid.Column("Name", "Nom"),
+            grid.Column("ResponsibleString", "Responsable"),
             grid.Column(null, (isResponsible) ? "Clefs" : "", format: (item) => 
                 {
                     if(isResponsible)
@@ -40,8 +41,13 @@
                     else
                          return new HtmlString("");
                 }, canSort:false),
-            grid.Column("Active", "Actif"),
-            grid.Column("ResponsibleString", "Responsable"),                
+            grid.Column(null, (isResponsible) ? "Actif" : "", format: (item) =>
+                {
+                    if (isResponsible)
+                        return new HtmlString(item.Active);
+                    else
+                        return new HtmlString("");
+                }, canSort: false),
             grid.Column(format: (item) =>
                 {
                     
