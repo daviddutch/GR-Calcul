@@ -23,7 +23,7 @@ namespace GR_Calcul.Controllers
         [DuffAuthorize(PersonType.ResourceManager)]
         public ActionResult Index()
         {
-            return View(roomModel.ListRooms());
+            return View(RoomModel.ListRooms());
         }
 
         //
@@ -42,7 +42,7 @@ namespace GR_Calcul.Controllers
         {
             try
             {
-                roomModel.CreateRoom(room);
+                RoomModel.CreateRoom(room);
                 return RedirectToAction("Index");
             }
             catch (Exception sqlError)
@@ -59,7 +59,7 @@ namespace GR_Calcul.Controllers
         [DuffAuthorize(PersonType.ResourceManager)]
         public ActionResult Edit(int id)
         {
-            return View(roomModel.GetRoom(id));
+            return View(RoomModel.GetRoom(id));
         }
 
         //
@@ -70,7 +70,7 @@ namespace GR_Calcul.Controllers
         {
             try
             {
-                roomModel.UpdateRoom(room);
+                RoomModel.UpdateRoom(room);
                 return RedirectToAction("Index");
             }
             catch (Exception sqlError)
@@ -87,7 +87,7 @@ namespace GR_Calcul.Controllers
         [DuffAuthorize(PersonType.ResourceManager)]
         public ActionResult Delete(int id)
         {
-            return View(roomModel.GetRoom(id));
+            return View(RoomModel.GetRoom(id));
         }
 
         //
@@ -98,7 +98,7 @@ namespace GR_Calcul.Controllers
         {
             try
             {
-                roomModel.DeleteRoom(id);
+                RoomModel.DeleteRoom(id);
                 return RedirectToAction("Index");
             }
             catch(Exception sqlError)

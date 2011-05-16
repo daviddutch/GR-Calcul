@@ -52,12 +52,12 @@
                 &nbsp;</div>
             <div class="editor-field">
                 <ul class="machines">
-                    @foreach (var room in new GR_Calcul.Models.RoomModel().ListRooms())
+                    @foreach (var room in GR_Calcul.Models.RoomModel.ListRooms())
                     {
                         <li>
                             <input novalidation="true" type="checkbox" id="room-@room.ID" class="roomBox" title="select all machines in room @room.Name" /><label for="@room.ID">@room.Name</label>
                             <ul>
-                                @foreach (var machine in new GR_Calcul.Models.MachineModel().ListMachines(@room.ID))
+                                @foreach (var machine in GR_Calcul.Models.MachineModel.ListMachines(@room.ID))
                                 {
                                     var isChecked = "";
                                     if (Model != null)

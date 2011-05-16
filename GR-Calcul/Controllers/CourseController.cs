@@ -23,22 +23,11 @@ namespace GR_Calcul.Controllers
         private PersonModel personModel = new PersonModel();
 
         /// <summary>
-        /// GET: /Course/Index
-        /// Redirect to List
-        /// </summary>
-        [DuffAuthorize(PersonType.ResourceManager, PersonType.Responsible, PersonType.User)]
-        public ActionResult Index()
-        {
-            return RedirectToAction("List");
-        }
-
-
-        /// <summary>
         /// GET: /Course/List
         /// Displays a list of courses
         /// </summary>
         [DuffAuthorize(PersonType.ResourceManager, PersonType.Responsible, PersonType.User)]
-        public ActionResult List()
+        public ActionResult Index()
         {
             switch (SessionManager.GetCurrentUserRole(HttpContext.User.Identity.Name))
             {
@@ -257,6 +246,7 @@ namespace GR_Calcul.Controllers
                         ModelState.AddModelError("", "L'élément à été modifier. Veuillez revérifier les infos avant de confirmer la suppresion.");
                     else
                         ModelState.AddModelError("", e.Message);
+
                     return View(CourseModel.GetCourse(id));
                 }
             }
