@@ -24,14 +24,6 @@ namespace GR_Calcul.Controllers
         [DuffAuthorize(PersonType.ResourceManager, PersonType.Responsible)]
         public ActionResult Index()
         {
-            return RedirectToAction("List");
-        }
-
-        //
-        // GET: /Machine/List
-        [DuffAuthorize(PersonType.ResourceManager, PersonType.Responsible)]
-        public ActionResult List()
-        {
             return View(MachineModel.ListMachines());
         }
 
@@ -41,7 +33,7 @@ namespace GR_Calcul.Controllers
         [DuffAuthorize(PersonType.ResourceManager)]
         public ActionResult Create()
         {
-            var items = roomModel.ListRooms().Select(x => new SelectListItem() { Value = x.ID.ToString(), Text = x.Name.ToString() }).ToList();
+            var items = RoomModel.ListRooms().Select(x => new SelectListItem() { Value = x.ID.ToString(), Text = x.Name.ToString() }).ToList();
             ViewData["Rooms"] = new SelectList(items, "Value", "Text");
             return View();
         } 
@@ -81,7 +73,7 @@ namespace GR_Calcul.Controllers
         public ActionResult Edit(int id)
         {
             Machine machine = MachineModel.getMachine(id);
-            var items = roomModel.ListRooms().Select(x => new SelectListItem() { Value = x.ID.ToString(), Text = x.Name.ToString() }).ToList();
+            var items = RoomModel.ListRooms().Select(x => new SelectListItem() { Value = x.ID.ToString(), Text = x.Name.ToString() }).ToList();
             ViewData["Rooms"] = new SelectList(items, "Value", "Text", machine.id_room);
             return View(machine);
         }

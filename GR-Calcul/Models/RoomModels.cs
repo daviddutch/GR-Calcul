@@ -41,7 +41,7 @@ namespace GR_Calcul.Models
 
         static private String connectionString = ConnectionManager.GetConnectionString();
 
-        public List<Room> ListRooms()
+        public static List<Room> ListRooms()
         {
             List<Room> list = new List<Room>();
 
@@ -90,7 +90,7 @@ namespace GR_Calcul.Models
             return list;
         }
 
-        public Room GetRoom(int id)
+        public static Room GetRoom(int id)
         {
             Room room = null;
 
@@ -137,7 +137,7 @@ namespace GR_Calcul.Models
             return room;
         }
 
-        public void CreateRoom(Room room)
+        public static void CreateRoom(Room room)
         {
             try
             {
@@ -177,7 +177,7 @@ namespace GR_Calcul.Models
             }
         }
 
-        public void UpdateRoom(Room room)
+        public static void UpdateRoom(Room room)
         {
             bool updated = true;
 
@@ -239,7 +239,7 @@ namespace GR_Calcul.Models
             if (!updated) throw new Exception("timestamp");
         }
 
-        public void DeleteRoom(int id)
+        public static void DeleteRoom(int id)
         {
             try
             {

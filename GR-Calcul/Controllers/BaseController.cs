@@ -31,8 +31,8 @@ namespace GR_Calcul.Controllers
                 Person p = (Person)u;
                 List<MyMenuItem> list = new List<MyMenuItem>();
                 MyMenuItem menu1 = new MyMenuItem("Liste des personnes", "Index", "Person");
-                MyMenuItem menu2 = new MyMenuItem("Liste des machines", "List", "Machine");
-                MyMenuItem menu3 = new MyMenuItem("Liste des cours", "List", "Course");
+                MyMenuItem menu2 = new MyMenuItem("Liste des machines", "Index", "Machine");
+                MyMenuItem menu3 = new MyMenuItem("Liste des cours", "Index", "Course");
                 MyMenuItem menu4 = new MyMenuItem("Liste des salles", "Index", "Room");
                 MyMenuItem menu5 = new MyMenuItem("Liste de mes cours", "ListMyCourse", "Course");
                 switch (p.pType)

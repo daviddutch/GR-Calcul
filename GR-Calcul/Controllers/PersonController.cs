@@ -29,7 +29,7 @@ namespace GR_Calcul.Controllers
         }
 
         //
-        // GET: /Person/
+        // GET: /Person/List
         [DuffAuthorize(PersonType.ResourceManager)]
         public ActionResult List()
         {

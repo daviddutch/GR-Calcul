@@ -228,7 +228,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Views\Machine\List.cshtml" />
+    <Content Include="Views\Machine\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Machine\Delete.cshtml" />
@@ -285,7 +285,7 @@
     <Content Include="Views\Account\AccessDenied.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Views\Course\List.cshtml" />
+    <Content Include="Views\Course\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Course\Subscribe.cshtml" />
@@ -305,10 +305,10 @@
     <Content Include="Views\SlotRange\EmailScript.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Views\Person\List_old_deleteme.cshtml" />
+    <Content Include="Views\Course\Unsubscribe.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Views\Course\Unsubscribe.cshtml" />
+    <Content Include="Views\Person\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Person\List.cshtml">

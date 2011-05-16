@@ -428,5 +428,47 @@ namespace GR_Calcul.Models
 
             return errMsg;
         }
+
+        internal List<string> getMachineNames(List<int> list)
+        {
+            List<string> ret = new List<string>(list.Count);
+            try
+            {
+                SqlConnection db = new SqlConnection(connectionString);
+                SqlTransaction transaction;
+
+                db.Open();
+
+                transaction = db.BeginTransaction(IsolationLevel.RepeatableRead);
+                try
+                {
+
+                    SqlCommand cmd = new SqlCommand("SELECT name FROM Machine M " +
+                        "WHERE M.id_machine in("+string.Join(", ", list)+");", db, transaction);
+
+                    SqlDataReader rdr = cmd.ExecuteReader();
+
+                    while (rdr.Read())
+                    {
+                        ret.Add(rdr.GetString(rdr.GetOrdinal("name")));
+                    }
+                    rdr.Close();
+                    transaction.Commit();
+                }
+                catch (SqlException sqlError)
+                {
+                    System.Diagnostics.Debug.WriteLine(sqlError.Message);
+                    System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                    transaction.Rollback();
+                }
+                db.Close();
+            }
+            catch (SqlException sqlError)
+            {
+                System.Diagnostics.Debug.WriteLine(sqlError.Message);
+                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+            }
+            return ret;
+        }
     }
 }
