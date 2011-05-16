@@ -280,7 +280,7 @@ namespace GR_Calcul.Models
                     byte[] timestamp = room.getByteTimestamp();
 
                     SqlCommand cmd = new SqlCommand("SELECT * FROM Room R " +
-                                                   "WHERE R.id_room=@id_room AND R.timestamp=@timestamp;", db, transaction);
+                                                   "WHERE R.id_room=@id_room AND C.timestamp=@timestamp;", db, transaction);
 
                     cmd.Parameters.Add("@id_room", SqlDbType.Int).Value = id;
                     cmd.Parameters.Add("@timestamp", SqlDbType.Binary).Value = timestamp;
@@ -302,7 +302,11 @@ namespace GR_Calcul.Models
                     {
                         rdr.Close();
                         Console.WriteLine("Cross modify");
+<<<<<<< HEAD
+                        throw new GrException(Messages.recommencerDelete);
+=======
                         throw new GrException(Messages.recommencerDelete); 
+>>>>>>> b06e7b2795f97b27efac43779e099b6dc8a7fa48
                     }
 
                     transaction.Commit();
@@ -312,9 +316,13 @@ namespace GR_Calcul.Models
                     System.Diagnostics.Debug.WriteLine(ex.Message);
                     System.Diagnostics.Debug.WriteLine(ex.StackTrace);
                     transaction.Rollback();
+<<<<<<< HEAD
+                    throw new GrException(sqlError, Messages.errProd);
+=======
                     if (ex is GrException) throw ex;
                     throw new GrException(ex, Messages.errProd);
 
+>>>>>>> b06e7b2795f97b27efac43779e099b6dc8a7fa48
                 }
                 finally
                 {
@@ -323,8 +331,14 @@ namespace GR_Calcul.Models
             }
             catch (Exception ex)
             {
-                if (ex is GrException) throw ex;
+<<<<<<< HEAD
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+                System.Diagnostics.Debug.WriteLine(ex.StackTrace);
                 throw (ex is GrException) ? ex : new GrException(ex, Messages.errProd);
+=======
+                if (ex is GrException) throw ex;
+                throw new GrException(ex, Messages.errProd);
+>>>>>>> b06e7b2795f97b27efac43779e099b6dc8a7fa48
             }
         }
     }

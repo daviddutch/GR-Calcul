@@ -33,14 +33,21 @@
     
     columns: grid.Columns(
             grid.Column("Name", "Nom"),
-            grid.Column("Key", "Clefs"),
+            grid.Column(null, (isResponsible) ? "Clefs" : "", format: (item) => 
+                {
+                    if(isResponsible)
+                        return new HtmlString(item.Key);
+                    else
+                         return new HtmlString("");
+                }, canSort:false),
             grid.Column("Active", "Actif"),
             grid.Column("ResponsibleString", "Responsable"),                
             grid.Column(format: (item) =>
                 {
                     
                     if (isResponsible)
-                        return new HtmlString("<a href=\"" + Url.Action("Edit", new { id = item.ID }).ToString() + "\" class=\"modify\" title=\"Modifier\"></a>" +
+                        return new HtmlString("<span style='float:left;'>" + item.Key + "</span>" +
+                                          "<a href=\"" + Url.Action("Edit", new { id = item.ID }).ToString() + "\" class=\"modify\" title=\"Modifier\"></a>" +
                                           "<a href=\"" + Url.Action("Duplicate", new { id = item.ID }).ToString() + "\" class=\"dupl\" title=\"Dupliquer\"></a>" +
                                           "<a href=\"" + Url.Action("CourseRanges", "SlotRange", new { id = item.ID }).ToString() + "\" class=\"look\" title=\"Voir les plages de slot\"></a>" +
                                           "<a href=\"" + Url.Action("Delete", new { id = item.ID }).ToString() + "\" class=\"delete\" title=\"Supprimer\"></a>");
