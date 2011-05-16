@@ -73,16 +73,29 @@ namespace GR_Calcul.Controllers
         [HttpPost]
         public ActionResult Create(Course course)
         {
-            try
+            if (ModelState.IsValid)
             {
-                CourseModel.CreateCourse(course);
-                return RedirectToAction("Index");
+                try
+                {
+                    course.Responsible = (int)SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name);
+                    CourseModel.CreateCourse(course);
+                    return RedirectToAction("Index");
+                }
+                catch (GrException e)
+                {
+                    System.Diagnostics.Debug.WriteLine(e.Message);
+                    System.Diagnostics.Debug.WriteLine(e.StackTrace);
+                    ModelState.AddModelError("", e.UserMessage);
+                    return View(course);
+                }
             }
-            catch (SqlException sqlError)
+            else
             {
-                Console.WriteLine(sqlError);
-                return View();
+                // addinge extra error message here in case JS is deactivated on client.
+                ModelState.AddModelError("", "vous avez envoyé des données invalides");
+                return View(course);
             }
+
         }
 
         /// <summary>
@@ -108,10 +121,7 @@ namespace GR_Calcul.Controllers
         {
             if (IsAuthorized(id))
             {
-                Course course = CourseModel.GetCourse(id);
-                var items = PersonModel.GetResponsibles().Select(x => new SelectListItem() { Value = x.ID.ToString(), Text = x.toString() }).ToList();
-                ViewData["Responsibles"] = new SelectList(items, "Value", "Text", course.Responsible);
-                return View(course);
+                return View(CourseModel.GetCourse(id));
             }
             else
             {
@@ -132,17 +142,25 @@ namespace GR_Calcul.Controllers
         {
             if (IsAuthorized(id))
             {
-                try
+                if (ModelState.IsValid)
                 {
-                    CourseModel.UpdateCourse(course);
-                    return RedirectToAction("Index");
+                    try
+                    {
+                        CourseModel.UpdateCourse(course);
+                        return RedirectToAction("Index");
+                    }
+                    catch (GrException e)
+                    {
+                        System.Diagnostics.Debug.WriteLine(e.Message);
+                        System.Diagnostics.Debug.WriteLine(e.StackTrace);
+                        ModelState.AddModelError("", e.UserMessage);
+                        return View(course);
+                    }
                 }
-                catch (Exception e)
+                else
                 {
-                    var items = PersonModel.GetResponsibles().Select(x => new SelectListItem() { Value = x.ID.ToString(), Text = x.toString() }).ToList();
-                    ViewData["Responsibles"] = new SelectList(items, "Value", "Text", course.Responsible);
-
-                    ModelState.AddModelError(e.Message, e.Message);
+                    // addinge extra error message here in case JS is deactivated on client.
+                    ModelState.AddModelError("", "vous avez envoyé des données invalides");
                     return View(course);
                 }
             }
@@ -181,14 +199,26 @@ namespace GR_Calcul.Controllers
         {
             if (IsAuthorized(course.ID))
             {
-                try
+                if (ModelState.IsValid)
                 {
-                    CourseModel.CreateCourse(course);
-                    return RedirectToAction("Index");
+                    try
+                    {
+                        CourseModel.CreateCourse(course);
+                        return RedirectToAction("Index");
+                    }
+                    catch (GrException e)
+                    {
+                        System.Diagnostics.Debug.WriteLine(e.Message);
+                        System.Diagnostics.Debug.WriteLine(e.StackTrace);
+                        ModelState.AddModelError("", e.UserMessage);
+                        return View(course);
+                    }
                 }
-                catch
+                else
                 {
-                    return View();
+                    // addinge extra error message here in case JS is deactivated on client.
+                    ModelState.AddModelError("", "vous avez envoyé des données invalides");
+                    return View(course);
                 }
             }
             else
@@ -236,13 +266,11 @@ namespace GR_Calcul.Controllers
 
                     return RedirectToAction("Index");
                 }
-                catch(Exception e)
+                catch (GrException e)
                 {
-                    if (e.Message.Equals("timestamp"))
-                        ModelState.AddModelError("", "L'élément à été modifier. Veuillez revérifier les infos avant de confirmer la suppresion.");
-                    else
-                        ModelState.AddModelError("", e.Message);
-
+                    System.Diagnostics.Debug.WriteLine(e.Message);
+                    System.Diagnostics.Debug.WriteLine(e.StackTrace);
+                    ModelState.AddModelError("", e.UserMessage);
                     return View(CourseModel.GetCourse(id));
                 }
             }
@@ -279,8 +307,11 @@ namespace GR_Calcul.Controllers
 
                 return RedirectToAction("Index");
             }
-            catch
+            catch (GrException e)
             {
+                System.Diagnostics.Debug.WriteLine(e.Message);
+                System.Diagnostics.Debug.WriteLine(e.StackTrace);
+                ModelState.AddModelError("", e.UserMessage);
                 return View();
             }
         }
@@ -320,8 +351,11 @@ namespace GR_Calcul.Controllers
                     return View(course);
                 }
             }
-            catch
+            catch (GrException e)
             {
+                System.Diagnostics.Debug.WriteLine(e.Message);
+                System.Diagnostics.Debug.WriteLine(e.StackTrace);
+                ModelState.AddModelError("", e.UserMessage);
                 return View();
             }
         }

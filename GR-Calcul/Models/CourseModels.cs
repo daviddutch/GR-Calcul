@@ -33,7 +33,6 @@ namespace GR_Calcul.Models
         [Display(Name = "Actif")]
         public bool Active { get; set; }
 
-        [Required]
         [Display(Name = "Responsable")]
         public int Responsible { get; set; }
 
@@ -162,18 +161,20 @@ namespace GR_Calcul.Models
                     }
                     transaction.Commit();
                 }
-                catch
+                catch (Exception e)
                 {
                     transaction.Rollback();
+                    throw new GrException(e, Messages.errProd);
                 }
                 finally
                 {
                     db.Close();
                 }
             }
-            catch
+            catch (Exception e)
             {
-
+                if (e is GrException) throw e;
+                throw new GrException(e, Messages.errProd);
             }
 
             return ranges;
@@ -219,15 +220,17 @@ namespace GR_Calcul.Models
 
                     transaction.Commit();
                 }
-                catch
+                catch (Exception e)
                 {
                     transaction.Rollback();
+                    throw new GrException(e, Messages.errProd);
                 }
                 db.Close();
             }
-            catch
+            catch (Exception e)
             {
-
+                if (e is GrException) throw e;
+                throw new GrException(e, Messages.errProd);
             }
         }
         /// <summary>
@@ -266,15 +269,17 @@ namespace GR_Calcul.Models
 
                     transaction.Commit();
                 }
-                catch
+                catch (Exception e)
                 {
                     transaction.Rollback();
+                    throw new GrException(e, Messages.errProd);
                 }
                 db.Close();
             }
-            catch
+            catch (Exception e)
             {
-
+                if (e is GrException) throw e;
+                throw new GrException(e, Messages.errProd);
             }
         }
     }
@@ -320,15 +325,17 @@ namespace GR_Calcul.Models
                     rdr.Close();
                     transaction.Commit();
                 }
-                catch
+                catch (Exception e)
                 {
                     transaction.Rollback();
+                    throw new GrException(e, Messages.errProd);
                 }
                 db.Close();
             }
-            catch
+            catch (Exception e)
             {
-
+                if (e is GrException) throw e;
+                throw new GrException(e, Messages.errProd);
             }
             return ret;
         }
@@ -387,17 +394,24 @@ namespace GR_Calcul.Models
 
                     list = ListCourses(cmd);
 
+                    foreach (Course course in list)
+                    {
+                        course.MyCourse = true;
+                    }
+
                     transaction.Commit();
                 }
-                catch
+                catch (Exception e)
                 {
                     transaction.Rollback();
+                    throw new GrException(e, Messages.errProd);
                 }
                 db.Close();
             }
-            catch
+            catch (Exception e)
             {
-
+                if (e is GrException) throw e;
+                throw new GrException(e, Messages.errProd);
             }
 
             return list;
@@ -434,15 +448,17 @@ namespace GR_Calcul.Models
 
                     transaction.Commit();
                 }
-                catch
+                catch (Exception e)
                 {
                     transaction.Rollback();
+                    throw new GrException(e, Messages.errProd);
                 }
                 db.Close();
             }
-            catch
+            catch (Exception e)
             {
-
+                if (e is GrException) throw e;
+                throw new GrException(e, Messages.errProd);
             }
 
             return list;
@@ -474,15 +490,17 @@ namespace GR_Calcul.Models
 
                     transaction.Commit();
                 }
-                catch
+                catch (Exception e)
                 {
                     transaction.Rollback();
+                    throw new GrException(e, Messages.errProd);
                 }
                 db.Close();
             }
-            catch
+            catch (Exception e)
             {
-
+                if (e is GrException) throw e;
+                throw new GrException(e, Messages.errProd);
             }
 
             return list;
@@ -513,15 +531,17 @@ namespace GR_Calcul.Models
 
                     transaction.Commit();
                 }
-                catch
+                catch (Exception e)
                 {
                     transaction.Rollback();
+                    throw new GrException(e, Messages.errProd);
                 }
                 db.Close();
             }
-            catch
+            catch (Exception e)
             {
-
+                if (e is GrException) throw e;
+                throw new GrException(e, Messages.errProd);
             }
 
             return list;
@@ -604,15 +624,17 @@ namespace GR_Calcul.Models
                     rdr.Close();
                     transaction.Commit();
                 }
-                catch
+                catch(Exception e)
                 {
                     transaction.Rollback();
+                    throw new GrException(e, Messages.errProd);
                 }
                 db.Close();
             }
-            catch
+            catch(Exception e)
             {
-
+                if (e is GrException) throw e;
+                throw new GrException(e, Messages.errProd);
             }
 
             return course;
@@ -651,15 +673,18 @@ namespace GR_Calcul.Models
                     rdr.Close();
                     transaction.Commit();
                 }
-                catch
+                catch(Exception e)
                 {
                     transaction.Rollback();
+                    throw new GrException(e, Messages.errProd);
                 }
                 db.Close();
             }
-            catch
+            catch(Exception e)
             {
-
+                
+                if (e is GrException) throw e;
+                throw new GrException(e, Messages.errProd);
             }
 
             return list;
@@ -693,30 +718,21 @@ namespace GR_Calcul.Models
                     cmd.Parameters["@active"].Value = course.Active;
                     cmd.Parameters["@id_person"].Value = course.Responsible;
 
-                    /*
-                    cmd.Parameters.Add("@name", SqlDbType.Char).Value = course.Name;
-                    cmd.Parameters.Add("@key", SqlDbType.Char).Value = course.Key;
-                    cmd.Parameters.Add("@active", SqlDbType.Bit).Value = course.Active;
-                    cmd.Parameters.Add("@id_person", SqlDbType.Int).Value = course.id_person;
-                    */
-                    /*
-                    cmd.Parameters.AddWithValue("@key", "1234");
-                    cmd.Parameters.AddWithValue("@active", "1");
-                    cmd.Parameters.AddWithValue("@id_person", "1");
-                     */
                     cmd.ExecuteNonQuery();
 
                     transaction.Commit();
                 }
-                catch
+                catch(Exception e)
                 {
                     transaction.Rollback();
+                    throw new GrException(e, Messages.errProd);
                 }
                 db.Close();
             }
-            catch
+            catch(Exception e)
             {
-
+                if (e is GrException) throw e;
+                throw new GrException(e, Messages.errProd);
             }
         }
         /// <summary>
@@ -725,8 +741,6 @@ namespace GR_Calcul.Models
         /// <param name="course">The course to be updated</param>
         public static void UpdateCourse(Course course)
         {
-            bool updated = true;
-
             try
             {
                 SqlConnection db = new SqlConnection(connectionString);
@@ -752,46 +766,45 @@ namespace GR_Calcul.Models
                     {
                         rdr.Close();
                         cmd = new SqlCommand("UPDATE Course " +
-                                                    "SET name=@name, [key]=@key, active=@active, id_person=@id_person " +
+                                                    "SET name=@name, [key]=@key, active=@active " +
                                                     "WHERE id_course=@id;", db, transaction);
 
                         cmd.Parameters.Add("@id", SqlDbType.Int).Value = course.ID;
                         cmd.Parameters.Add("@name", SqlDbType.Char).Value = course.Name;
                         cmd.Parameters.Add("@key", SqlDbType.Char).Value = course.Key;
                         cmd.Parameters.Add("@active", SqlDbType.Bit).Value = course.Active;
-                        cmd.Parameters.Add("@id_person", SqlDbType.Int).Value = course.Responsible;
 
                         cmd.ExecuteNonQuery();
                     }
                     else
                     {
                         rdr.Close();
-                        Console.WriteLine("Cross modify");
-                        updated = false;
+                        transaction.Commit();
+                        throw new GrException(Messages.recommencerEdit);
                     }
 
                     transaction.Commit();
                 }
-                catch
+                catch(Exception e)
                 {
+                    if (e is GrException) throw e;
                     transaction.Rollback();
+                    throw new GrException(e, Messages.errProd);
                 }
                 db.Close();
             }
-            catch
+            catch(Exception e)
             {
-
+                if (e is GrException) throw e;
+                throw new GrException(e, Messages.errProd);
             }
-            if (!updated) throw new Exception("timestamp");
         }
         /// <summary>
         /// Delete's the course in the database
         /// </summary>
-        /// <param name="id">The id of the course</param>
+        /// <param name="course">The course to delete</param>
         public static void DeleteCourse(Course course)
         {
-            bool deleted = true;
-
             try
             {
                 SqlConnection db = new SqlConnection(connectionString);
@@ -826,23 +839,24 @@ namespace GR_Calcul.Models
                     else
                     {
                         rdr.Close();
-                        Console.WriteLine("Cross modify");
-                        deleted = false;
+                        throw new GrException(Messages.recommencerEdit);
                     }
 
                     transaction.Commit();
                 }
-                catch
+                catch(Exception e)
                 {
+                    if (e is GrException) throw e;
                     transaction.Rollback();
+                    throw new GrException(e, Messages.errProd);
                 }
                 db.Close();
             }
-            catch
+            catch(Exception e)
             {
-
+                if (e is GrException) throw e;
+                throw new GrException(e, Messages.errProd);
             }
-            if (!deleted) throw new Exception("timestamp");
         }
     }
 }

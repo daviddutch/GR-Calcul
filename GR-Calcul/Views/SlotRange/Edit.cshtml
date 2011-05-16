@@ -32,7 +32,8 @@ if (ViewData["Error"] != null)
             </div>
             <div class="editor-field">
             @if (Model.locked)
-            {                
+            {   
+                @Html.HiddenFor(model => Model.Name)  
                 @Html.DisplayFor(model => model.Name)
             }
             else
@@ -62,16 +63,10 @@ if (ViewData["Error"] != null)
                 @Html.LabelFor(model => model.IdCourse)
             </div>
             <div class="editor-field">
-             @if (Model.locked)
-            {                 
                 @Html.HiddenFor(model => Model.IdCourse)
-@*                @Html.DropDownList("IdCourse")
-*@            }
-            else
-            {
-                @Html.DropDownList("IdCourse")
-                @Html.ValidationMessageFor(model => model.IdCourse)
-            }
+                @ViewBag.CourseName
+@*              @Html.DropDownList("IdCourse")
+*@
 
             </div>
 
@@ -114,7 +109,8 @@ if (ViewData["Error"] != null)
             </div>
         </div>
 
-        @if (!Model.locked){
+        @if (!Model.locked)
+        {
         <div class="wizard-step">
             <h3>Étape 2: choix des créneaux</h3>
             <table class="simpleTable" id="slotTable">
@@ -166,8 +162,8 @@ if (ViewData["Error"] != null)
                 <tfoot><tr><td colspan="7"><button type="button" onclick="addRow()">+</button></td></tr></tfoot>
             </table>
         </div>
-        @}
-            
+        }
+        
         <p>
             <input type="button" id="back-step" name="back-step" value="Précédent" />
             <input type="button" id="next-step" name="next-step" value="Suivant" />
