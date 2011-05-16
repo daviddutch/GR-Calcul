@@ -88,18 +88,20 @@ namespace GR_Calcul.Models
                     rdr.Close();
                     transaction.Commit();
                 }
-                catch
+                catch (Exception ex)
                 {
                     transaction.Rollback();
+                    throw new GrException(ex, Messages.errProd);
                 }
                 finally
                 {
                     db.Close();
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                
+                if (ex is GrException) throw ex;
+                throw new GrException(ex, Messages.errProd);
             }
 
             return list;
@@ -138,18 +140,20 @@ namespace GR_Calcul.Models
                     rdr.Close();
                     transaction.Commit();
                 }
-                catch
+                catch (Exception ex)
                 {
                     transaction.Rollback();
+                    throw new GrException(ex, Messages.errProd);
                 }
                 finally
                 {
                     db.Close();
                 }
             }
-            catch
+            catch (Exception ex)
             {
-
+                if (ex is GrException) throw ex;
+                throw new GrException(ex, Messages.errProd);
             }
 
             return room;
@@ -177,28 +181,27 @@ namespace GR_Calcul.Models
 
                     transaction.Commit();
                 }
-                catch (SqlException sqlError)
+                catch (SqlException ex)
                 {
-                    System.Diagnostics.Debug.WriteLine(sqlError.Message);
-                    System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                    System.Diagnostics.Debug.WriteLine(ex.Message);
+                    System.Diagnostics.Debug.WriteLine(ex.StackTrace);
                     transaction.Rollback();
+                    throw new GrException(ex, Messages.errProd);
                 }
                 finally
                 {
                     db.Close();
                 }
             }
-            catch (SqlException sqlError)
+            catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(sqlError.Message);
-                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                if (ex is GrException) throw ex;
+                throw new GrException(ex, Messages.errProd);
             }
         }
 
         public static void UpdateRoom(Room room)
         {
-            bool updated = true;
-
             try
             {
                 SqlConnection db = new SqlConnection(connectionString);
@@ -236,28 +239,29 @@ namespace GR_Calcul.Models
                     {
                         rdr.Close();
                         System.Diagnostics.Debug.WriteLine("Cross modify");
-                        updated = false;
+                        throw new GrException(Messages.recommencerEdit);
                     }
 
                     transaction.Commit();
                 }
-                catch (SqlException sqlError)
+                catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine(sqlError.Message);
-                    System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                    System.Diagnostics.Debug.WriteLine(ex.Message);
+                    System.Diagnostics.Debug.WriteLine(ex.StackTrace);
                     transaction.Rollback();
+                    if (ex is GrException) throw ex;
+                    throw new GrException(ex, Messages.errProd);
                 }
                 finally
                 {
                     db.Close();
                 }
             }
-            catch (SqlException sqlError)
+            catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(sqlError.Message);
-                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                if (ex is GrException) throw ex;
+                throw new GrException(ex, Messages.errProd);
             }
-            if (!updated) throw new Exception("timestamp");
         }
 
         public static void DeleteRoom(int id, Room room)
@@ -300,29 +304,30 @@ namespace GR_Calcul.Models
                         rdr.Close();
                         errMsg += " " + Messages.recommencerDelete;
                         Console.WriteLine("Cross modify");
+                        throw new GrException(Messages.recommencerDelete); 
                     }
-
 
                     transaction.Commit();
                 }
-                catch (SqlException sqlError)
+                catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine(sqlError.Message);
-                    System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                    System.Diagnostics.Debug.WriteLine(ex.Message);
+                    System.Diagnostics.Debug.WriteLine(ex.StackTrace);
                     transaction.Rollback();
+                    if (ex is GrException) throw ex;
+                    throw new GrException(ex, Messages.errProd);
+
                 }
                 finally
                 {
                     db.Close();
                 }
             }
-            catch (SqlException sqlError)
+            catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(sqlError.Message);
-                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                if (ex is GrException) throw ex;
+                throw new GrException(ex, Messages.errProd);
             }
         }
-
-
     }
 }

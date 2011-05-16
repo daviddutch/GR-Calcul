@@ -285,8 +285,8 @@ namespace GR_Calcul.Models
                 {
                     byte[] timestamp = this.getByteTimestamp();
 
-                    //SqlCommand cmd = new SqlCommand("SELECT * FROM SlotRange R " +
-                    //    "WHERE R.[id_slotRange]=@id AND R.timestamp=@timestamp;", db, transaction);
+                    SqlCommand cmd = new SqlCommand("SELECT * FROM SlotRange R " +
+                        "WHERE R.[id_slotRange]=@id AND R.timestamp=@timestamp;", db, transaction);
 
                     cmd.Parameters.Add("@id", SqlDbType.Int).Value = this.id_slotRange;
                     cmd.Parameters.Add("@timestamp", SqlDbType.Binary).Value = timestamp;
@@ -297,7 +297,7 @@ namespace GR_Calcul.Models
                     {
                         rdr.Close();
                         string xml_string = BuildScriptDataXML(person, slot, machines);
-                        SqlCommand cmd = new SqlCommand("UPDATE SlotRange " +
+                        cmd = new SqlCommand("UPDATE SlotRange " +
                                 "SET scriptDataXML.modify('insert sql:variable(\"@xml_string\") as last into (/script)[1]') " +
                                 "WHERE id_slotRange = @id_slotRange ", db, transaction);
                         cmd.Parameters.Add("@id_slotRange", SqlDbType.Int).Value = this.id_slotRange;
@@ -438,6 +438,7 @@ namespace GR_Calcul.Models
                     transaction.Rollback();
                     System.Diagnostics.Debug.WriteLine(ex.Message);
                     System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+                    throw new GrException(ex, Messages.errProd);
                     db.Close(); // only close upon exception
                 }
 
@@ -464,6 +465,7 @@ namespace GR_Calcul.Models
                     transaction.Rollback();
                     System.Diagnostics.Debug.WriteLine(ex.Message);
                     System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+                    throw new GrException(ex, Messages.errProd);
                 }
                 finally
                 {
@@ -480,6 +482,8 @@ namespace GR_Calcul.Models
             {
                 System.Diagnostics.Debug.WriteLine(ex.Message);
                 System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+                if (ex is GrException) throw ex;
+                throw new GrException(ex, Messages.errProd);
             }
 
             return script;
@@ -705,15 +709,17 @@ namespace GR_Calcul.Models
                     System.Diagnostics.Debug.WriteLine(ex.Message);
                     System.Diagnostics.Debug.WriteLine(ex.StackTrace);
                     transaction.Rollback();
+                    throw new GrException(ex, Messages.errProd);
                 }
                 finally
                 {
                     db.Close();
                 }
             }
-            catch
+            catch(Exception ex)
             {
-
+                if (ex is GrException) throw ex;
+                throw new GrException(ex, Messages.errProd);
             }
 
             return range;
@@ -768,15 +774,17 @@ namespace GR_Calcul.Models
                     System.Diagnostics.Debug.WriteLine(ex.StackTrace);
 
                     transaction.Rollback();
+                    throw new GrException(ex, Messages.errProd);
                 }
                 finally
                 {
                     db.Close();
                 }
             }
-            catch
+            catch (Exception ex)
             {
-
+                if (ex is GrException) throw ex;
+                throw new GrException(ex, Messages.errProd);
             }
 
             return slot;
@@ -863,17 +871,20 @@ namespace GR_Calcul.Models
 
                     transaction.Commit();
                 }
-                catch
+                catch (Exception ex)
                 {
                     transaction.Rollback();
+                    throw new GrException(ex, Messages.errProd);
                 }
                 finally
                 {
                     db.Close();
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                if (ex is GrException) throw ex;
+                throw new GrException(ex, Messages.errProd);
             }
         }
 
@@ -1035,6 +1046,7 @@ namespace GR_Calcul.Models
                     {
                         rdr.Close();
                         Console.WriteLine("Cross modify");
+                        throw new GrException(Messages.recommencerEdit); 
                     }
                 }
                 catch (Exception ex)
@@ -1042,17 +1054,18 @@ namespace GR_Calcul.Models
                     transaction.Rollback();
                     System.Diagnostics.Debug.WriteLine(ex.Message);
                     System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+                    throw new GrException(ex, Messages.errProd);
                 }
                 finally
                 {
                     db.Close();
                 }
             }
-            catch
+            catch (Exception ex)
             {
-
+                if (ex is GrException) throw ex;
+                throw new GrException(ex, Messages.errProd);
             }
-            if (!updated) throw new Exception("timestamp");
         }
 
         public static void DeleteSlotRange(int id, SlotRange range)
@@ -1101,6 +1114,7 @@ namespace GR_Calcul.Models
                         rdr.Close();
                         errMsg += " " + Messages.recommencerDelete;
                         Console.WriteLine("Cross modify");
+                        throw new GrException(Messages.recommencerDelete);
                     }
 
                     transaction.Commit();
@@ -1109,12 +1123,14 @@ namespace GR_Calcul.Models
                 {
                     Console.WriteLine(sqlError);
                     transaction.Rollback();
+                    throw new GrException(sqlError, Messages.errProd);
                 }
                 db.Close();
             }
-            catch (SqlException sqlError)
+            catch (Exception ex)
             {
-                Console.WriteLine(sqlError);
+                if (ex is GrException) throw ex;
+                throw new GrException(ex, Messages.errProd);
             }
         }
 
@@ -1156,18 +1172,20 @@ namespace GR_Calcul.Models
 
                     transaction.Commit();
                 }
-                catch
+                catch (Exception ex)
                 {
                     transaction.Rollback();
+                    throw new GrException(ex, Messages.errProd);
                 }
                 finally
                 {
                     db.Close();
                 }
             }
-            catch
+            catch (Exception ex)
             {
-
+                if (ex is GrException) throw ex;
+                throw new GrException(ex, Messages.errProd);
             }
 
             return reservations;
@@ -1245,8 +1263,6 @@ namespace GR_Calcul.Models
                     System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
                     transaction.Rollback();
                     inserted = false;
-
-                    throw new GrException(sqlError, (sqlError.Number > 50000) ? sqlError.Message : Messages.uniqueUserEmail);
                 }
                 catch (Exception ex)
                 {
@@ -1318,11 +1334,13 @@ namespace GR_Calcul.Models
                     db.Close();
                 }
             }
-            catch (SqlException sqlError)
+            catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(sqlError.Message);
-                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
-                throw new GrException(Messages.errProd);
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+                System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+                if (ex is GrException) throw ex;
+                throw new GrException(ex, Messages.errProd);
+
             }
         }
     }
