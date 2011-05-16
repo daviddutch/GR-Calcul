@@ -1185,7 +1185,11 @@ namespace GR_Calcul.Models
                     transaction.Rollback();
                     inserted = false;
 
-                    // throw user exception message here for sqlException.Number > 50000 !!!
+                    if (sqlError.Number > 50000)
+                    {
+                        // throw user exception message here for sqlException.Number > 50000 !!!
+                        throw new NotImplementedException();
+                    }
                 }
                 catch (Exception ex)
                 {
