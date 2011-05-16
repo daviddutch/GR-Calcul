@@ -179,6 +179,7 @@ namespace GR_Calcul.Controllers
             {
                 ViewBag.IdCourse = new SelectList(CourseModel.ListCourses(SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name)), "ID", "Name", range.IdCourse);
                 ViewBag.SlotDuration = new SelectList(Slot.durationList, "Text", "Text", range.SlotDuration);
+                ViewBag.CourseName = CourseModel.GetCourse(range.IdCourse).Name;// cd: for when locked
                 return View(range);
             }
             else
@@ -212,6 +213,7 @@ namespace GR_Calcul.Controllers
                 }
                 ViewBag.IdCourse = new SelectList(CourseModel.ListCourses(SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name)), "ID", "Name", range.IdCourse);
                 ViewBag.SlotDuration = new SelectList(Slot.durationList, "Text", "Text", range.SlotDuration);
+                ViewBag.CourseName = CourseModel.GetCourse(range.IdCourse).Name;// cd: for when locked
 
                 ModelState.AddModelError("", "Il y a des données incorrectes. Corriger les erreurs!");
 

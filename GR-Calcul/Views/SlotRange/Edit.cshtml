@@ -65,8 +65,8 @@ if (ViewData["Error"] != null)
              @if (Model.locked)
             {                 
                 @Html.HiddenFor(model => Model.IdCourse)
-@*                @Html.DropDownList("IdCourse")
-*@            }
+                @ViewBag.CourseName
+            }
             else
             {
                 @Html.DropDownList("IdCourse")
