@@ -44,7 +44,13 @@ namespace GR_Calcul.Models
 
         private CourseModel courseModel = new CourseModel();
 
-        public Boolean locked { get; set; }
+        public Boolean locked {
+            get
+            {
+                DateTime now = DateTime.Now.Date;
+                return DateTime.Compare(StartRes, now) <= 0 && DateTime.Compare(now, EndRes) <= 0;
+            }
+        }
 
         [Timestamp]
         [HiddenInput(DisplayValue = false)]
@@ -157,17 +163,17 @@ namespace GR_Calcul.Models
             this.IdCourse = id_course;
         }
 
-        // for getSlotRange
-        public SlotRange(int id_slotRange, DateTime startRes, DateTime endRes, string name, int id_course, bool locked)
-            : this()
-        {
-            this.id_slotRange = id_slotRange;
-            this.StartRes = startRes;
-            this.EndRes = endRes;
-            this.Name = name;
-            this.IdCourse = id_course;
-            this.locked = locked;
-        }
+        //// for getSlotRange
+        //public SlotRange(int id_slotRange, DateTime startRes, DateTime endRes, string name, int id_course, bool locked)
+        //    : this()
+        //{
+        //    this.id_slotRange = id_slotRange;
+        //    this.StartRes = startRes;
+        //    this.EndRes = endRes;
+        //    this.Name = name;
+        //    this.IdCourse = id_course;
+        //    this.locked = locked;
+        //}
 
         // CD: should perhaps replace the simpler constructor
         public SlotRange(int id_slotRange, DateTime startRes, DateTime endRes, string name, int id_course, string Timestamp)
@@ -626,9 +632,12 @@ namespace GR_Calcul.Models
                     //SqlCommand cmd = new SqlCommand("SELECT [startRes] ,[endRes] ,"  +
                     //    "[name] ,[id_course] , convert(int, [timestamp]) as timestamp FROM SlotRange WHERE id_slotRange=@id;", db, transaction);
 
+                    //SqlCommand cmd = new SqlCommand("SELECT [startRes] ,[endRes] ," +
+                    //    "[name] ,[id_course] , [timestamp], " +
+                    //    "CASE  WHEN DATEDIFF(d, startRes, GETDATE ())  >= 0 AND DATEDIFF(d, GETDATE(), endRes) >= 0 THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END locked " +
+                    //    "FROM SlotRange WHERE id_slotRange=@id;", db, transaction);
                     SqlCommand cmd = new SqlCommand("SELECT [startRes] ,[endRes] ," +
-                        "[name] ,[id_course] , [timestamp], " +
-                        "CASE  WHEN DATEDIFF(d, startRes, GETDATE ())  >= 0 AND DATEDIFF(d, GETDATE(), endRes) >= 0 THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END locked " +
+                        "[name] ,[id_course] , [timestamp] " +
                         "FROM SlotRange WHERE id_slotRange=@id;", db, transaction);
 
 
@@ -642,9 +651,11 @@ namespace GR_Calcul.Models
                         DateTime endRes = rdr.GetDateTime(rdr.GetOrdinal("endRes"));
                         string name = rdr.GetString(rdr.GetOrdinal("name"));
                         int id_course = rdr.GetInt32(rdr.GetOrdinal("id_course"));
-                        Boolean locked = rdr.GetBoolean(rdr.GetOrdinal("locked"));
+                        //Boolean locked = rdr.GetBoolean(rdr.GetOrdinal("locked"));
 
-                        range = new SlotRange(id, startRes, endRes, name, id_course, locked);
+                        //range = new SlotRange(id, startRes, endRes, name, id_course, locked);
+                        range = new SlotRange(id, startRes, endRes, name, id_course);
+
                         //range.Timestamp = rdr.GetInt32(rdr.GetOrdinal("timestamp"));
                         byte[] buffer = new byte[100];
                         rdr.GetBytes(rdr.GetOrdinal("timestamp"), 0, buffer, 0, 100);
@@ -1009,12 +1020,16 @@ namespace GR_Calcul.Models
                         cmd.Parameters.Add("@id", SqlDbType.Int).Value = range.id_slotRange;
                         cmd.ExecuteNonQuery();
                         updated = true;
-                        SqlCommand cmd2 = new SqlCommand("DELETE FROM Slot WHERE id_slotRange=@id;", db, transaction);
-                        cmd2.Parameters.Add("@id", SqlDbType.Int).Value = range.id_slotRange;
-                        cmd2.ExecuteNonQuery();
 
-                        //do slots
-                        InsertAllSlots(range, range.id_slotRange, db, transaction);
+                        if (!range.locked)
+                        {
+                            SqlCommand cmd2 = new SqlCommand("DELETE FROM Slot WHERE id_slotRange=@id;", db, transaction);
+                            cmd2.Parameters.Add("@id", SqlDbType.Int).Value = range.id_slotRange;
+                            cmd2.ExecuteNonQuery();
+
+                            //do slots
+                            InsertAllSlots(range, range.id_slotRange, db, transaction);
+                        }
 
                         //do machines
                         //we update only as long as we keep at least as many machines as there already are in the database for this slotrange
