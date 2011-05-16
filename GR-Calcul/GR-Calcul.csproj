@@ -305,10 +305,10 @@
     <Content Include="Views\SlotRange\EmailScript.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Views\Person\List_old_deleteme.cshtml" />
+    <Content Include="Views\Course\Unsubscribe.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Views\Course\Unsubscribe.cshtml" />
+    <Content Include="Views\Person\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Person\List.cshtml">
