@@ -287,8 +287,8 @@ namespace GR_Calcul.Models
                     //int timestamp = range.Timestamp;
                     //byte[] timestamp = this.getByteTimestamp();
 
-                    SqlCommand cmd = new SqlCommand("SELECT * FROM SlotRange R " +
-                        "WHERE R.[id_slotRange]=@id AND R.timestamp=@timestamp;", db, transaction);
+                    //SqlCommand cmd = new SqlCommand("SELECT * FROM SlotRange R " +
+                    //    "WHERE R.[id_slotRange]=@id AND R.timestamp=@timestamp;", db, transaction);
 
                     //cmd.Parameters.Add("@id", SqlDbType.Int).Value = this.id_slotRange;
                     //cmd.Parameters.Add("@timestamp", SqlDbType.Binary).Value = timestamp;
@@ -302,7 +302,7 @@ namespace GR_Calcul.Models
                         //        "SET scriptDataXML.modify('insert @commandXML as last into (/script)[1]') " +
                         //        "WHERE id_slotRange = @id_slotRange ", db, transaction);
                         string xml_string = BuildScriptDataXML(person, slot, machines);
-                        cmd = new SqlCommand("UPDATE SlotRange " +
+                        SqlCommand cmd = new SqlCommand("UPDATE SlotRange " +
                                 "SET scriptDataXML.modify('insert sql:variable(\"@xml_string\") as last into (/script)[1]') " +
                                 "WHERE id_slotRange = @id_slotRange ", db, transaction);
                         cmd.Parameters.Add("@id_slotRange", SqlDbType.Int).Value = this.id_slotRange;
@@ -323,6 +323,7 @@ namespace GR_Calcul.Models
                     transaction.Rollback();
                     System.Diagnostics.Debug.WriteLine(ex.Message);
                     System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+                    throw new GrException(ex, Messages.errProd);
                 }
                 finally
                 {
@@ -333,6 +334,8 @@ namespace GR_Calcul.Models
             {
                 System.Diagnostics.Debug.WriteLine(ex.Message);
                 System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+                if (ex is GrException) throw ex;
+                throw new GrException(ex, Messages.errProd);
             }
             if (!updated) throw new Exception("timestamp");
         }
