@@ -275,7 +275,7 @@ namespace GR_Calcul.Controllers
         {
             try
             {
-                course.Unsubscribe(SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name));
+                course.Unsubscribe(SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name), course);
 
                 return RedirectToAction("Index");
             }

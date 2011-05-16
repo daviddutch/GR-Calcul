@@ -81,7 +81,7 @@ if (ViewData["Error"] != null)
             <div>&nbsp;</div>
             <div class="editor-field">
                 <ul class="machines">
-                    @foreach (var room in new GR_Calcul.Models.RoomModel().ListRooms())
+                    @foreach (var room in GR_Calcul.Models.RoomModel.ListRooms())
                     {
                         var isDisabled = "";
                         if (Model.locked)
@@ -96,7 +96,7 @@ if (ViewData["Error"] != null)
                                     isDisabled = "";
                                     if (Model != null)
                                     {
-                                        if (Model.Machines.Contains(machine))
+                                        if (Model.Machines.Contains(machine.id_machine))
                                         {
                                             isChecked = "checked='checked'";
                                         }
@@ -114,11 +114,12 @@ if (ViewData["Error"] != null)
             </div>
         </div>
 
+        @if (!Model.locked){
         <div class="wizard-step">
             <h3>Étape 2: choix des créneaux</h3>
             <table class="simpleTable" id="slotTable">
                 @{
-                    int cols = Model.getNumberOfSlotCols();               
+            int cols = Model.getNumberOfSlotCols();               
                 }
                     <thead>
 				    <tr style="text-align:center;">
@@ -165,7 +166,8 @@ if (ViewData["Error"] != null)
                 <tfoot><tr><td colspan="7"><button type="button" onclick="addRow()">+</button></td></tr></tfoot>
             </table>
         </div>
-
+        @}
+            
         <p>
             <input type="button" id="back-step" name="back-step" value="Précédent" />
             <input type="button" id="next-step" name="next-step" value="Suivant" />

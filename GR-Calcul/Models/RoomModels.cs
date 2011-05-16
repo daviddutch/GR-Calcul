@@ -24,7 +24,18 @@ namespace GR_Calcul.Models
 
         [Timestamp]
         [HiddenInput(DisplayValue = false)]
-        public int Timestamp { get; set; }
+        public string Timestamp { get; set; }
+
+        //public string os { get; set; }
+
+        public byte[] getByteTimestamp()
+        {
+            return Convert.FromBase64String(Timestamp);
+        }
+        public void setTimestamp(byte[] timestamp)
+        {
+            Timestamp = Convert.ToBase64String(timestamp);
+        }
 
         public Room() { }
 
@@ -56,7 +67,7 @@ namespace GR_Calcul.Models
                 try
                 {
 
-                    SqlCommand cmd = new SqlCommand("SELECT [id_room],[name], convert(int, [timestamp]) as timestamp FROM [Room] R;", db, transaction);
+                    SqlCommand cmd = new SqlCommand("SELECT [id_room],[name], [timestamp] FROM [Room] R;", db, transaction);
 
 
                     SqlDataReader rdr = cmd.ExecuteReader();
@@ -66,7 +77,11 @@ namespace GR_Calcul.Models
                         int id_course = rdr.GetInt32(rdr.GetOrdinal("id_room"));
                         string name = rdr.GetString(rdr.GetOrdinal("name"));
                         Room room = new Room(id_course, name);
-                        room.Timestamp = rdr.GetInt32(rdr.GetOrdinal("timestamp"));
+
+                        byte[] buffer = new byte[100];
+                        rdr.GetBytes(rdr.GetOrdinal("timestamp"), 0, buffer, 0, 100);
+                        room.setTimestamp(buffer);
+
                         list.Add(room);
 
                     }
@@ -104,7 +119,7 @@ namespace GR_Calcul.Models
                 transaction = db.BeginTransaction(IsolationLevel.ReadCommitted);
                 try
                 {
-                    SqlCommand cmd = new SqlCommand("SELECT [name], convert(int, [timestamp]) as timestamp FROM [Room] R WHERE R.id_room=@id;", db, transaction);
+                    SqlCommand cmd = new SqlCommand("SELECT [name], [timestamp] FROM [Room] R WHERE R.id_room=@id;", db, transaction);
 
                     cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
 
@@ -115,7 +130,10 @@ namespace GR_Calcul.Models
                         string name = rdr.GetString(rdr.GetOrdinal("name"));
                         
                         room = new Room(id, name);
-                        room.Timestamp = rdr.GetInt32(rdr.GetOrdinal("timestamp"));
+
+                        byte[] buffer = new byte[100];
+                        rdr.GetBytes(rdr.GetOrdinal("timestamp"), 0, buffer, 0, 100);
+                        room.setTimestamp(buffer);
                     }
                     rdr.Close();
                     transaction.Commit();
@@ -191,12 +209,15 @@ namespace GR_Calcul.Models
                 transaction = db.BeginTransaction(IsolationLevel.RepeatableRead);
                 try
                 {
+
+                    byte[] timestamp = room.getByteTimestamp();
+
                     SqlCommand cmd = new SqlCommand("SELECT * " +
                                                     "FROM Room R " +
-                                                    "WHERE R.id_room=@id AND convert(int, R.timestamp)=@timestamp;", db, transaction);
+                                                    "WHERE R.id_room=@id AND R.timestamp=@timestamp;", db, transaction);
 
                     cmd.Parameters.Add("@id", SqlDbType.Int).Value = room.ID;
-                    cmd.Parameters.Add("@timestamp", SqlDbType.Int).Value = room.Timestamp;
+                    cmd.Parameters.Add("@timestamp", SqlDbType.Binary).Value = timestamp;
 
                     SqlDataReader rdr = cmd.ExecuteReader();
 
@@ -239,8 +260,9 @@ namespace GR_Calcul.Models
             if (!updated) throw new Exception("timestamp");
         }
 
-        public static void DeleteRoom(int id)
+        public static void DeleteRoom(int id, Room room)
         {
+            string errMsg = "";
             try
             {
                 SqlConnection db = new SqlConnection(connectionString);
@@ -251,12 +273,35 @@ namespace GR_Calcul.Models
                 transaction = db.BeginTransaction(IsolationLevel.RepeatableRead);
                 try
                 {
-                    SqlCommand cmd = new SqlCommand("DELETE FROM Room " +
+
+                    byte[] timestamp = room.getByteTimestamp();
+
+                    SqlCommand cmd = new SqlCommand("SELECT * FROM Room R " +
+                                                   "WHERE R.id_room=@id_room AND C.timestamp=@timestamp;", db, transaction);
+
+                    cmd.Parameters.Add("@id_room", SqlDbType.Int).Value = id;
+                    cmd.Parameters.Add("@timestamp", SqlDbType.Binary).Value = timestamp;
+
+                    SqlDataReader rdr = cmd.ExecuteReader();
+
+                    if (rdr.Read())
+                    {
+                        rdr.Close();
+
+                        cmd = new SqlCommand("DELETE FROM Room " +
                                                     "WHERE id_room=@id;", db, transaction);
 
-                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
+                        cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
 
-                    cmd.ExecuteNonQuery();
+                        cmd.ExecuteNonQuery();
+                    }
+                    else
+                    {
+                        rdr.Close();
+                        errMsg += " " + Messages.recommencerDelete;
+                        Console.WriteLine("Cross modify");
+                    }
+
 
                     transaction.Commit();
                 }
