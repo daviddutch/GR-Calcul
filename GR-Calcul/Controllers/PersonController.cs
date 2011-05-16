@@ -65,7 +65,7 @@ namespace GR_Calcul.Controllers
                 }
                 catch (GrException gex)
                 {
-                    ModelState.AddModelError("", gex.Message);
+                    ModelState.AddModelError("", gex.UserMessage);
                     return View();
                 }
             }
@@ -115,7 +115,7 @@ namespace GR_Calcul.Controllers
                 }
                 catch (GrException gex)
                 {
-                    ModelState.AddModelError("", gex.Message);
+                    ModelState.AddModelError("", gex.UserMessage);
                     return View();
                 }
             }
@@ -154,7 +154,7 @@ namespace GR_Calcul.Controllers
             }
             catch (GrException gex)
             {
-                ModelState.AddModelError("", gex.Message);
+                ModelState.AddModelError("", gex.UserMessage);
 
                 // get updated data
                 Person person_ = PersonModel.getPerson(id, person.pType);
