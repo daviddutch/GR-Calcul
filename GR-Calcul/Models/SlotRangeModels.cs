@@ -96,7 +96,7 @@ namespace GR_Calcul.Models
         [DataType(DataType.Date)]
         [UIHint("lollipop")]
         [DisplayFormat(DataFormatString = "{0:dd.MM.yyyy}", ApplyFormatInEditMode = true)]
-        [GreaterThan("StartRes")]
+        [GreaterThanOrEqual("StartRes")]
         public DateTime EndRes { get; set; }
 
         [Required]
@@ -986,8 +986,6 @@ namespace GR_Calcul.Models
 
         public static void UpdateSlotRange(SlotRange range)
         {
-            bool updated = false;
-
             try
             {
                 SqlConnection db = new SqlConnection(connectionString);
@@ -1019,7 +1017,6 @@ namespace GR_Calcul.Models
                         cmd.Parameters.Add("@idCourse", SqlDbType.Int).Value = range.IdCourse;
                         cmd.Parameters.Add("@id", SqlDbType.Int).Value = range.id_slotRange;
                         cmd.ExecuteNonQuery();
-                        updated = true;
 
                         if (!range.locked)
                         {

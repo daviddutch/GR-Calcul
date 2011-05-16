@@ -301,14 +301,14 @@ namespace GR_Calcul.Controllers
 
         [HttpPost]
         [DuffAuthorize(PersonType.Responsible)]
-        public ActionResult Delete(int id, SlotRange collection)
+        public ActionResult Delete(int id, SlotRange range)
         {
             if (IsAuthorized(SlotRangeModel.GetSlotRange(id)))
             {
                 try
                 {
-                    SlotRangeModel.DeleteSlotRange(id, collection);
-                    return RedirectToAction("CourseRanges");
+                    SlotRangeModel.DeleteSlotRange(id, range);
+                    return RedirectToAction("CourseRanges", new { id = range.IdCourse});
                 }
                 catch (GrException gex)
                 {
@@ -371,9 +371,9 @@ namespace GR_Calcul.Controllers
 
             ITimeTrigger trigger = (ITimeTrigger)task.Triggers.Create(_TASK_TRIGGER_TYPE2.TASK_TRIGGER_TIME);
             trigger.Id = "EmailTriggerForSlotRange_" + range.id_slotRange;
-            DateTime dt = range.EndRes.Add(new System.TimeSpan(1, 1, 0, 0)); // EndRes + 1d + 1h
+            DateTime dt = range.EndRes.Add(new System.TimeSpan(1, 0, 0, 0)); // EndRes + 1d
             trigger.StartBoundary = dt.ToString("yyyy-MM-ddTHH:MM:ss");
-            trigger.EndBoundary = dt.Add(new System.TimeSpan(0, 1, 0, 0)).ToString("yyyy-MM-ddTHH:MM:ss"); // remove the task from active tasks 1h later
+            trigger.EndBoundary = dt.Add(new System.TimeSpan(0, 0, 1, 0)).ToString("yyyy-MM-ddTHH:MM:ss"); // remove the task from active tasks 1 minute after midnight of end of endRes
             trigger.ExecutionTimeLimit = "PT2M"; // 2 minutes
 
             IExecAction action = (IExecAction)task.Actions.Create(_TASK_ACTION_TYPE.TASK_ACTION_EXEC);

@@ -14,6 +14,7 @@
     @Html.ValidationSummary(true)
 
      @Html.HiddenFor(model => model.id_slotRange)
+     @Html.HiddenFor(model => model.IdCourse)
      <input type="hidden" id="Timestamp" name="Timestamp" value="@Model.Timestamp" />
 
     <p><b>Nom : </b>@Model.Name</p>

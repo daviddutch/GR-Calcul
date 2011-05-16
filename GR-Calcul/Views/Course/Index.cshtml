@@ -44,7 +44,7 @@
             grid.Column(null, (isResponsible) ? "Actif" : "", format: (item) =>
                 {
                     if (isResponsible)
-                        return new HtmlString(item.Active);
+                        return new HtmlString(""+item.Active);
                     else
                         return new HtmlString("");
                 }, canSort: false),

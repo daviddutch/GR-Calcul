@@ -6,9 +6,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace GR_Calcul.Models
 {
-    public class GreaterThanAttribute : ValidationAttribute
+    public class GreaterThanOrEqualAttribute : ValidationAttribute
     {
-        public GreaterThanAttribute(string otherProperty)
+        public GreaterThanOrEqualAttribute(string otherProperty)
             : base("{0} doit être supérieur à {1}")
         {
             OtherProperty = otherProperty;
@@ -29,7 +29,8 @@ namespace GR_Calcul.Models
 
             if (firstComparable != null && secondComparable != null)
             {
-                if (firstComparable.CompareTo(secondComparable) < 1)
+                //if (firstComparable.CompareTo(secondComparable) < 1)
+                if (firstComparable.CompareTo(secondComparable) < 0)
                 {
                     return new ValidationResult(
                         FormatErrorMessage(validationContext.DisplayName));
