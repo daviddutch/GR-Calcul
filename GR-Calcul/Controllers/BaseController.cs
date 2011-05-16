@@ -7,9 +7,7 @@ using System.Web.UI.WebControls;
 using System.Web.Security;
 using GR_Calcul.Models;
 
-/// <summary>
-/// Namespace containing all controllers
-/// </summary>
+
 namespace GR_Calcul.Controllers
 {
     /// <summary>

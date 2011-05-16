@@ -9,9 +9,7 @@ using System.Data;
 using GR_Calcul.Misc;
 using System.Text;
 
-/// <summary>
-/// Namespace containing all controllers
-/// </summary>
+
 namespace GR_Calcul.Controllers
 {
     /// <summary>
@@ -19,7 +17,9 @@ namespace GR_Calcul.Controllers
     /// </summary>
     public class CourseController : BaseController
     {
-        private CourseModel model = new CourseModel();
+        /// <summary>
+        /// Instance of the person model. Used to fetch data from the person module
+        /// </summary>
         private PersonModel personModel = new PersonModel();
 
         /// <summary>
@@ -156,7 +156,8 @@ namespace GR_Calcul.Controllers
                 {
                     var items = personModel.GetResponsibles().Select(x => new SelectListItem() { Value = x.ID.ToString(), Text = x.toString() }).ToList();
                     ViewData["Responsibles"] = new SelectList(items, "Value", "Text", course.Responsible);
-                    ViewData["error"] = e.Message;
+
+                    ModelState.AddModelError(e.Message, e.Message);
                     return View(course);
                 }
             }
@@ -216,6 +217,7 @@ namespace GR_Calcul.Controllers
         /// Page to confirm the delete of a course
         /// </summary>
         /// <param name="id">Id of the course to delete</param>
+        /// <returns>The html page to be displayed</returns>
         [DuffAuthorize(PersonType.Responsible)]
         public ActionResult Delete(int id)
         {
@@ -245,13 +247,17 @@ namespace GR_Calcul.Controllers
             {
                 try
                 {
-                    CourseModel.DeleteCourse(id);
+                    CourseModel.DeleteCourse(course);
 
                     return RedirectToAction("Index");
                 }
-                catch
+                catch(Exception e)
                 {
-                    return View();
+                    if (e.Message.Equals("timestamp"))
+                        ModelState.AddModelError("", "L'élément à été modifier. Veuillez revérifier les infos avant de confirmer la suppresion.");
+                    else
+                        ModelState.AddModelError("", e.Message);
+                    return View(CourseModel.GetCourse(id));
                 }
             }
             else

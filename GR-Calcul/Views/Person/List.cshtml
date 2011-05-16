@@ -25,7 +25,8 @@ columns: grid.Columns(
         grid.Column("FirstName", "Prénom"),
         grid.Column("LastName", "Nom"),
         grid.Column("Email", "Email"),
-        grid.Column("Username", "Nom d'utilisateur"),
+            grid.Column("Username", "Nom d'utilisateur"),
+            grid.Column("pType", "Type"),
                         grid.Column(format: (item) =>
                         {
                             return new HtmlString("<a href=\"" + Url.Action("Edit", new { id = item.ID, pType = item.pType }).ToString() + "\"class=\"modify\" title=\"Modifier\"></a>" +

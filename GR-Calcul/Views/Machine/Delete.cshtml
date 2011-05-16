@@ -7,7 +7,13 @@
 <h2>@ViewBag.Title</h2>
 
 <h3>Êtes vous sûr de vouloir supprimer cette machine?</h3>
-@using (Html.BeginForm()) {
+@using (Html.BeginForm())
+{
+    @Html.ValidationSummary(true)
+
+     @Html.HiddenFor(model => model.id_machine)
+     @Html.HiddenFor(model => model.Timestamp)
+
     <p><b>Id machine : </b>@Html.DisplayFor(model => model.id_machine)</p>
 
     <p><b>Nom : </b>@Html.DisplayFor(model => model.Name)</p>
@@ -25,6 +31,6 @@
     </div>*@
     <p>
         <input type="submit" value="Supprimer" /> |
-        @Html.ActionLink("Retour à la liste", "Index")
+        @Html.ActionLink(GR_Calcul.Misc.Messages.retList, "Index")
     </p>
 }

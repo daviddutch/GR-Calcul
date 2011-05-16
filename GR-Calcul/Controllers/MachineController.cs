@@ -6,10 +6,9 @@ using System.Web.Mvc;
 using GR_Calcul.Models;
 using System.Data.SqlClient;
 using GR_Calcul.Misc;
+using System.Globalization;
 
-/// <summary>
-/// Namespace containing all controllers
-/// </summary>
+
 namespace GR_Calcul.Controllers
 {
     /// <summary>
@@ -33,16 +32,9 @@ namespace GR_Calcul.Controllers
         [DuffAuthorize(PersonType.ResourceManager, PersonType.Responsible)]
         public ActionResult List()
         {
-            return View(model.ListMachines());
+            return View(MachineModel.ListMachines());
         }
 
-        //
-        // GET: /Machine/Details/5
-
-        //public ActionResult Details(int id)
-        //{
-        //    return View(model.getMachine(id));
-        //}
 
         //
         // GET: /Machine/Create
@@ -60,16 +52,25 @@ namespace GR_Calcul.Controllers
         [HttpPost]
         public ActionResult Create(Machine machine)
         {
-            try
+            if (ModelState.IsValid)
             {
-                // TODO: Add insert logic here
-                model.CreateMachine(machine);
-                return RedirectToAction("Index");
+                string errMsg = MachineModel.CreateMachine(machine);
+                
+                if (errMsg == "")
+                {
+                    return RedirectToAction("Index");
+                }
+
+                else
+                {
+                    ModelState.AddModelError("", errMsg);
+                    return View();
+                }
             }
-            catch (SqlException sqlError)
+            else
             {
-                System.Diagnostics.Debug.WriteLine(sqlError.Message);
-                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                // addinge extra error message here in case JS is deactivated on client.
+                ModelState.AddModelError("", "vous avez envoyé des données invalides");
                 return View();
             }
         }
@@ -79,7 +80,7 @@ namespace GR_Calcul.Controllers
         [DuffAuthorize(PersonType.ResourceManager)] 
         public ActionResult Edit(int id)
         {
-            Machine machine = model.getMachine(id);
+            Machine machine = MachineModel.getMachine(id);
             var items = roomModel.ListRooms().Select(x => new SelectListItem() { Value = x.ID.ToString(), Text = x.Name.ToString() }).ToList();
             ViewData["Rooms"] = new SelectList(items, "Value", "Text", machine.id_room);
             return View(machine);
@@ -91,15 +92,24 @@ namespace GR_Calcul.Controllers
         [HttpPost]
         public ActionResult Edit(int id, Machine machine)
         {
-            try
+            if (ModelState.IsValid)
             {
-                model.UpdateMachine(machine);
-                return RedirectToAction("Index");
+                string errMsg = MachineModel.UpdateMachine(machine);
+
+                if (errMsg == "")
+                {
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    ModelState.AddModelError("", errMsg);
+                    return View();
+                }
             }
-            catch (SqlException sqlError)
+            else
             {
-                System.Diagnostics.Debug.WriteLine(sqlError.Message);
-                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                // addinge extra error message here in case JS is deactivated on client.
+                ModelState.AddModelError("", "vous avez envoyé des données invalides");
                 return View();
             }
         }
@@ -109,23 +119,31 @@ namespace GR_Calcul.Controllers
         [DuffAuthorize(PersonType.ResourceManager)]
         public ActionResult Delete(int id)
         {
-            return View(model.getMachine(id));
+            return View(MachineModel.getMachine(id));
         }
 
         //
         // POST: /Machine/Delete/5
         [DuffAuthorize(PersonType.ResourceManager)]
         [HttpPost]
-        public ActionResult Delete(int id, FormCollection collection)
+        public ActionResult Delete(int id, Machine machine)
         {
-            try
-            {
-                model.DeleteMachine(id);
+            String errMsg = MachineModel.DeleteMachine(machine);
+
+            if(errMsg == ""){
                 return RedirectToAction("Index");
             }
-            catch
-            {
-                return View();
+            else{
+                ModelState.AddModelError("", errMsg);
+
+                // get updated data
+                Machine machine_ = MachineModel.getMachine(id);
+
+                // update timestamp in case user really wants to delete this
+                ModelState.SetModelValue("Timestamp", new ValueProviderResult(machine_.Timestamp, "", CultureInfo.InvariantCulture));
+
+                // show new values before user decided to really delete them
+                return View(machine_);
             }
         }
     }

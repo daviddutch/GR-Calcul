@@ -1,50 +1,33 @@
-﻿@model GR_Calcul.Models.Person
+﻿@model GR_Calcul.Models.Person2
 
 @{
-    ViewBag.Title = "Delete";
+    ViewBag.Title = "Supprimer une Personne";
 }
 
-<h2>Delete</h2>
+<h2>@ViewBag.Title</h2>
 
-<h3>Are you sure you want to delete this?</h3>
-<fieldset>
-    <legend>Person</legend>
+<h3>Êtes vous sûr de vouloir supprimer cette personne?</h3>
+@using (Html.BeginForm())
+{
+    @Html.ValidationSummary(true)
 
-    @Html.HiddenFor(model => model.pType);
+    @Html.HiddenFor(model => model.FirstName)
+    @Html.HiddenFor(model => model.LastName)
+    @Html.HiddenFor(model => model.Email)
+    @Html.HiddenFor(model => model.Username)
+    @Html.HiddenFor(model => model.pType)
+    @Html.HiddenFor(model => model.Timestamp)
 
-    <div class="display-label">FirstName</div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.FirstName)
-    </div>
+    <p><b>Prénom : </b>@Html.DisplayFor(model => model.FirstName)</p>
 
-    <div class="display-label">LastName</div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.LastName)
-    </div>
+    <p><b>Nom : </b>@Html.DisplayFor(model => model.LastName)</p>
 
-    <div class="display-label">Email</div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.Email)
-    </div>
+    <p><b>Email : </b>@Html.DisplayFor(model => model.Email)</p>
 
-    <div class="display-label">Username</div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.Username)
-    </div>
-
-    <div class="display-label">Password</div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.Password)
-    </div>
-
-    <div class="display-label">Timestamp</div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.Timestamp)
-    </div>
-</fieldset>
-@using (Html.BeginForm()) {
+    <p><b>Nom d'utilisateur : </b>@Html.DisplayFor(model => model.Username)</p>
+    
     <p>
         <input type="submit" value="Delete" /> |
-        @Html.ActionLink("Back to List", "Index")
+        @Html.ActionLink(GR_Calcul.Misc.Messages.retList, "Index")
     </p>
 }

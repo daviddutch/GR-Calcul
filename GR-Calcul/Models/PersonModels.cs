@@ -8,10 +8,9 @@ using System.Data.SqlClient;
 using System.Data;
 using System.Web.Security;
 using GR_Calcul.Misc;
+using DataAnnotationsExtensions;
 
-/// <summary>
-/// Namespace containing all the classes related to the database
-/// </summary>
+
 namespace GR_Calcul.Models
 {
     // CD 2011-05-02: IMPORTANT: enum names must be perfectly identical to DB Table names!
@@ -44,34 +43,37 @@ namespace GR_Calcul.Models
         {
             get { return new SelectList(pTypes, "Key", "Value"); }
         }
-        [Required]
-        [Display(Name = "Type de personne")]
+
+        //[Required]
+        //[Display(Name = "Type de personne")]
         public PersonType pType { get; set; }
 
         public int ID { get; set; }
-        [Required]
-        [Display(Name = "Prénom")]
+
+        //[Required]
+        //[Display(Name = "Prénom")]
         public string FirstName { get; set; }
 
-        [Required]
-        [Display(Name = "Nom")]
+        //[Required]
+        //[Display(Name = "Nom")]
         public string LastName { get; set; }
 
-        [Required]
-        [Display(Name = "Email")]
+        //[Required]
+        //[Email]
+        //[Display(Name = "Email")]
         public override string Email { get; set; }
 
-        [Required]
-        [Display(Name = "Nom d'utilisateur")]
+        //[Required]
+        //[Display(Name = "Nom d'utilisateur")]
         public string Username { get; set; }
 
-        [Required]
-        [Display(Name = "Mot de passe")]
+        //[Required]
+        //[Display(Name = "Mot de passe")]
         public string Password { get; set; }
 
         //[Required]
-        [Timestamp]
-        [HiddenInput(DisplayValue = false)]
+        //[Timestamp]
+        //[HiddenInput(DisplayValue = false)]
         public string Timestamp { get; set; }
 
         public byte[] getByteTimestamp()
@@ -118,7 +120,6 @@ namespace GR_Calcul.Models
 
     public class Person2
     {
-
         [Required]
         [Display(Name = "Type de personne")]
         public PersonType pType { get; set; }
@@ -133,6 +134,7 @@ namespace GR_Calcul.Models
         public string LastName { get; set; }
 
         [Required]
+        [Email]
         [Display(Name = "Email")]
         public string Email { get; set; }
 
@@ -191,11 +193,13 @@ namespace GR_Calcul.Models
             Password = password;
             Username = username;
         }
+
         public String toString()
         {
             return FirstName + " " + LastName;
         }
     }
+
 
     public class PersonModel
     {
@@ -382,8 +386,9 @@ namespace GR_Calcul.Models
             return list;
         }
 
-        internal void CreatePerson(Person2 person)
+        internal string CreatePerson(Person2 person)
         {
+            string errMsg = "";
             try
             {
                 SqlConnection db = new SqlConnection(ConnectionManager.GetConnectionString());
@@ -414,14 +419,25 @@ namespace GR_Calcul.Models
                     System.Diagnostics.Debug.WriteLine(sqlError.Message);
                     System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
                     transaction.Rollback();
+                    errMsg += "il y a eu un problème à l'insertion. Vérifiez qu'aucun autre utilisateur existe avec le même nom ou le même adresse email!";
+                    if (sqlError.Number > 50000)
+                    {
+                        errMsg += " ERROR: " + sqlError.Message;
+                    }
                 }
-                db.Close();
+                finally
+                {
+                    db.Close();
+                }
             }
             catch (SqlException sqlError)
             {
                 System.Diagnostics.Debug.WriteLine(sqlError.Message);
                 System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                errMsg += "il y a eu un problème";
             }
+
+            return errMsg;
         }
 
         internal Person getPerson(int id, PersonType pType)
@@ -638,9 +654,10 @@ namespace GR_Calcul.Models
             return username;
         }
 
-        internal void UpdatePerson(Person2 person)
+        internal string UpdatePerson(Person2 person)
         {
             bool updated = true;
+            string errMsg = "";
 
             try
             {
@@ -691,20 +708,28 @@ namespace GR_Calcul.Models
                 {
                     System.Diagnostics.Debug.WriteLine(sqlError.Message);
                     System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
-                    if (sqlError.Number == 50001)// 50001 == duplicate user. C.f. Error Message Numbers List in separate file
-                    {
-                        System.Diagnostics.Debug.WriteLine("here we need to inform the user of the Error (duplicate user)!!!");
-                    }
                     transaction.Rollback();
+                    errMsg += "il y a eu un problème avec la mise-à-jour. Vérifiez qu'aucun autre utilisateur existe avec le même nom ou le même adresse email!";
+                    if (sqlError.Number > 50000)
+                    {
+                        errMsg += " ERROR: " + sqlError.Message;
+                    }
                 }
-                db.Close();
+                finally
+                {
+                    db.Close();
+                }
+
             }
             catch (SqlException sqlError)
             {
                 System.Diagnostics.Debug.WriteLine(sqlError.Message);
                 System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
             }
+
             if (!updated) throw new Exception("timestamp");
+
+            return errMsg;
         }
 
         internal int ChangePassword(string username, string newpassword)
@@ -774,8 +799,10 @@ namespace GR_Calcul.Models
             return rows;
         }
 
-        internal void DeletePerson(Person2 person)
+        internal String DeletePerson(Person2 person)
         {
+            String errMsg = "";
+
             try
             {
                 SqlConnection conn = new SqlConnection(ConnectionManager.GetConnectionString());
@@ -786,12 +813,34 @@ namespace GR_Calcul.Models
                 transaction = conn.BeginTransaction(IsolationLevel.RepeatableRead);
                 try
                 {
-                    SqlCommand cmd = new SqlCommand("DELETE FROM [" + person.pType.ToString() + "] " +
-                                                    "WHERE id_person=@id;", conn, transaction);
+                    byte[] timestamp = person.getByteTimestamp();
+
+                    SqlCommand cmd = new SqlCommand("SELECT * " +
+                                                    "FROM [" + person.pType.ToString() + "] " +
+                                                    "WHERE id_person=@id AND timestamp=@timestamp;", conn, transaction);
 
                     cmd.Parameters.Add("@id", SqlDbType.Int).Value = person.ID;
+                    cmd.Parameters.Add("@timestamp", SqlDbType.Binary).Value = timestamp;
 
-                    cmd.ExecuteNonQuery();
+                    SqlDataReader rdr = cmd.ExecuteReader();
+
+                    if (rdr.Read())
+                    {
+                        rdr.Close();
+
+                        cmd = new SqlCommand("DELETE FROM [" + person.pType.ToString() + "] " +
+                                             "WHERE id_person=@id;", conn, transaction);
+
+                        cmd.Parameters.Add("@id", SqlDbType.Int).Value = person.ID;
+
+                        cmd.ExecuteNonQuery();
+                    }
+                    else
+                    {
+                        rdr.Close();
+                        errMsg += " "+ Messages.recommencerDelete;
+                        Console.WriteLine("Cross modify");
+                    }
 
                     transaction.Commit();
                 }
@@ -800,6 +849,7 @@ namespace GR_Calcul.Models
                     System.Diagnostics.Debug.WriteLine(sqlError.Message);
                     System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
                     transaction.Rollback();
+                    errMsg += " " + Messages.errProd;
                 }
                 conn.Close();
             }
@@ -807,10 +857,13 @@ namespace GR_Calcul.Models
             {
                 System.Diagnostics.Debug.WriteLine(sqlError.Message);
                 System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                errMsg += " " + Messages.errProd;
             }
+
+            return errMsg;
         }
 
-        internal string GetEmailCSV(List<Person> persons)
+        internal String GetEmailCSV(List<Person> persons)
         {
             List<string> emails = new List<string>();
             persons.ForEach(delegate(Person person)

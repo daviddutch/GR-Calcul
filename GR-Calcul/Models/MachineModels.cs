@@ -9,9 +9,7 @@ using System.Data;
 using System.Web.Mvc;
 using GR_Calcul.Misc;
 
-/// <summary>
-/// Namespace containing all the classes related to the database
-/// </summary>
+
 namespace GR_Calcul.Models
 {   
     public class Machine
@@ -70,7 +68,7 @@ namespace GR_Calcul.Models
     {
         static private String connectionString = ConnectionManager.GetConnectionString();//System.Configuration.ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString;
 
-        public List<Machine> ListMachines(int id_room)
+        public static List<Machine> ListMachines(int id_room)
         {
             List<Machine> list = new List<Machine>();
 
@@ -133,7 +131,7 @@ namespace GR_Calcul.Models
             return list;
         }
 
-        public List<Machine> ListMachines()
+        public static List<Machine> ListMachines()
         {
             List<Machine> list = new List<Machine>();
 
@@ -193,7 +191,7 @@ namespace GR_Calcul.Models
             return list;
         }
 
-        public Machine getMachine(int id)
+        public static Machine getMachine(int id)
         {
             Machine machine = null;
 
@@ -253,8 +251,9 @@ namespace GR_Calcul.Models
             return machine;
         }
 
-        public void CreateMachine(Machine machine)
+        public static string CreateMachine(Machine machine)
         {
+            string errMsg = "";
             try
             {
                 SqlConnection db = new SqlConnection(connectionString);
@@ -270,7 +269,7 @@ namespace GR_Calcul.Models
                                                    "VALUES (@name, @IP, @id_room);", db, transaction);
 
                     cmd.Parameters.Add("@name", SqlDbType.Char).Value = machine.Name;
-                    cmd.Parameters.Add("@IP", SqlDbType.Char).Value = machine.IP;
+                    cmd.Parameters.Add("@IP", SqlDbType.Char).Value = machine.IP ?? "";
                     cmd.Parameters.Add("@id_room", SqlDbType.Int).Value = machine.id_room;
 
                     cmd.ExecuteNonQuery();
@@ -282,6 +281,7 @@ namespace GR_Calcul.Models
                     System.Diagnostics.Debug.WriteLine(sqlError.Message);
                     System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
                     transaction.Rollback();
+                    errMsg += " "+Messages.errProd;
                 }
                 db.Close();
             }
@@ -289,13 +289,16 @@ namespace GR_Calcul.Models
             {
                 System.Diagnostics.Debug.WriteLine(sqlError.Message);
                 System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                errMsg += " " + Messages.errProd;
             }
+
+            return errMsg;
         }
 
 
-        public void UpdateMachine(Machine machine)
+        public static string UpdateMachine(Machine machine)
         {
-            bool updated = true;
+            string errMsg = "";
 
             try
             {
@@ -338,7 +341,7 @@ namespace GR_Calcul.Models
                     {
                         rdr.Close();
                         System.Diagnostics.Debug.WriteLine("Cross modify");
-                        updated = false;
+                        errMsg += " Veuillez reessayer. Il se peut que cette machine ait été modifié entre temps.";
                     }
 
                     transaction.Commit();
@@ -348,6 +351,7 @@ namespace GR_Calcul.Models
                     System.Diagnostics.Debug.WriteLine(sqlError.Message);
                     System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
                     transaction.Rollback();
+                    errMsg += " " + Messages.errProd;
                 }
                 db.Close();
             }
@@ -355,12 +359,16 @@ namespace GR_Calcul.Models
             {
                 System.Diagnostics.Debug.WriteLine(sqlError.Message);
                 System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                errMsg += " " + Messages.errProd;
             }
-            if (!updated) throw new Exception("timestamp");
+
+            return errMsg;
         }
 
-        public void DeleteMachine(int id)
+        public static String DeleteMachine(Machine machine)
         {
+            String errMsg = "";
+
             try
             {
                 SqlConnection db = new SqlConnection(connectionString);
@@ -371,28 +379,54 @@ namespace GR_Calcul.Models
                 transaction = db.BeginTransaction(IsolationLevel.RepeatableRead);
                 try
                 {
-                    SqlCommand cmd = new SqlCommand("DELETE FROM Machine " +
-                                                    "WHERE id_machine=@id;", db, transaction);
+                    byte[] timestamp = machine.getByteTimestamp();
 
-                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
+                    SqlCommand cmd = new SqlCommand("SELECT * " +
+                                                    "FROM Machine M " +
+                                                    "WHERE M.id_machine=@id_machine AND M.timestamp=@timestamp;", db, transaction);
 
-                    cmd.ExecuteNonQuery();
+                    cmd.Parameters.Add("@id_machine", SqlDbType.Int).Value = machine.id_machine;
+                    cmd.Parameters.Add("@timestamp", SqlDbType.Binary).Value = timestamp;
+
+                    SqlDataReader rdr = cmd.ExecuteReader();
+
+                    if (rdr.Read())
+                    {
+                        rdr.Close();
+
+                        cmd = new SqlCommand("DELETE FROM Machine " +
+                                             "WHERE id_machine=@id;", db, transaction);
+
+                        cmd.Parameters.Add("@id", SqlDbType.Int).Value = machine.id_machine;
+
+                        cmd.ExecuteNonQuery();
+                    }
+                    else
+                    {
+                        rdr.Close();
+                        errMsg += " "+Messages.recommencerDelete;
+                        Console.WriteLine("Cross modify");
+                    }
 
                     transaction.Commit();
                 }
-                catch (SqlException sqlError)
+                catch(Exception e)
                 {
-                    System.Diagnostics.Debug.WriteLine(sqlError.Message);
-                    System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                    System.Diagnostics.Debug.WriteLine(e.Message);
+                    System.Diagnostics.Debug.WriteLine(e.StackTrace);
                     transaction.Rollback();
+                    errMsg += " "+Messages.errProd;
                 }
                 db.Close();
             }
-            catch (SqlException sqlError)
+            catch(Exception e)
             {
-                System.Diagnostics.Debug.WriteLine(sqlError.Message);
-                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
+                System.Diagnostics.Debug.WriteLine(e.Message);
+                System.Diagnostics.Debug.WriteLine(e.StackTrace);
+                errMsg += " " + Messages.errProd;
             }
+
+            return errMsg;
         }
 
         internal List<string> getMachineNames(List<int> list)

@@ -9,9 +9,7 @@ using System.Web.Mvc;
 using System.Text;
 using GR_Calcul.Misc;
 
-/// <summary>
-/// Namespace containing all the classes related to the database
-/// </summary>
+
 namespace GR_Calcul.Models
 {
     /// <summary>
@@ -791,8 +789,10 @@ namespace GR_Calcul.Models
         /// Delete's the course in the database
         /// </summary>
         /// <param name="id">The id of the course</param>
-        public static void DeleteCourse(int id)
+        public static void DeleteCourse(Course course)
         {
+            bool deleted = true;
+
             try
             {
                 SqlConnection db = new SqlConnection(connectionString);
@@ -803,26 +803,48 @@ namespace GR_Calcul.Models
                 transaction = db.BeginTransaction(IsolationLevel.RepeatableRead);
                 try
                 {
-                    SqlCommand cmd = new SqlCommand("DELETE FROM Course " +
+                    byte[] timestamp = course.getByteTimestamp();
+
+                    SqlCommand cmd = new SqlCommand("SELECT * " +
+                                                    "FROM Course C " +
+                                                    "WHERE C.id_course=@id_course AND C.timestamp=@timestamp;", db, transaction);
+
+                    cmd.Parameters.Add("@id_course", SqlDbType.Int).Value = course.ID;
+                    cmd.Parameters.Add("@timestamp", SqlDbType.Binary).Value = timestamp;
+
+                    SqlDataReader rdr = cmd.ExecuteReader();
+
+                    if (rdr.Read())
+                    {
+                        rdr.Close();
+                        
+                        cmd = new SqlCommand("DELETE FROM Course " +
                                                     "WHERE id_course=@id;", db, transaction);
 
-                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
+                        cmd.Parameters.Add("@id", SqlDbType.Int).Value = course.ID;
 
-                    cmd.ExecuteNonQuery();
+                        cmd.ExecuteNonQuery();
+                    }
+                    else
+                    {
+                        rdr.Close();
+                        Console.WriteLine("Cross modify");
+                        deleted = false;
+                    }
 
                     transaction.Commit();
                 }
-                catch (SqlException sqlError)
+                catch
                 {
-                    Console.WriteLine(sqlError);
                     transaction.Rollback();
                 }
                 db.Close();
             }
-            catch (SqlException sqlError)
+            catch
             {
-                Console.WriteLine(sqlError);
+
             }
+            if (!deleted) throw new Exception("timestamp");
         }
     }
 }

@@ -13,7 +13,8 @@
     @Html.ValidationSummary(true)
 
     @Html.HiddenFor(model => model.ID)
-    @Html.HiddenFor(Model => Model.pType)
+    @Html.HiddenFor(model => Model.pType)
+    @Html.HiddenFor(model => Model.Timestamp)
 
     <div class="editor-label">
         @Html.LabelFor(model => model.FirstName)
