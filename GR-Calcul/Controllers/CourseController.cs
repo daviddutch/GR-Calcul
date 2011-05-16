@@ -180,7 +180,9 @@ namespace GR_Calcul.Controllers
         {
             if (IsAuthorized(id))
             {
-                return View(CourseModel.GetCourse(id));
+                Course course = CourseModel.GetCourse(id);
+                course.DuplDestDate = DateTime.Now;
+                return View(course);
             }
             else
             {
@@ -203,7 +205,19 @@ namespace GR_Calcul.Controllers
                 {
                     try
                     {
-                        CourseModel.CreateCourse(course);
+                        int id_course = CourseModel.CreateCourse(course);
+                        List<SlotRange> slotRanges = course.GetSlotRangesForCourse();
+                        int days = 0;
+                        foreach (SlotRange sr in slotRanges)
+                        {
+                            if (days == 0)
+                            {
+                                TimeSpan span = course.DuplDestDate - sr.StartRes;
+                                days = (int)span.TotalDays;
+                            }
+                                
+                            SlotRangeModel.DuplicateSlotRange(sr, days, id_course);
+                        }
                         return RedirectToAction("Index");
                     }
                     catch (GrException e)

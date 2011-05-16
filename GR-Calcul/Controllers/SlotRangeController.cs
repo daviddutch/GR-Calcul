@@ -207,7 +207,7 @@ namespace GR_Calcul.Controllers
             {
                 TimeSpan span= target.StartRes - source.StartRes;
                 int days = (int)span.TotalDays;
-                SlotRangeModel.DuplicateSlotRange(source, days);
+                SlotRangeModel.DuplicateSlotRange(source, days, source.IdCourse);
                 return RedirectToAction("CourseRanges", new { id = source.IdCourse});
             }
             else

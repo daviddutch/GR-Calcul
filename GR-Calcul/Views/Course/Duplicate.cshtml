@@ -43,6 +43,14 @@
         @Html.EditorFor(model => model.Responsible)
         @Html.ValidationMessageFor(model => model.Responsible)
     </div>
+    
+    <div class="editor-label">
+        @Html.LabelFor(model => model.DuplDestDate)
+    </div>
+    <div class="editor-field">
+        @Html.EditorFor(model => model.DuplDestDate)
+        @Html.ValidationMessageFor(model => model.DuplDestDate)
+    </div>
 
     <p>
         <input type="submit" value="Valider" />

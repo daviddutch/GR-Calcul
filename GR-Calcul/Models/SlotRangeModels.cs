@@ -783,7 +783,7 @@ namespace GR_Calcul.Models
             return slot;
         }
 
-        public static void DuplicateSlotRange(SlotRange source, int days)
+        public static void DuplicateSlotRange(SlotRange source, int days, int id_course)
         {
             try
             {
@@ -799,6 +799,7 @@ namespace GR_Calcul.Models
 
                     cmd.Parameters.Add("@id", SqlDbType.Int).Value   = source.id_slotRange;
                     cmd.Parameters.Add("@days", SqlDbType.Int).Value = days;
+                    cmd.Parameters.Add("@id_course", SqlDbType.Int).Value = id_course;
 
                     cmd.ExecuteNonQuery();
 
