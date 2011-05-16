@@ -19,7 +19,6 @@ namespace GR_Calcul.Controllers
     public class AccountController : BaseController
     {
 
-        private PersonModel personModel = new PersonModel();
         private LostPasswordChangeModel lostPwdChangeModel = new LostPasswordChangeModel();
 
         public IFormsAuthenticationService FormsService { get; set; }

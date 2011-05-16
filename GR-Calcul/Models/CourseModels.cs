@@ -641,13 +641,11 @@ namespace GR_Calcul.Models
                     cmd.Parameters.Add("@id_course", SqlDbType.Int).Value = id_course;
                     SqlDataReader rdr = cmd.ExecuteReader();
 
-                    PersonModel personModel = new PersonModel();
-
                     while (rdr.Read())
                     {
                         int id_person = rdr.GetInt32(rdr.GetOrdinal("id_person"));
 
-                        list.Add(personModel.getPerson(id_person, PersonType.User));
+                        list.Add(PersonModel.getPerson(id_person, PersonType.User));
                     }
                     rdr.Close();
                     transaction.Commit();

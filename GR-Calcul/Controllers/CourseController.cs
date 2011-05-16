@@ -17,10 +17,6 @@ namespace GR_Calcul.Controllers
     /// </summary>
     public class CourseController : BaseController
     {
-        /// <summary>
-        /// Instance of the person model. Used to fetch data from the person module
-        /// </summary>
-        private PersonModel personModel = new PersonModel();
 
         /// <summary>
         /// GET: /Course/List
@@ -51,7 +47,7 @@ namespace GR_Calcul.Controllers
         public ActionResult ListMyCourse()
         {
             ViewBag.Title = "Liste de mes cours";
-            return View("List", CourseModel.ListMyCourses(SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name)));
+            return View("Index", CourseModel.ListMyCourses(SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name)));
         }
 
         /// <summary>
@@ -61,7 +57,7 @@ namespace GR_Calcul.Controllers
         [DuffAuthorize(PersonType.Responsible)]
         public ActionResult Create()
         {
-            var items = personModel.GetResponsibles().Select(x => new SelectListItem() { Value = x.ID.ToString(), Text = x.toString() }).ToList();
+            var items = PersonModel.GetResponsibles().Select(x => new SelectListItem() { Value = x.ID.ToString(), Text = x.toString() }).ToList();
             ViewData["Responsibles"] = new SelectList(items, "Value", "Text");
 
             return View();
@@ -113,7 +109,7 @@ namespace GR_Calcul.Controllers
             if (IsAuthorized(id))
             {
                 Course course = CourseModel.GetCourse(id);
-                var items = personModel.GetResponsibles().Select(x => new SelectListItem() { Value = x.ID.ToString(), Text = x.toString() }).ToList();
+                var items = PersonModel.GetResponsibles().Select(x => new SelectListItem() { Value = x.ID.ToString(), Text = x.toString() }).ToList();
                 ViewData["Responsibles"] = new SelectList(items, "Value", "Text", course.Responsible);
                 return View(course);
             }
@@ -143,7 +139,7 @@ namespace GR_Calcul.Controllers
                 }
                 catch (Exception e)
                 {
-                    var items = personModel.GetResponsibles().Select(x => new SelectListItem() { Value = x.ID.ToString(), Text = x.toString() }).ToList();
+                    var items = PersonModel.GetResponsibles().Select(x => new SelectListItem() { Value = x.ID.ToString(), Text = x.toString() }).ToList();
                     ViewData["Responsibles"] = new SelectList(items, "Value", "Text", course.Responsible);
 
                     ModelState.AddModelError(e.Message, e.Message);

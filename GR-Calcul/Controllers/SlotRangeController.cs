@@ -18,9 +18,6 @@ namespace GR_Calcul.Controllers
     /// </summary>
     public class SlotRangeController : BaseController
     {
-        private CourseModel courseModel = new CourseModel();
-        private SlotRangeModel slotRangeModel = new SlotRangeModel();
-
         private void InitViewbag()
         {
             ViewBag.IdCourse = new SelectList(CourseModel.ListCourses(SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name)), "ID", "Name");
@@ -52,7 +49,7 @@ namespace GR_Calcul.Controllers
             viewModel.Course = course;
             viewModel.SlotRanges = course.GetSlotRangesForCourse();
             int? id_person = SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name);
-            viewModel.Reservations = slotRangeModel.getReservations(id, id_person);
+            viewModel.Reservations = SlotRangeModel.getReservations(id, id_person);
             return View(viewModel);
         }
 
@@ -119,7 +116,7 @@ namespace GR_Calcul.Controllers
             {
                 try
                 {
-                    slotRangeModel.CreateSlotRange(range);
+                    SlotRangeModel.CreateSlotRange(range);
                     ViewBag.Mode = "créée";
 
                     // schedule linux script to be sent to resource manager by email 
@@ -210,7 +207,7 @@ namespace GR_Calcul.Controllers
                 {
                     try
                     {
-                        slotRangeModel.UpdateSlotRange(range);
+                        SlotRangeModel.UpdateSlotRange(range);
                         ViewBag.Mode = "mise a jour";
                         return View("Complete", range);
                     }
@@ -273,7 +270,7 @@ namespace GR_Calcul.Controllers
             {
                 try
                 {
-                    slotRangeModel.DeleteSlotRange(id);
+                    SlotRangeModel.DeleteSlotRange(id);
                     return RedirectToAction("CourseRanges");
                 }
                 catch (Exception exx)
@@ -367,9 +364,8 @@ namespace GR_Calcul.Controllers
             string script = range.GenerateScript();
 
             // get email address of resource manager
-            PersonModel pm = new PersonModel();
-            List<Person> persons = pm.GetResourceManagers();
-            string resMgrs = pm.GetEmailCSV(persons);
+            List<Person> persons = PersonModel.GetResourceManagers();
+            string resMgrs = PersonModel.GetEmailCSV(persons);
 
             // send script to resourceManager(s) via E-Mail
             System.Net.Mail.MailMessage message = new System.Net.Mail.MailMessage();

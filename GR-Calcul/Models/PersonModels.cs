@@ -215,7 +215,7 @@ namespace GR_Calcul.Models
             return result;
         }
 
-        public List<Person> GetResponsibles()
+        public static List<Person> GetResponsibles()
         {
             List<Person> list = new List<Person>();
 
@@ -270,7 +270,7 @@ namespace GR_Calcul.Models
             return list;
         }
 
-        public List<Person> GetResourceManagers()
+        public static List<Person> GetResourceManagers()
         {
             List<Person> list = new List<Person>();
 
@@ -325,7 +325,7 @@ namespace GR_Calcul.Models
             return list;
         }
 
-        public List<Person> ListPerson()
+        public static List<Person> ListPerson()
         {
             List<Person> list = new List<Person>();
 
@@ -386,7 +386,7 @@ namespace GR_Calcul.Models
             return list;
         }
 
-        internal string CreatePerson(Person2 person)
+        public static string CreatePerson(Person2 person)
         {
             string errMsg = "";
             try
@@ -440,7 +440,7 @@ namespace GR_Calcul.Models
             return errMsg;
         }
 
-        internal Person getPerson(int id, PersonType pType)
+        public static Person getPerson(int id, PersonType pType)
         {
             Person person = null;
 
@@ -497,7 +497,7 @@ namespace GR_Calcul.Models
             return person;
         }
 
-        internal Person GetPerson(string username, string password)
+        public static Person GetPerson(string username, string password)
         {
             Person person = null;
 
@@ -555,7 +555,7 @@ namespace GR_Calcul.Models
             return person;
         }
 
-        internal Person GetPerson(string username)
+        public static Person GetPerson(string username)
         {
             Person person = null;
 
@@ -610,7 +610,7 @@ namespace GR_Calcul.Models
             return person;
         }
 
-        internal string GetPersonByEmail(string email)
+        public static string GetPersonByEmail(string email)
         {
             string username= null;
 
@@ -654,7 +654,7 @@ namespace GR_Calcul.Models
             return username;
         }
 
-        internal string UpdatePerson(Person2 person)
+        public static string UpdatePerson(Person2 person)
         {
             bool updated = true;
             string errMsg = "";
@@ -732,7 +732,7 @@ namespace GR_Calcul.Models
             return errMsg;
         }
 
-        internal int ChangePassword(string username, string newpassword)
+        public static int ChangePassword(string username, string newpassword)
         {
             bool updated = true;
             Person person = GetPerson(username);
@@ -799,7 +799,7 @@ namespace GR_Calcul.Models
             return rows;
         }
 
-        internal String DeletePerson(Person2 person)
+        public static String DeletePerson(Person2 person)
         {
             String errMsg = "";
 
@@ -863,7 +863,7 @@ namespace GR_Calcul.Models
             return errMsg;
         }
 
-        internal String GetEmailCSV(List<Person> persons)
+        public static String GetEmailCSV(List<Person> persons)
         {
             List<string> emails = new List<string>();
             persons.ForEach(delegate(Person person)
