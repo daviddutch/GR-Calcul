@@ -18,23 +18,27 @@
 
 <body>
     <div id="header">
-			<h1><a href="#"><span>GR-Calcul</span></a></h1>
-			<div id="user">@Html.Partial("_LogOnPartial")</div>
-		</div>
-		<div id="page-wrap">
-			<ul id="menu">
-                    @Html.Partial("_Menu", ViewData["Menu"]) 
-			</ul>
-			<div id="main-content">
+        <div></div>
+		<h1><a href="#"><span>GR-Calcul</span></a></h1>
+		<span id="user">@Html.Partial("_LogOnPartial")</span>
+	</div>
+	<div id="page-wrap">
+    <div class="rightbg">
+		<ul id="menu">
+                @Html.Partial("_Menu", ViewData["Menu"]) 
+		</ul>
+		<div id="main-content">
 					
-				 @RenderBody()
+				@RenderBody()
 					
-			</div>
 		</div>
-		<div id="footer">
-			<p id="copyright">
-				<span>Copyright &#169; 2011  <a href="#">gr-calcul</a>. All Rights Reserved.</span>
-			</p>
-		</div>
+        </div>
+	</div>
+	<div id="footer">
+        <div></div>
+		<p id="copyright">
+			<span>Copyright &#169; 2011  <a href="#">gr-calcul</a>. All Rights Reserved.</span>
+		</p>
+	</div>
 </body>
 </html>

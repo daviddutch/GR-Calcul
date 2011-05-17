@@ -4,7 +4,7 @@
 $(document).ready(reloadDatePickers);
 
 function reloadDatePickers() {
-    $('.lollipop').each(function () {
+    $('.DateFormat').each(function () {
         $(this).datepicker({
             dateFormat: "dd.mm.yy"
         });

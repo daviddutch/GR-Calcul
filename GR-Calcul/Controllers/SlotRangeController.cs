@@ -49,7 +49,7 @@ namespace GR_Calcul.Controllers
             ReserveSlotRangeViewModel viewModel = new ReserveSlotRangeViewModel();
             Course course = CourseModel.GetCourse(id);
             viewModel.Course = course;
-            viewModel.SlotRanges = course.GetSlotRangesForCourse();
+            viewModel.SlotRanges = course.GetValidSlotRangesForCourse();
             int? id_person = SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name);
             viewModel.Reservations = SlotRangeModel.getReservations(id, id_person);
             return View(viewModel);
