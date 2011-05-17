@@ -125,7 +125,7 @@ namespace GR_Calcul.Models
         [Display(Name = "Date de départ", Description = "dd.mm.yyyy")]
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:dd.MM.yyyy}", ApplyFormatInEditMode = true)]
-        [UIHint("lollipop")]
+        [UIHint("DateFormat")]
         public DateTime Beginning { get; set; }
 
         [Required]
@@ -511,13 +511,13 @@ namespace GR_Calcul.Models
         [Required]
         [Display(Name = "Début du créneau", Description = "dd/mm/yyyy")]
         [DataType(DataType.DateTime)]
-        [UIHint("lollipop")]
+        [UIHint("DateFormat")]
         public DateTime Start { get; set; }
 
         [Required]
         [Display(Name = "Fin du créneau", Description = "dd/mm/yyyy")]
         [DataType(DataType.DateTime)]
-        [UIHint("lollipop")]
+        [UIHint("DateFormat")]
         public DateTime End { get; set; }
 
         static Slot()

@@ -142,18 +142,13 @@ if (ViewData["Error"] != null)
                         string value = String.Format("{0:dd.MM.yyyy}", date);
                         
                         <tr id="@id" class="slotRow">
-                            <td colspan="2"><input novalidation="true" type="text" class="lollipop Slotdate" name="Slotdate" id="Slotdate" value="@value" size="8" /><a href="javascript:deleteRow('@id');" class="delete delRow"></a></td>
+                            <td colspan="2" style="white-space: nowrap;">&nbsp;<input novalidation="true" type="text" class="DateFormat Slotdate" name="Slotdate" id="Slotdate" value="@value" size="8" /><a href="javascript:deleteRow('@id');" class="delete delRow"></a></td>
                             @foreach (var slot in Model.GetSlotsForDate(date))
                             {
-                                int startHour = slot.Start.Hour;
-                                int startMinute = slot.Start.Minute;
-                                int endHour = slot.End.Hour;
-                                int endMinute = slot.End.Minute;
-                                string start = startHour + ":" + startMinute;
-                                string end = endHour + ":" + endMinute;
+    
                                 
-                                <td><input novalidation="true" type="text" value="@start" name="Startz" size="4" /></td>
-                                <td><input novalidation="true" type="text" value="@end" name="Endz" size="4" /></td>
+                                <td><input novalidation="true" type="text" value="@slot.getFormatedStartTime()" name="Startz" size="4" /></td>
+                                <td><input novalidation="true" type="text" value="@slot.getFormatedEndTime()" name="Endz" size="4" /></td>
                                 
                             }
                         </tr>
