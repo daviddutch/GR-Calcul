@@ -80,6 +80,21 @@ namespace GR_Calcul.Models
             Students = new List<Person>();
         }
         /// <summary>
+        /// Gets all the slot ranges for the current course that have a valid date
+        /// </summary>
+        /// <returns>Return the slot ranges associated with the course</returns>
+        public List<SlotRange> GetValidSlotRangesForCourse()
+        {
+            List<SlotRange> ranges = new List<SlotRange>();
+            foreach (SlotRange sr in GetSlotRangesForCourse())
+            {
+                if (sr.locked)
+                    ranges.Add(sr);
+            }
+            return ranges;
+        }
+
+        /// <summary>
         /// Gets all the slot ranges for the current course
         /// </summary>
         /// <returns>Return the slot ranges associated with the course</returns>

@@ -25,11 +25,13 @@
 
 @{
     var grid = new WebGrid(Model);
+    
 }
 @grid.GetHtml(
     tableStyle: "simpleTable",
     headerStyle: "head",
     alternatingRowStyle: "alt",
+    
     
     columns: grid.Columns(
             grid.Column("Name", "Nom"),
@@ -40,14 +42,14 @@
                         return new HtmlString(item.Key);
                     else
                          return new HtmlString("");
-                }, canSort:false),
+                }),
             grid.Column(null, (isResponsible) ? "Actif" : "", format: (item) =>
                 {
                     if (isResponsible)
                         return new HtmlString(""+item.Active);
                     else
                         return new HtmlString("");
-                }, canSort: false),
+                }),
             grid.Column(format: (item) =>
                 {
                     
