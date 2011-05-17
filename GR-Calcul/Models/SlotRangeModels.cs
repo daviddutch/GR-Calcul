@@ -873,19 +873,30 @@ namespace GR_Calcul.Models
 
                     range.id_slotRange = rangeId; // CD needed by Task Scheduler
 
-                    InsertAllSlots(range, rangeId, db, transaction);
-
                     foreach (var machine in range.Machines)
                     {
                         InsertMachines(machine, rangeId, db, transaction);
                     }
 
+                    InsertAllSlots(range, rangeId, db, transaction);
+
                     transaction.Commit();
                 }
-                catch (Exception ex)
+                catch (Exception ex) // probably an SqlException, but just to be sure...
                 {
                     transaction.Rollback();
-                    throw new GrException(ex, Messages.errProd);
+
+                    string message = Messages.errProd;
+                    if (ex is SqlException)
+                    {
+                        SqlException sex = (SqlException)ex;
+                        if (sex.Number > 50000)
+                        {
+                            message = sex.Message;
+                        }
+                    }
+
+                    throw new GrException(ex, message);
                 }
                 finally
                 {
@@ -915,7 +926,9 @@ namespace GR_Calcul.Models
 
         private static void InsertAllSlots(SlotRange range, int rangeId, SqlConnection db, SqlTransaction transaction)
         {
+            // step 2 slots
             InsertSlots(range.Startz, range.Endz, range.Slotdate, range.SlotDuration, rangeId, db, transaction);
+            // step 3 added slots
             InsertSlots(range.StartzAdded, range.EndzAdded, range.SlotdateAdded, range.SlotDuration, rangeId, db, transaction);
         }
 
