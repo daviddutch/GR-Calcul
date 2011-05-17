@@ -24,7 +24,7 @@
             }
 		</tr>
 		<tr class="subTitle">
-			<th class="empty withborder">Nb. machines :</th>
+			<th class="empty withborder"><!-- Nb. machines : --></th>
             @for (int i = 0; i < slotRange.Slotdate.Count; i++)
             {
                 DateTime date = slotRange.Slotdate[i];
@@ -57,7 +57,7 @@
     }
 	<tbody class="slotRangeRow">
 		<tr class="center">
-		    <td><input type="text" size="4" />/20</td>
+		    <!-- <td><input type="text" size="4" />/20</td> remplacer par --><td class="empty withborder"></td>
 
             @for (int i = 0; i < slotRange.Slotdate.Count; i++)
             {

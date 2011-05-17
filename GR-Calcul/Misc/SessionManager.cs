@@ -14,9 +14,7 @@ namespace GR_Calcul.Misc
 
         public static void RedirectAccessDenied(RequestContext context)
         {
-            UrlHelper helper = new UrlHelper(context);
-            String url = helper.Action("AccessDenied", "Account");
-            HttpContext.Current.Response.Redirect(url);
+            throw new AccessDeniedException();
         }
 
         public static PersonType? GetCurrentUserRole(string username)

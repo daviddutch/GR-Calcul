@@ -6,6 +6,7 @@ using System.Web.Mvc;
 using System.Web.UI.WebControls;
 using System.Web.Security;
 using GR_Calcul.Models;
+using GR_Calcul.Misc;
 
 
 namespace GR_Calcul.Controllers
@@ -23,7 +24,17 @@ namespace GR_Calcul.Controllers
             IEnumerable<MyMenuItem> menu = BuildMenu(u);
             ViewData["Menu"] = menu;
         }
-
+        protected override void OnException(ExceptionContext filterContext)
+        {
+            if (filterContext.Exception is AccessDeniedException)
+            {
+                UrlHelper helper = new UrlHelper(filterContext.RequestContext);
+                String url = helper.Action("AccessDenied", "Account");
+                filterContext.RequestContext.HttpContext.Response.Redirect(url);
+                return;
+            }
+            base.OnException(filterContext);
+        }
         private IEnumerable<MyMenuItem> BuildMenu(MembershipUser u)
         {
             if (u != null && u is Person)

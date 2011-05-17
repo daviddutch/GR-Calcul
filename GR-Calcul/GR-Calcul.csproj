@@ -92,6 +92,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Misc\AccessDeniedException.cs" />
     <Compile Include="Misc\GrException.cs" />
     <Compile Include="Misc\Messages.cs" />
     <Compile Include="Misc\ConnectionManager.cs" />
