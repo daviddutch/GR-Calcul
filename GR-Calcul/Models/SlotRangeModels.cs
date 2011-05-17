@@ -88,13 +88,13 @@ namespace GR_Calcul.Models
         [Display(Name = "Début de Réservation", Description = "dd.mm.yyyy")]
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:dd.MM.yyyy}", ApplyFormatInEditMode = true)]
-        [UIHint("lollipop")]
+        [UIHint("DateFormat")]
         public DateTime StartRes { get; set; }
 
         [Required(ErrorMessage = "La date est invalide!")]
         [Display(Name = "Fin de Réservation", Description = "dd.mm.yyyy")]
         [DataType(DataType.Date)]
-        [UIHint("lollipop")]
+        [UIHint("DateFormat")]
         [DisplayFormat(DataFormatString = "{0:dd.MM.yyyy}", ApplyFormatInEditMode = true)]
         [GreaterThanOrEqual("StartRes")]
         public DateTime EndRes { get; set; }
@@ -125,7 +125,7 @@ namespace GR_Calcul.Models
         [Display(Name = "Date de départ", Description = "dd.mm.yyyy")]
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:dd.MM.yyyy}", ApplyFormatInEditMode = true)]
-        [UIHint("lollipop")]
+        [UIHint("DateFormat")]
         public DateTime Beginning { get; set; }
 
         [Required]
@@ -511,13 +511,13 @@ namespace GR_Calcul.Models
         [Required]
         [Display(Name = "Début du créneau", Description = "dd/mm/yyyy")]
         [DataType(DataType.DateTime)]
-        [UIHint("lollipop")]
+        [UIHint("DateFormat")]
         public DateTime Start { get; set; }
 
         [Required]
         [Display(Name = "Fin du créneau", Description = "dd/mm/yyyy")]
         [DataType(DataType.DateTime)]
-        [UIHint("lollipop")]
+        [UIHint("DateFormat")]
         public DateTime End { get; set; }
 
         static Slot()
@@ -1009,6 +1009,19 @@ namespace GR_Calcul.Models
                     if (rdr.Read())
                     {
                         rdr.Close();
+
+
+                        cmd = new SqlCommand("SELECT CASE  WHEN DATEDIFF(d, startRes, GETDATE ())  >= 0 AND DATEDIFF(d, GETDATE(), endRes) >= 0 THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END locked " +
+                     "FROM SlotRange where id_slotRange=@id;", db, transaction);
+                        cmd.Parameters.Add("@id", SqlDbType.Int).Value = range.id_slotRange;
+                        rdr = cmd.ExecuteReader();
+                        Boolean isLocked = false;
+                        if (rdr.Read())
+                        {
+                            isLocked = rdr.GetBoolean(rdr.GetOrdinal("locked")); ;
+                        }
+                        rdr.Close();
+
                         cmd = new SqlCommand("UPDATE SlotRange SET startRes=@startRes, endRes=@endRes, " +
                             "name=@name, id_course=@idCourse WHERE id_slotRange=@id;", db, transaction);
                         cmd.Parameters.Add("@startRes", SqlDbType.DateTime).Value = range.StartRes;
@@ -1018,7 +1031,7 @@ namespace GR_Calcul.Models
                         cmd.Parameters.Add("@id", SqlDbType.Int).Value = range.id_slotRange;
                         cmd.ExecuteNonQuery();
 
-                        if (!range.locked)
+                        if (!isLocked)
                         {
                             SqlCommand cmd2 = new SqlCommand("DELETE FROM Slot WHERE id_slotRange=@id;", db, transaction);
                             cmd2.Parameters.Add("@id", SqlDbType.Int).Value = range.id_slotRange;
