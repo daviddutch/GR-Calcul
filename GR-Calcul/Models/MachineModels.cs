@@ -18,6 +18,11 @@ namespace GR_Calcul.Models
     public class Machine
     {
         /// <summary>
+        /// Empty Constructor
+        /// </summary>
+        public Machine() { }
+
+        /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="id_machine">primary key</param>

@@ -149,11 +149,11 @@ namespace GR_Calcul.Controllers
                         CourseModel.UpdateCourse(course);
                         return RedirectToAction("Index");
                     }
-                    catch (GrException e)
+                    catch (GrException gex)
                     {
-                        System.Diagnostics.Debug.WriteLine(e.Message);
-                        System.Diagnostics.Debug.WriteLine(e.StackTrace);
-                        ModelState.AddModelError("", e.UserMessage);
+                        System.Diagnostics.Debug.WriteLine(gex.UserMessage);
+                        System.Diagnostics.Debug.WriteLine(gex.StackTrace);
+                        ModelState.AddModelError("", gex.UserMessage);
                         return View(course);
                     }
                 }

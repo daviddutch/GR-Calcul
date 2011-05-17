@@ -41,7 +41,7 @@ namespace GR_Calcul.Controllers
         }
 
         //
-        // GET: /SlotRange/ReserveSlotRange/
+        // GET: /SlotRange/ReserveSlotRange/3
         [DuffAuthorize(PersonType.User)]
         public ActionResult ReserveSlotRange(int id)
         {
@@ -49,7 +49,7 @@ namespace GR_Calcul.Controllers
             ReserveSlotRangeViewModel viewModel = new ReserveSlotRangeViewModel();
             Course course = CourseModel.GetCourse(id);
             viewModel.Course = course;
-            viewModel.SlotRanges = course.GetSlotRangesForCourse();
+            viewModel.SlotRanges = course.GetValidSlotRangesForCourse();
             int? id_person = SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name);
             viewModel.Reservations = SlotRangeModel.getReservations(id, id_person);
             return View(viewModel);
@@ -64,7 +64,7 @@ namespace GR_Calcul.Controllers
             {
                 if (reserve)
                 {
-                    SlotRangeModel.ReserveSlot(id, SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name), 0);
+                    SlotRangeModel.ReserveSlot(id, (int) SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name), 0);
                 }
                 else
                 {
@@ -301,14 +301,14 @@ namespace GR_Calcul.Controllers
 
         [HttpPost]
         [DuffAuthorize(PersonType.Responsible)]
-        public ActionResult Delete(int id, SlotRange collection)
+        public ActionResult Delete(int id, SlotRange range)
         {
             SlotRange sr = SlotRangeModel.GetSlotRange(id);
             if (IsAuthorized(SlotRangeModel.GetSlotRange(id)))
             {
                 try
                 {
-                    SlotRangeModel.DeleteSlotRange(id, collection);
+                    SlotRangeModel.DeleteSlotRange(id, range);
                     return RedirectToAction("CourseRanges", new { id= sr.IdCourse});
                 }
                 catch (GrException gex)
@@ -365,25 +365,17 @@ namespace GR_Calcul.Controllers
             task.Settings.ExecutionTimeLimit = "PT1H"; // 1 hour
             task.Settings.DeleteExpiredTaskAfter = "PT12M"; // 1 year
 
-            // Principals // doesn't work yet !
-            //task.Principal.RunLevel = _TASK_RUNLEVEL.TASK_RUNLEVEL_HIGHEST;
-            //task.Principal.UserId = "NT AUTHORITY\\LOCAL SERVICE";
-            //task.Principal.LogonType = _TASK_LOGON_TYPE.TASK_LOGON_SERVICE_ACCOUNT;
-
             ITimeTrigger trigger = (ITimeTrigger)task.Triggers.Create(_TASK_TRIGGER_TYPE2.TASK_TRIGGER_TIME);
             trigger.Id = "EmailTriggerForSlotRange_" + range.id_slotRange;
-            DateTime dt = range.EndRes.Add(new System.TimeSpan(1, 1, 0, 0)); // EndRes + 1d + 1h
+            DateTime dt = range.EndRes.Add(new System.TimeSpan(1, 0, 0, 0)); // Midnight after EndRes
             trigger.StartBoundary = dt.ToString("yyyy-MM-ddTHH:MM:ss");
-            trigger.EndBoundary = dt.Add(new System.TimeSpan(0, 1, 0, 0)).ToString("yyyy-MM-ddTHH:MM:ss"); // remove the task from active tasks 1h later
+            trigger.EndBoundary = dt.Add(new System.TimeSpan(0, 0, 1, 0)).ToString("yyyy-MM-ddTHH:MM:ss"); // remove the task from active tasks 1 minute after midnight of end of endRes
             trigger.ExecutionTimeLimit = "PT2M"; // 2 minutes
 
             IExecAction action = (IExecAction)task.Actions.Create(_TASK_ACTION_TYPE.TASK_ACTION_EXEC);
             action.Id = "EmailActionForSlotRange_" + range.id_slotRange;
             action.Path = "C:\\script.vbs";
             action.Arguments = range.id_slotRange.ToString();
-
-            // TODO: we may need to specify that this task shall be executed even if no user is logged in
-            // "Local System" with VARIANT VT_EMPTY ??
 
             ITaskFolder root = scheduler.GetFolder("\\");
             IRegisteredTask regTask = root.RegisterTaskDefinition(
@@ -392,9 +384,7 @@ namespace GR_Calcul.Controllers
                 (int)_TASK_CREATION.TASK_CREATE_OR_UPDATE,
                 null, // username - we're using the logged in user of this web app
                 null, // password - we're using the logged in user of this web app
-                _TASK_LOGON_TYPE.TASK_LOGON_INTERACTIVE_TOKEN); // for simplicity, we're using the logged in user of this web app
-
-            regTask.Run(null);
+                _TASK_LOGON_TYPE.TASK_LOGON_INTERACTIVE_TOKEN); // for simplicity, we're using the logged in Windows user who is running this web app
         }
 
         // this method uses host-based authentication
@@ -428,6 +418,9 @@ namespace GR_Calcul.Controllers
 
             System.Net.Mail.SmtpClient client = new System.Net.Mail.SmtpClient();
             client.Send(message);
+
+            // for demo backup, also write to a file
+
 
             return View(range); // can be implemented for testing purposes
         }

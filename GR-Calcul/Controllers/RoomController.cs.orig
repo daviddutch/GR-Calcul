@@ -109,16 +109,39 @@ namespace GR_Calcul.Controllers
         [HttpPost]
         public ActionResult Delete(int id, Room room)
         {
-            try
+
+            if (ModelState.IsValid)
             {
-                RoomModel.DeleteRoom(id, room);
-                return RedirectToAction("Index");
+                try
+                {
+                    RoomModel.DeleteRoom(id, room);
+                    return RedirectToAction("Index");
+                }
+                catch (GrException gex)
+                {
+                    ModelState.AddModelError("", gex.UserMessage);
+
+
+                    // get updated data
+                    Room room_ = RoomModel.GetRoom(id);
+
+                    // update timestamp in case user really wants to delete this
+                    ModelState.SetModelValue("Timestamp", new ValueProviderResult(room_.Timestamp, "", CultureInfo.InvariantCulture));
+
+                    // show new values before user decided to really delete them
+                    return View(room_);
+                }
             }
-            catch (GrException gex)
+            else
             {
+<<<<<<< HEAD
                 ModelState.AddModelError("", gex.UserMessage);
-                // get new data in case it changed in the mean time
-                return View(RoomModel.GetRoom(id));
+                System.Diagnostics.Debug.WriteLine(gex.UserMessage);
+                System.Diagnostics.Debug.WriteLine(gex.StackTrace);
+=======
+                ModelState.AddModelError("", Messages.invalidData);
+>>>>>>> b06e7b2795f97b27efac43779e099b6dc8a7fa48
+                return View(room);
             }
         }
     }
