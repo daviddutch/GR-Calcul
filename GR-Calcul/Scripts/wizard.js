@@ -77,20 +77,21 @@ function enableWizard(buildLastStep) {
             if ($step.next().hasClass("wizard-step")) { // is there any next step?
                 $step.hide().next().fadeIn();  // show it and hide current step
                 $("#back-step").show();   // recall to show backStep button
+                
+                // CD set "Beginning" date to 1 day after endRes
+                var beginning = $("#Beginning");
+                var endRes = $("#EndRes");
+                var oldDateString = endRes.val();
+                var oldDateParts = oldDateString.split(".");
+                var oldDate = new Date(oldDateParts[2], (oldDateParts[1] - 1), oldDateParts[0]);
+                var msecsInADay = 86400000;
+                var newDate = new Date(oldDate.getTime() + msecsInADay);
+                var newDateString = newDate.getDate() + '.' + (newDate.getMonth() + 1) + '.' + newDate.getFullYear();
+                beginning.val(newDateString);
             } else { // this is last step, submit form
                 $("form").submit();
             }
 
-            // CD set "Beginning" date to 1 day after endRes
-            var endRes = $("#EndRes");
-            var beginning = $("#Beginning");
-            var oldDateString = endRes.val();
-            var oldDateParts = oldDateString.split(".");
-            var oldDate = new Date(oldDateParts[2], (oldDateParts[1] - 1), oldDateParts[0]);
-            var msecsInADay = 86400000;
-            var newDate = new Date(oldDate.getTime() + msecsInADay);
-            var newDateString = newDate.getDate() + '.' + (newDate.getMonth() + 1) + '.' + newDate.getFullYear();
-            beginning.val(newDateString);
 
         });
 

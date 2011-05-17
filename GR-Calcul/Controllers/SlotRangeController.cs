@@ -41,7 +41,7 @@ namespace GR_Calcul.Controllers
         }
 
         //
-        // GET: /SlotRange/ReserveSlotRange/
+        // GET: /SlotRange/ReserveSlotRange/3
         [DuffAuthorize(PersonType.User)]
         public ActionResult ReserveSlotRange(int id)
         {
@@ -64,7 +64,7 @@ namespace GR_Calcul.Controllers
             {
                 if (reserve)
                 {
-                    SlotRangeModel.ReserveSlot(id, SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name), 0);
+                    SlotRangeModel.ReserveSlot(id, (int) SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name), 0);
                 }
                 else
                 {
@@ -417,6 +417,9 @@ namespace GR_Calcul.Controllers
 
             System.Net.Mail.SmtpClient client = new System.Net.Mail.SmtpClient();
             client.Send(message);
+
+            // for demo backup, also write to a file
+
 
             return View(range); // can be implemented for testing purposes
         }

@@ -1203,9 +1203,8 @@ namespace GR_Calcul.Models
             return reservations;
         }
 
-        public static void ReserveSlot(int id_slot, int? id_person, int numberMachines)
+        public static void ReserveSlot(int id_slot, int id_person, int numberMachines)
         {
-            bool inserted = true;
             try
             {
                 SqlConnection db = new SqlConnection(connectionString);
@@ -1250,53 +1249,46 @@ namespace GR_Calcul.Models
                         cmd.Parameters.Add("@numberMachines", SqlDbType.Int).Value = numberMachines;
 
                         cmd.ExecuteNonQuery();
-
-                        // XML treatment ...
-
-                        // get slot
-                        Slot slot = SlotRangeModel.GetSlot(id_slot);
-                        // get person
-                        Person user = PersonModel.getPerson((int)id_person, PersonType.User);
-                        // get slotrange
-                        SlotRange range = SlotRangeModel.GetSlotRange(slot.id_slotRange);
-                        range.InsertCommandXML(user, slot, machineModel.getMachineNames(range.Machines));
                     }
                     else //slot already in use
                     {
                         rdr.Close();
-                        inserted = false;
+                        throw new GrException(Messages.slotReserved);
                     }
 
                     transaction.Commit();
+
                 }
                 catch (SqlException sqlError)
                 {
                     System.Diagnostics.Debug.WriteLine(sqlError.Message);
                     System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
                     transaction.Rollback();
-                    inserted = false;
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine(ex.Message);
-                    System.Diagnostics.Debug.WriteLine(ex.StackTrace);
-                    if (ex is GrException) throw ex;
-                    throw new GrException(ex, Messages.errProd);
+                    throw new GrException(sqlError, (sqlError.Number > 50000) ? sqlError.Message : Messages.errProd);
                 }
                 finally
                 {
                     db.Close();
                 }
+
+                // XML treatment ...
+
+                // get slot
+                Slot slot = SlotRangeModel.GetSlot(id_slot);
+                // get person
+                Person user = PersonModel.getPerson((int)id_person, PersonType.User);
+                // get slotrange
+                SlotRange range = SlotRangeModel.GetSlotRange(slot.id_slotRange);
+                range.InsertCommandXML(user, slot, machineModel.getMachineNames(range.Machines));
             }
-            catch (SqlException sqlError)
+            catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(sqlError.Message);
-                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
-                inserted = false;
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+                System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+                throw (ex is GrException) ? ex : new GrException(ex, Messages.errProd);
             }
-            if (!inserted)
-                throw new GrException("Slot déjà reservé !");
         }
+
         public static void UnReserveSlot(int id_slot, int? id_person)
         {
             try
