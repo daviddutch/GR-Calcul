@@ -88,13 +88,13 @@ namespace GR_Calcul.Models
         [Display(Name = "Début de Réservation", Description = "dd.mm.yyyy")]
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:dd.MM.yyyy}", ApplyFormatInEditMode = true)]
-        [UIHint("lollipop")]
+        [UIHint("DateFormat")]
         public DateTime StartRes { get; set; }
 
         [Required(ErrorMessage = "La date est invalide!")]
         [Display(Name = "Fin de Réservation", Description = "dd.mm.yyyy")]
         [DataType(DataType.Date)]
-        [UIHint("lollipop")]
+        [UIHint("DateFormat")]
         [DisplayFormat(DataFormatString = "{0:dd.MM.yyyy}", ApplyFormatInEditMode = true)]
         [GreaterThanOrEqual("StartRes")]
         public DateTime EndRes { get; set; }
