@@ -1203,7 +1203,7 @@ namespace GR_Calcul.Models
             return reservations;
         }
 
-        public static void ReserveSlot(int id_slot, int? id_person, int numberMachines)
+        public static void ReserveSlot(int id_slot, int id_person, int numberMachines)
         {
             try
             {
@@ -1249,16 +1249,6 @@ namespace GR_Calcul.Models
                         cmd.Parameters.Add("@numberMachines", SqlDbType.Int).Value = numberMachines;
 
                         cmd.ExecuteNonQuery();
-
-                        // XML treatment ...
-
-                        // get slot
-                        Slot slot = SlotRangeModel.GetSlot(id_slot);
-                        // get person
-                        Person user = PersonModel.getPerson((int)id_person, PersonType.User);
-                        // get slotrange
-                        SlotRange range = SlotRangeModel.GetSlotRange(slot.id_slotRange);
-                        range.InsertCommandXML(user, slot, machineModel.getMachineNames(range.Machines));
                     }
                     else //slot already in use
                     {
@@ -1267,6 +1257,7 @@ namespace GR_Calcul.Models
                     }
 
                     transaction.Commit();
+
                 }
                 catch (SqlException sqlError)
                 {
@@ -1279,6 +1270,16 @@ namespace GR_Calcul.Models
                 {
                     db.Close();
                 }
+
+                // XML treatment ...
+
+                // get slot
+                Slot slot = SlotRangeModel.GetSlot(id_slot);
+                // get person
+                Person user = PersonModel.getPerson((int)id_person, PersonType.User);
+                // get slotrange
+                SlotRange range = SlotRangeModel.GetSlotRange(slot.id_slotRange);
+                range.InsertCommandXML(user, slot, machineModel.getMachineNames(range.Machines));
             }
             catch (Exception ex)
             {
@@ -1287,6 +1288,7 @@ namespace GR_Calcul.Models
                 throw (ex is GrException) ? ex : new GrException(ex, Messages.errProd);
             }
         }
+
         public static void UnReserveSlot(int id_slot, int? id_person)
         {
             try

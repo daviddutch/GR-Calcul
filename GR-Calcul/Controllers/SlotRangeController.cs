@@ -64,7 +64,7 @@ namespace GR_Calcul.Controllers
             {
                 if (reserve)
                 {
-                    SlotRangeModel.ReserveSlot(id, SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name), 0);
+                    SlotRangeModel.ReserveSlot(id, (int) SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name), 0);
                 }
                 else
                 {
