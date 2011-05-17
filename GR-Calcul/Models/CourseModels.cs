@@ -731,9 +731,9 @@ namespace GR_Calcul.Models
                 try
                 {
                     SqlCommand cmd = new SqlCommand("INSERT INTO Course " +
-                                   "(name, [key], active, id_person) " +
-                                   "VALUES (@name, @key, @active, @id_person); " +
-                                   "SELECT scope_identity()", db, transaction);
+                                                   "(name, [key], active, id_person) " +
+                                                   "VALUES (@name, @key, @active, @id_person); " +
+                                                   "SELECT scope_identity()", db, transaction);
 
                     cmd.Parameters.Add("@name", SqlDbType.Char).Value = course.Name;
                     cmd.Parameters.Add("@key", SqlDbType.Char).Value = course.Key;
