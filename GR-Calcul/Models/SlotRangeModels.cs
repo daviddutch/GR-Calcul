@@ -1205,7 +1205,6 @@ namespace GR_Calcul.Models
 
         public static void ReserveSlot(int id_slot, int? id_person, int numberMachines)
         {
-            bool inserted = true;
             try
             {
                 SqlConnection db = new SqlConnection(connectionString);
@@ -1264,7 +1263,7 @@ namespace GR_Calcul.Models
                     else //slot already in use
                     {
                         rdr.Close();
-                        inserted = false;
+                        throw new GrException(Messages.slotReserved);
                     }
 
                     transaction.Commit();
@@ -1274,28 +1273,19 @@ namespace GR_Calcul.Models
                     System.Diagnostics.Debug.WriteLine(sqlError.Message);
                     System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
                     transaction.Rollback();
-                    inserted = false;
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine(ex.Message);
-                    System.Diagnostics.Debug.WriteLine(ex.StackTrace);
-                    if (ex is GrException) throw ex;
-                    throw new GrException(ex, Messages.errProd);
+                    throw new GrException(sqlError, (sqlError.Number > 50000) ? sqlError.Message : Messages.errProd);
                 }
                 finally
                 {
                     db.Close();
                 }
             }
-            catch (SqlException sqlError)
+            catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(sqlError.Message);
-                System.Diagnostics.Debug.WriteLine(sqlError.StackTrace);
-                inserted = false;
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+                System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+                throw (ex is GrException) ? ex : new GrException(ex, Messages.errProd);
             }
-            if (!inserted)
-                throw new GrException("Slot déjà reservé !");
         }
         public static void UnReserveSlot(int id_slot, int? id_person)
         {
