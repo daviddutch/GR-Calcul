@@ -86,6 +86,10 @@ namespace GR_Calcul.Controllers
         public ActionResult Edit(int id, PersonType pType)
         {
             Person person = PersonModel.getPerson(id, pType);
+            if(person.Username == HttpContext.User.Identity.Name){
+                ModelState.AddModelError("", Messages.editSameUser);
+            }
+
             return View(person.toPerson2());
         }
 
@@ -115,8 +119,13 @@ namespace GR_Calcul.Controllers
                 }
                 catch (GrException gex)
                 {
+                    if (person.Username == HttpContext.User.Identity.Name)
+                    {
+                        ModelState.AddModelError("", Messages.editSameUser);
+                    }
+
                     ModelState.AddModelError("", gex.UserMessage);
-                    return View();
+                    return View(person);
                 }
             }
             else

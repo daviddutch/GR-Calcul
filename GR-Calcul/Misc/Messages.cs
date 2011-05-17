@@ -14,5 +14,6 @@ namespace GR_Calcul.Misc
         public const String invalidData = "Vous avez envoyé des données invalides";
         public const String uniqueUserEmail = "Il y a eu un problème à l'insertion. Veuillez vérifier qu'aucun utilisateur n'existe avec le même nom d'utilisateur ou la même adresse email.";
         public const String slotReserved = "Ce slot est déjà reservé !";
+        public const String editSameUser = "Vous êtes en train de modifier votre propre compte utilisateur. Si vous modifiez votre nom d'utilisateur, vous serez obligé de vous déconnecter, et ensuite de vous connecter à nouveau avec votre nouveau nom d'utilisateur!";
     }
 }
