@@ -303,12 +303,13 @@ namespace GR_Calcul.Controllers
         [DuffAuthorize(PersonType.Responsible)]
         public ActionResult Delete(int id, SlotRange collection)
         {
+            SlotRange sr = SlotRangeModel.GetSlotRange(id);
             if (IsAuthorized(SlotRangeModel.GetSlotRange(id)))
             {
                 try
                 {
                     SlotRangeModel.DeleteSlotRange(id, collection);
-                    return RedirectToAction("CourseRanges");
+                    return RedirectToAction("CourseRanges", new { id= sr.IdCourse});
                 }
                 catch (GrException gex)
                 {

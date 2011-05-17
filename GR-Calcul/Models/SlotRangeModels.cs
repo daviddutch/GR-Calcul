@@ -987,7 +987,7 @@ namespace GR_Calcul.Models
         public static void UpdateSlotRange(SlotRange range)
         {
             bool updated = false;
-
+            bool p = range.locked;
             try
             {
                 SqlConnection db = new SqlConnection(connectionString);
@@ -1011,6 +1011,19 @@ namespace GR_Calcul.Models
                     if (rdr.Read())
                     {
                         rdr.Close();
+
+
+                        cmd = new SqlCommand("SELECT CASE  WHEN DATEDIFF(d, startRes, GETDATE ())  >= 0 AND DATEDIFF(d, GETDATE(), endRes) >= 0 THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END locked " +
+                     "FROM SlotRange where id_slotRange=@id;", db, transaction);
+                        cmd.Parameters.Add("@id", SqlDbType.Int).Value = range.id_slotRange;
+                        rdr = cmd.ExecuteReader();
+                        Boolean isLocked = false;
+                        if (rdr.Read())
+                        {
+                            isLocked = rdr.GetBoolean(rdr.GetOrdinal("locked")); ;
+                        }
+                        rdr.Close();
+
                         cmd = new SqlCommand("UPDATE SlotRange SET startRes=@startRes, endRes=@endRes, " +
                             "name=@name, id_course=@idCourse WHERE id_slotRange=@id;", db, transaction);
                         cmd.Parameters.Add("@startRes", SqlDbType.DateTime).Value = range.StartRes;
@@ -1021,7 +1034,7 @@ namespace GR_Calcul.Models
                         cmd.ExecuteNonQuery();
                         updated = true;
 
-                        if (!range.locked)
+                        if (!isLocked)
                         {
                             SqlCommand cmd2 = new SqlCommand("DELETE FROM Slot WHERE id_slotRange=@id;", db, transaction);
                             cmd2.Parameters.Add("@id", SqlDbType.Int).Value = range.id_slotRange;
