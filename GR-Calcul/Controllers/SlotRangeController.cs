@@ -31,13 +31,21 @@ namespace GR_Calcul.Controllers
         [DuffAuthorize(PersonType.Responsible, PersonType.ResourceManager)]
         public ActionResult CourseRanges(int id)
         {
-            InitViewbag(id);
             CourseRangesViewModel viewModel = new CourseRangesViewModel();
             Course course = CourseModel.GetCourse(id);
-            viewModel.Course = course;
-            viewModel.SlotRanges = course.GetSlotRangesForCourse();
-            viewModel.Course.Students = CourseModel.getCourseStudents(id);
-            return View(viewModel);
+            if (course == null || course.Responsible == SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name))
+            {
+                InitViewbag(id);
+                viewModel.Course = course;
+                viewModel.SlotRanges = course.GetSlotRangesForCourse();
+                viewModel.Course.Students = CourseModel.getCourseStudents(id);
+                return View(viewModel);
+            }
+            else
+            {
+                SessionManager.RedirectAccessDenied(HttpContext.Request.RequestContext);
+                return null;
+            }
         }
 
         //
