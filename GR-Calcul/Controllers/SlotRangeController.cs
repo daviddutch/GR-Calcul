@@ -422,6 +422,7 @@ namespace GR_Calcul.Controllers
             message.IsBodyHtml = false;
             message.Subject = "Script Linux pour le SlotRange '" + range.id_slotRange + "'";
             message.BodyEncoding = System.Text.Encoding.GetEncoding("utf-8");
+            message.From = new System.Net.Mail.MailAddress("info@gr-calcul.com");
             message.Body = script;
 
             System.Net.Mail.SmtpClient client = new System.Net.Mail.SmtpClient();

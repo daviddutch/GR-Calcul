@@ -25,8 +25,8 @@ function loadTooltips(selector) {
 }
 
 function reserve(radio, reserve) {
-
-    $.getJSON("/SlotRange/Reserve/" + $(radio).val() + "?reserve=" + reserve, null, function (data) {
+    //"/GR-Calcul/SlotRange/Reserve/"
+    $.getJSON($("#reserveLink").val() + $(radio).val() + "?reserve=" + reserve, null, function (data) {
         if (data.Success) {
             if (reserve) {
                 $(radio).parent().parent().find("td").removeClass("reserved");
