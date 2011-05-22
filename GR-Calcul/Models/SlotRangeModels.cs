@@ -272,137 +272,84 @@ namespace GR_Calcul.Models
         }
 
         // CD: this is really an Update
-        public void InsertCommandXML(Person person, Slot slot, List<string> machines)
+        public void InsertCommandXML(Person person, Slot slot, List<string> machines, SqlConnection db, SqlTransaction transaction)
         {
             if (machines == null)
             {
                 machines = new List<string>();
             }
 
-            try
+            byte[] timestamp = this.getByteTimestamp();
+
+            SqlCommand cmd = new SqlCommand("SELECT * FROM SlotRange R " +
+                "WHERE R.[id_slotRange]=@id AND R.timestamp=@timestamp;", db, transaction);
+
+            cmd.Parameters.Add("@id", SqlDbType.Int).Value = this.id_slotRange;
+            cmd.Parameters.Add("@timestamp", SqlDbType.Binary).Value = timestamp;
+
+            SqlDataReader rdr = cmd.ExecuteReader();
+
+            if (rdr.Read())
             {
-                SqlConnection db = new SqlConnection(connectionString);
-                SqlTransaction transaction;
+                rdr.Close();
 
-                db.Open();
+                // before inserting, delete any previously existing reservations
+                cmd = new SqlCommand("UPDATE SlotRange " +
+                    "SET scriptDataXML.modify('delete (/script/command[username=sql:variable(\"@username\")])') " +
+                    "WHERE id_slotRange=@id_slotRange", db, transaction);
 
-                transaction = db.BeginTransaction(IsolationLevel.Serializable); // CD serializable to prevent machine phantoms.
-                try
-                {
-                    byte[] timestamp = this.getByteTimestamp();
+                cmd.Parameters.Add("@username", SqlDbType.Char).Value = person.Username;
+                cmd.Parameters.Add("@id_slotRange", SqlDbType.Int).Value = this.id_slotRange;
+                cmd.ExecuteNonQuery();
 
-                    SqlCommand cmd = new SqlCommand("SELECT * FROM SlotRange R " +
-                        "WHERE R.[id_slotRange]=@id AND R.timestamp=@timestamp;", db, transaction);
+                string xml_string = BuildScriptDataXML(person, slot, machines);
+                cmd = new SqlCommand("UPDATE SlotRange " +
+                        "SET scriptDataXML.modify('insert sql:variable(\"@xml_string\") as last into (/script)[1]') " +
+                        "WHERE id_slotRange = @id_slotRange ", db, transaction);
+                cmd.Parameters.Add("@id_slotRange", SqlDbType.Int).Value = this.id_slotRange;
+                cmd.Parameters.Add("@xml_string", SqlDbType.Xml).Value = xml_string;
+                cmd.ExecuteNonQuery();
 
-                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = this.id_slotRange;
-                    cmd.Parameters.Add("@timestamp", SqlDbType.Binary).Value = timestamp;
-
-                    SqlDataReader rdr = cmd.ExecuteReader();
-
-                    if (rdr.Read())
-                    {
-                        rdr.Close();
-                        string xml_string = BuildScriptDataXML(person, slot, machines);
-                        cmd = new SqlCommand("UPDATE SlotRange " +
-                                "SET scriptDataXML.modify('insert sql:variable(\"@xml_string\") as last into (/script)[1]') " +
-                                "WHERE id_slotRange = @id_slotRange ", db, transaction);
-                        cmd.Parameters.Add("@id_slotRange", SqlDbType.Int).Value = this.id_slotRange;
-                        cmd.Parameters.Add("@xml_string", SqlDbType.Xml).Value = xml_string;
-                        cmd.ExecuteNonQuery();
-
-                        transaction.Commit();
-                    }
-                    else
-                    {
-                        rdr.Close();
-                        throw new GrException(Messages.recommencerEdit);
-                    }
-                }   
-                catch (Exception ex)
-                {
-                    transaction.Rollback();
-                    System.Diagnostics.Debug.WriteLine(ex.Message);
-                    System.Diagnostics.Debug.WriteLine(ex.StackTrace);
-                    if (ex is GrException) throw ex;
-                    throw new GrException(ex, Messages.errProd);
-                }
-                finally
-                {
-                    db.Close();
-                }
+                //transaction.Commit();
             }
-            catch (Exception ex)
+            else
             {
-                System.Diagnostics.Debug.WriteLine(ex.Message);
-                System.Diagnostics.Debug.WriteLine(ex.StackTrace);
-                if (ex is GrException) throw ex;
-                throw new GrException(ex, Messages.errProd);
+                rdr.Close();
+                throw new GrException(Messages.recommencerEdit);
             }
         }
 
         // CD: this is really an Update
-        public void DeleteCommandXML(string username)
+        public void DeleteCommandXML(string username, SqlConnection db, SqlTransaction transaction)
         {
-            try
+            byte[] timestamp = this.getByteTimestamp();
+
+            SqlCommand cmd = new SqlCommand("SELECT * FROM SlotRange R " +
+                "WHERE R.[id_slotRange]=@id AND R.timestamp=@timestamp;", db, transaction);
+
+            cmd.Parameters.Add("@id", SqlDbType.Int).Value = this.id_slotRange;
+            cmd.Parameters.Add("@timestamp", SqlDbType.Binary).Value = timestamp;
+
+            SqlDataReader rdr = cmd.ExecuteReader();
+
+            if (rdr.Read())
             {
-                SqlConnection db = new SqlConnection(connectionString);
-                SqlTransaction transaction;
+                rdr.Close();
 
-                db.Open();
+                cmd = new SqlCommand("UPDATE SlotRange " +
+                    "SET scriptDataXML.modify('delete (/script/command[username=sql:variable(\"@username\")])') " +
+                    "WHERE id_slotRange=@id_slotRange", db, transaction);
 
-                transaction = db.BeginTransaction(IsolationLevel.RepeatableRead); // CD: single row but multiple queries
-                try
-                {
-                    byte[] timestamp = this.getByteTimestamp();
+                cmd.Parameters.Add("@username", SqlDbType.Char).Value = username;
+                cmd.Parameters.Add("@id_slotRange", SqlDbType.Int).Value = this.id_slotRange;
+                cmd.ExecuteNonQuery();
 
-                    SqlCommand cmd = new SqlCommand("SELECT * FROM SlotRange R " +
-                        "WHERE R.[id_slotRange]=@id AND R.timestamp=@timestamp;", db, transaction);
-
-                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = this.id_slotRange;
-                    cmd.Parameters.Add("@timestamp", SqlDbType.Binary).Value = timestamp;
-
-                    SqlDataReader rdr = cmd.ExecuteReader();
-
-                    if (rdr.Read())
-                    {
-                        rdr.Close();
-
-                        cmd = new SqlCommand("UPDATE SlotRange " +
-                            "SET scriptDataXML.modify('delete (/script/command[username=sql:variable(\"@username\")])') " +
-                            "WHERE id_slotRange=@id_slotRange", db, transaction);
-
-                        cmd.Parameters.Add("@username", SqlDbType.Char).Value = username;
-                        cmd.Parameters.Add("@id_slotRange", SqlDbType.Int).Value = this.id_slotRange;
-                        cmd.ExecuteNonQuery();
-
-                        transaction.Commit();
-                    }
-                    else
-                    {
-                        rdr.Close();
-                        throw new GrException(Messages.recommencerEdit);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    transaction.Rollback();
-                    System.Diagnostics.Debug.WriteLine(ex.Message);
-                    System.Diagnostics.Debug.WriteLine(ex.StackTrace);
-                    
-                    if (ex is GrException) throw ex;
-                    throw new GrException(ex, Messages.errProd);
-                }
-                finally
-                {
-                    db.Close();
-                }
+                //transaction.Commit();
             }
-            catch (Exception ex)
+            else
             {
-                System.Diagnostics.Debug.WriteLine(ex.Message);
-                System.Diagnostics.Debug.WriteLine(ex.StackTrace);
-                if (ex is GrException) throw ex;
-                throw new GrException(ex, Messages.errProd);
+                rdr.Close();
+                throw new GrException(Messages.recommencerEdit);
             }
         }
 
@@ -444,8 +391,8 @@ namespace GR_Calcul.Models
                     transaction.Rollback();
                     System.Diagnostics.Debug.WriteLine(ex.Message);
                     System.Diagnostics.Debug.WriteLine(ex.StackTrace);
-                    throw new GrException(ex, Messages.errProd);
                     db.Close(); // only close upon exception
+                    throw new GrException(ex, Messages.errProd);
                 }
 
                 // get XSL file
@@ -1233,6 +1180,14 @@ namespace GR_Calcul.Models
         {
             try
             {
+                // XML treatment ... 
+                // get slot
+                Slot slot = SlotRangeModel.GetSlot(id_slot);
+                // get person
+                Person user = PersonModel.getPerson((int)id_person, PersonType.User);
+                // get slotrange
+                SlotRange range = SlotRangeModel.GetSlotRange(slot.id_slotRange);
+
                 SqlConnection db = new SqlConnection(connectionString);
                 SqlTransaction transaction;
 
@@ -1265,7 +1220,6 @@ namespace GR_Calcul.Models
                         cmd.Parameters.Add("@id_person", SqlDbType.Int).Value = id_person;
                         cmd.ExecuteNonQuery();
 
-
                         cmd = new SqlCommand("INSERT INTO Reservation " +
                                             "(id_person, id_slot, numberMachines) " +
                                             "VALUES (@id_person, @id_slot, @numberMachines);", db, transaction);
@@ -1275,6 +1229,8 @@ namespace GR_Calcul.Models
                         cmd.Parameters.Add("@numberMachines", SqlDbType.Int).Value = numberMachines;
 
                         cmd.ExecuteNonQuery();
+
+                        range.InsertCommandXML(user, slot, machineModel.getMachineNames(range.Machines), db, transaction);
                     }
                     else //slot already in use
                     {
@@ -1297,15 +1253,6 @@ namespace GR_Calcul.Models
                     db.Close();
                 }
 
-                // XML treatment ...
-
-                // get slot
-                Slot slot = SlotRangeModel.GetSlot(id_slot);
-                // get person
-                Person user = PersonModel.getPerson((int)id_person, PersonType.User);
-                // get slotrange
-                SlotRange range = SlotRangeModel.GetSlotRange(slot.id_slotRange);
-                range.InsertCommandXML(user, slot, machineModel.getMachineNames(range.Machines));
             }
             catch (Exception ex)
             {
@@ -1319,6 +1266,15 @@ namespace GR_Calcul.Models
         {
             try
             {
+
+                // For XML treatment ...
+                // get slot
+                Slot slot = SlotRangeModel.GetSlot(id_slot);
+                // get person
+                Person user = PersonModel.getPerson((int)id_person, PersonType.User);
+                // get slotrange
+                SlotRange range = SlotRangeModel.GetSlotRange(slot.id_slotRange);
+
                 SqlConnection db = new SqlConnection(connectionString);
                 SqlTransaction transaction;
 
@@ -1339,16 +1295,7 @@ namespace GR_Calcul.Models
                     cmd.Parameters.Add("@id_person", SqlDbType.Int).Value = id_person;
                     cmd.ExecuteNonQuery();
 
-                    // XML treatment follows here ..
-
-                    // get slot
-                    Slot slot = SlotRangeModel.GetSlot(id_slot);
-                    // get person
-                    Person user = PersonModel.getPerson((int)id_person, PersonType.User);
-                    // get slotrange
-                    SlotRange range = SlotRangeModel.GetSlotRange(slot.id_slotRange);
-
-                    range.DeleteCommandXML(user.Username);
+                    range.DeleteCommandXML(user.Username, db, transaction);
 
                     transaction.Commit();
                 }
