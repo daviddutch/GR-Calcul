@@ -253,13 +253,15 @@ namespace GR_Calcul.Controllers
                     try
                     {
                         SlotRangeModel.UpdateSlotRange(range);
+
+                        // schedule linux script to be sent to resource manager by email 
+                        ScheduleEmail(range);
+
                         ViewBag.Mode = "mise a jour";
                         return View("Complete", range);
                     }
                     catch (GrException gex)
                     {
-                        //ViewBag.ErrorMode = "la mise à jour";
-                        //return View("Error", exx);
                         ModelState.AddModelError("", gex.UserMessage);
                         return View(range);
                     }
@@ -267,9 +269,6 @@ namespace GR_Calcul.Controllers
                 InitViewbag(range.IdCourse);
 
                 ModelState.AddModelError("", Messages.invalidData);
-
-                // schedule linux script to be sent to resource manager by email 
-                ScheduleEmail(range);
 
                 return View(range);
 
