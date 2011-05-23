@@ -205,6 +205,7 @@ namespace GR_Calcul.Controllers
                 {
                     try
                     {
+                        course.Responsible = (int)SessionManager.GetCurrentUserId(HttpContext.User.Identity.Name);
                         int id_course = CourseModel.CreateCourse(course);
                         List<SlotRange> slotRanges = course.GetSlotRangesForCourse();
                         int days = 0;
