@@ -1176,7 +1176,7 @@ namespace GR_Calcul.Models
             return reservations;
         }
 
-        public static void ReserveSlot(int id_slot, int id_person, int numberMachines)
+        public static void ReserveSlot(int id_slot, int id_person)
         {
             try
             {
@@ -1226,7 +1226,7 @@ namespace GR_Calcul.Models
 
                         cmd.Parameters.Add("@id_person", SqlDbType.Int).Value = id_person;
                         cmd.Parameters.Add("@id_slot", SqlDbType.Int).Value = id_slot;
-                        cmd.Parameters.Add("@numberMachines", SqlDbType.Int).Value = numberMachines;
+                        cmd.Parameters.Add("@numberMachines", SqlDbType.Int).Value = range.Machines.Count;
 
                         cmd.ExecuteNonQuery();
 
