@@ -209,11 +209,19 @@ namespace GR_Calcul.Models
             // get all slot ranges for this course
             List<SlotRange> slotRanges = this.GetSlotRangesForCourse();
             StringBuilder allScripts = new StringBuilder();
+
+            // add course title
+            allScripts.Append("### \n");
+            allScripts.Append("### Cours: '" + this.Name + "'" + "\n");
+            allScripts.Append("### \n");
+            allScripts.Append("\n");
             
             // concat scripts
             slotRanges.ForEach(delegate(SlotRange range)
             {
-                allScripts.Append(range.GenerateScript() + "###\n");
+                allScripts.Append("### Plage: '" + range.Name + "'" + "\n");
+                allScripts.Append(range.GenerateScript());
+                allScripts.Append("\n");
             });
 
             return allScripts.ToString();

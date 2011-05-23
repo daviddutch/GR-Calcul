@@ -233,9 +233,9 @@ namespace GR_Calcul.Models
             // create <startTime> child node and add to <command> node
             XmlNode startTimeNode = doc.CreateElement("startTime");
             XmlAttribute minutesAttribute = doc.CreateAttribute("minutes");
-            minutesAttribute.Value = escXML(slot.Start.Minute.ToString());
+            minutesAttribute.Value = escXML(slot.Start.ToString("mm"));
             XmlAttribute hoursAttribute = doc.CreateAttribute("hours");
-            hoursAttribute.Value = escXML(slot.Start.Hour.ToString());
+            hoursAttribute.Value = escXML(slot.Start.ToString("hh"));
             startTimeNode.Attributes.Append(hoursAttribute);
             startTimeNode.Attributes.Append(minutesAttribute);
             commandNode.AppendChild(startTimeNode);
