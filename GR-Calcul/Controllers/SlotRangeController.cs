@@ -395,6 +395,11 @@ namespace GR_Calcul.Controllers
         }
 
         // this method uses host-based authentication
+        /// <summary>
+        /// GET: /SlotRange/EmailScript/3
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public ActionResult EmailScript(int id)
         {
             if (Request.Url.Host != "localhost" && Request.UserHostAddress != "127.0.0.1")
